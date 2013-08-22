@@ -8,6 +8,8 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
+import co.zmc.IndigoLauncher;
+
 @SuppressWarnings("serial")
 public class Image extends JLabel {
     private String _fileName;
@@ -52,7 +54,7 @@ public class Image extends JLabel {
     private BufferedImage getImage(String fileName) {
         InputStream stream = null;
         try {
-            stream = this.getClass().getResourceAsStream("/assets/images/" + fileName);
+            stream = IndigoLauncher.getResourceAsStream("/assets/images/" + fileName);
             BufferedImage image = ImageIO.read(stream);
             return image;
         } catch (Exception e) {

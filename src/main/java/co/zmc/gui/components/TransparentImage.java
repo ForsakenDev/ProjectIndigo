@@ -11,6 +11,8 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
+import co.zmc.IndigoLauncher;
+
 @SuppressWarnings("serial")
 public class TransparentImage extends JLabel {
     private String _fileName;
@@ -44,7 +46,7 @@ public class TransparentImage extends JLabel {
     private BufferedImage getRawImage() {
         InputStream stream = null;
         try {
-            stream = this.getClass().getResourceAsStream("/assets/images/" + _fileName);
+            stream = IndigoLauncher.getResourceAsStream("/assets/images/" + _fileName);
             BufferedImage image = ImageIO.read(stream);
             return image;
         } catch (Exception e) {

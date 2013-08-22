@@ -97,10 +97,10 @@ public class Avatar extends JLabel {
                 }
             }
             if (image != null) { return makeColorTransparent(image, Color.magenta); }
-            return ImageIO.read(this.getClass().getResourceAsStream("/assets/images/char.png"));
+            return ImageIO.read(IndigoLauncher.getResourceAsStream("/assets/images/char.png"));
         } catch (Exception e) {
             try {
-                return ImageIO.read(this.getClass().getResourceAsStream("/assets/images/char.png"));
+                return ImageIO.read(IndigoLauncher.getResourceAsStream("/assets/images/char.png"));
             } catch (IOException e1) {
                 throw new RuntimeException("Error loading cached image resource", e1);
             }

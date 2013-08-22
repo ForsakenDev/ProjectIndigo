@@ -3,8 +3,11 @@ package co.zmc;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.FontFormatException;
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.logging.Logger;
 
 import co.zmc.gui.MainFrame;
@@ -76,7 +79,7 @@ public class IndigoLauncher {
 
     public static final Font getMinecraftFont(int size) {
         try {
-            Font font = Font.createFont(Font.TRUETYPE_FONT, IndigoLauncher.class.getResourceAsStream("/assets/fonts/minecraft.ttf"));
+            Font font = Font.createFont(Font.TRUETYPE_FONT, IndigoLauncher.getResourceAsStream("/assets/fonts/minecraft.ttf"));
             font = font.deriveFont((float) size);
             return font;
         } catch (IOException e) {
@@ -85,5 +88,19 @@ public class IndigoLauncher {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static InputStream getResourceAsStream(String path) {
+        InputStream stream = IndigoLauncher.class.getResourceAsStream(path);
+        String[] split = path.split("/");
+        path = split[(split.length - 1)];
+        if (stream == null) {
+            File resource = new File(".\\src\\main\\resources\\" + path);
+            if (resource.exists()) try {
+                stream = new BufferedInputStream(new FileInputStream(resource));
+            } catch (IOException ignore) {
+            }
+        }
+        return stream;
     }
 }
