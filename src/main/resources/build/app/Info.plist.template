@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist SYSTEM "file://localhost/System/Library/DTDs/PropertyList.dtd">
+<plist version="1.0">
+  <dict>
+    <key>CFBundleDevelopmentRegion</key> <string>en</string>
+    <key>CFBundleName</key> <string>${bundleName}</string>
+    <key>CFBundleVersion</key> <string>${version}</string>
+    <key>CFBundleShortVersionString</key> <string>${bundleName} ${version}</string>
+    <key>CFBundleExecutable</key> <string>JavaApplicationStub</string>
+    <key>CFBundlePackageType</key> <string>APPL</string>
+    <key>CFBundleSignature</key> <string>????</string>
+    <key>CFBundleGetInfoString</key> <string>${bundleName} (c) 2011-2013 ZephyrUnleashed LLC, www.zephyrunleashed.com</string>
+	<key>CFBundleIconFile</key> <string>${iconFile}</string>
+    <key>CFBundleAllowMixedLocalizations</key> <true/>
+    <key>CFBundleInfoDictionaryVersion</key> <string>6.0</string>
+    <key>CFBundleIdentifier</key> <string>${mainClass}</string>
+    <key>LSHasLocalizedDisplayName</key> <true/>
+    <key>CFBundleDisplayName</key> <string>${bundleName}</string>
+    <key>NSHighResolutionCapable</key> <true/>
+    <key>LSArchitecturePriority</key>
+    <array>
+      <string>x86_64</string>
+      <string>i386</string>
+    </array>
+    <key>Java</key>
+    <dict>
+      <key>MainClass</key> <string>${mainClass}</string>
+      <key>ClassPath</key> <string>$APP_PACKAGE/Contents/Resources/Java/projectindigo-${version}.jar:</string>
+      <key>Properties</key>
+      <dict>
+        <key>sun.java2d.noddraw</key> <string>true</string>
+        <key>sun.java2d.d3d</key> <string>false</string>
+        <key>sun.java2d.opengl</key> <string>false</string>
+        <key>sun.java2d.pmoffscreen</key> <string>false</string>
+      </dict>
+      <key>VMOptions</key> <string>-Xmx1024M</string>
+      <key>JVMVersion</key> <string>1.6+</string>
+    </dict>
+  </dict>
+</plist>
