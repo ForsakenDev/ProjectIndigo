@@ -48,45 +48,50 @@ public class SidePanel extends JLayeredPane {
         list.setSize(size);
         list.setPreferredSize(size);
         list.addMouseListener(new MouseListener() {
-            public void mouseClicked(MouseEvent e) {
-                final int clickedId = (int) Math.floor(e.getY() / (list.getHeight() / list.getComponentCount()));
-                if (clickedId != ((MainFrame) baseFrame).getCurrentPageId()) {
-                    ((MainFrame) baseFrame).setCurrentPageId(clickedId);
-                    ((Image) list.getComponent(clickedId)).setEnabled(!((Image) list.getComponent(clickedId)).isEnabled());
-                    for (int i = 0; i < list.getComponentCount(); i++) {
-                        if (i != clickedId) {
-                            list.getComponent(i).setEnabled(false);
-                        }
-                    }
-
-                    startY = selector.getY();
-                    targetY = getNewY(clickedId);
-                    int dist = targetY - startY;
-                    final double accel = 2 * dist * Math.pow(PLAY_TIME, -2);
-                    
-                    Timer timer = new Timer(15, new ActionListener() {
-                        double location = startY;
-                        double velocity = 0;
-                        long lastTime = 0;
-                    	public void actionPerformed(ActionEvent e) {
-                    		if (lastTime == 0) {
-                    			lastTime = System.currentTimeMillis();
-                    		}
-                    		long deltaTime = lastTime - System.currentTimeMillis();
-                            velocity += accel * deltaTime;
-                            location += velocity * deltaTime;
-                            
-                            lastTime = System.currentTimeMillis();
-                        	selector.setLocation(0, (int)location);
-                        	
-                        	if (System.currentTimeMillis() - startTime > PLAY_TIME) {
-                        		selector.setLocation(0, targetY);
-                        		((Timer)(e.getSource())).stop();
-                        	}
-                        }
-                    });
-                    startTime = System.currentTimeMillis();
-                    timer.start();
+            private boolean inTransition = false;
+        	public void mousePressed(MouseEvent e) {
+                	final int clickedId = (int) Math.floor(e.getY() / (list.getHeight() / list.getComponentCount()));
+	                if (clickedId != ((MainFrame) baseFrame).getCurrentPageId()) {
+	                    if (!inTransition) {
+	    	            inTransition = true;
+	                    ((MainFrame) baseFrame).setCurrentPageId(clickedId);
+	                    ((Image) list.getComponent(clickedId)).setEnabled(!((Image) list.getComponent(clickedId)).isEnabled());
+	                    for (int i = 0; i < list.getComponentCount(); i++) {
+	                        if (i != clickedId) {
+	                            list.getComponent(i).setEnabled(false);
+	                        }
+	                    }
+	
+	                    startY = selector.getY();
+	                    targetY = getNewY(clickedId);
+	                    int dist = targetY - startY;
+	                    final double accel = 2 * dist * Math.pow(PLAY_TIME, -2);
+	                    
+	                    Timer timer = new Timer(15, new ActionListener() {
+	                        double location = startY;
+	                        double velocity = 0;
+	                        long lastTime = 0;
+	                    	public void actionPerformed(ActionEvent e) {
+	                    		if (lastTime == 0) {
+	                    			lastTime = System.currentTimeMillis();
+	                    		}
+	                    		long deltaTime = lastTime - System.currentTimeMillis();
+	                            velocity += accel * deltaTime;
+	                            location += velocity * deltaTime;
+	                            
+	                            lastTime = System.currentTimeMillis();
+	                        	selector.setLocation(0, (int)location);
+	                        	
+	                        	if (System.currentTimeMillis() - startTime > PLAY_TIME) {
+	                        		selector.setLocation(0, targetY);
+	                        		inTransition = false;
+	                        		((Timer)(e.getSource())).stop();
+	                        	}
+	                        }
+	                    });
+	                    startTime = System.currentTimeMillis();
+	                    timer.start();
+	                }
                 }
             }
 
@@ -96,7 +101,7 @@ public class SidePanel extends JLayeredPane {
             public void mouseExited(MouseEvent e) {
             }
 
-            public void mousePressed(MouseEvent e) {
+            public void mouseClicked(MouseEvent e) {
             }
 
             public void mouseReleased(MouseEvent e) {
