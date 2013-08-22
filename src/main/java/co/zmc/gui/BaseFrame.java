@@ -107,8 +107,9 @@ public abstract class BaseFrame extends JFrame {
                 }
             });
             updater.execute();
+        } else {
+            launchMinecraft(response.getUsername(), response.getSessionId());
         }
-        launchMinecraft(response.getUsername(), response.getSessionId());
     }
 
     private void launchMinecraft(String username, String sessionId) {
