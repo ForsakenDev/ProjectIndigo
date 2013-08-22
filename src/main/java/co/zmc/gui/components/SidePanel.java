@@ -61,20 +61,28 @@ public class SidePanel extends JLayeredPane {
 
                     startY = selector.getY();
                     targetY = getNewY(clickedId);
-                    Timer timer = new Timer(40, new ActionListener() {
-                        public void actionPerformed(ActionEvent e) {
-                            int y = ((list.getHeight() / list.getComponentCount()) * clickedId);
-                            long duration = System.currentTimeMillis() - startTime;
-                            float progress = (float) duration / (float) PLAY_TIME;
-                            if (progress > 1f) {
-                                progress = 1f;
-                                startY = selector.getY();
-                                ((Timer) (e.getSource())).stop();
-                            }
-
-                            y = startY + (int) Math.round((targetY - startY) * progress);
-
-                            selector.setLocation(0, y);
+                    int dist = targetY - startY;
+                    final double accel = 2 * dist * Math.pow(PLAY_TIME, -2);
+                    
+                    Timer timer = new Timer(15, new ActionListener() {
+                        double location = startY;
+                        double velocity = 0;
+                        long lastTime = 0;
+                    	public void actionPerformed(ActionEvent e) {
+                    		if (lastTime == 0) {
+                    			lastTime = System.currentTimeMillis();
+                    		}
+                    		long deltaTime = lastTime - System.currentTimeMillis();
+                            velocity += accel * deltaTime;
+                            location += velocity * deltaTime;
+                            
+                            lastTime = System.currentTimeMillis();
+                        	selector.setLocation(0, (int)location);
+                        	
+                        	if (System.currentTimeMillis() - startTime > PLAY_TIME) {
+                        		selector.setLocation(0, targetY);
+                        		((Timer)(e.getSource())).stop();
+                        	}
                         }
                     });
                     startTime = System.currentTimeMillis();
