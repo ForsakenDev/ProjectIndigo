@@ -33,8 +33,8 @@ import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
 import co.zmc.projectindigo.gui.BaseFrame;
-import co.zmc.projectindigo.gui.ComboBoxItem;
 import co.zmc.projectindigo.gui.components.ComboBox;
+import co.zmc.projectindigo.gui.components.ComboBoxItem;
 import co.zmc.projectindigo.gui.components.Image;
 import co.zmc.projectindigo.gui.components.SettingsPair;
 import co.zmc.projectindigo.gui.components.TextBox;

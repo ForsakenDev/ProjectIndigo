@@ -9,7 +9,6 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.text.JTextComponent;
 
-import co.zmc.projectindigo.gui.ComboBoxItem;
 
 @SuppressWarnings("serial")
 public class SettingsPair extends JPanel {
@@ -49,7 +48,7 @@ public class SettingsPair extends JPanel {
 		if (input instanceof JTextComponent) {
 			return ((JTextComponent) input).getText();
 		} else if (input instanceof JComboBox) {
-			return ((ComboBoxItem) ((JComboBox<?>) input).getSelectedItem()).getUniqueName();
+			return ((ComboBoxItem) ((JComboBox) input).getSelectedItem()).getUniqueName();
 		} else {
 			return "";
 		}
@@ -59,7 +58,7 @@ public class SettingsPair extends JPanel {
 		if (input instanceof JTextComponent) {
 			((JTextComponent) input).setText(val);
 		} else if (input instanceof JComboBox) {
-			JComboBox<?> combo = (JComboBox<?>)input;
+			JComboBox combo = (JComboBox)input;
 			for (int i = 0; i < combo.getItemCount(); i++) {
 				if (((ComboBoxItem)combo.getItemAt(i)).getUniqueName().equals(val)) {
 					combo.setSelectedIndex(i);

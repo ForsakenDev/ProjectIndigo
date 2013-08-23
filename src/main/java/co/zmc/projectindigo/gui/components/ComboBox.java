@@ -9,10 +9,9 @@ import javax.swing.JComboBox;
 import javax.swing.plaf.basic.BasicComboBoxUI;
 
 import co.zmc.projectindigo.IndigoLauncher;
-import co.zmc.projectindigo.gui.ComboBoxItem;
 
 @SuppressWarnings("serial")
-public class ComboBox extends JComboBox<ComboBoxItem> {
+public class ComboBox extends JComboBox {
 
 	public ComboBox(ComboBoxItem... items) {
 		this.setFont(IndigoLauncher.getMinecraftFont(14));
