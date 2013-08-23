@@ -74,14 +74,25 @@ public class Avatar extends JLabel {
     }
 
     public void setBounds(int x, int y, int w, int h) {
+        int fontSize = getFontSize(w);
+        h -= (fontSize + 5);
+        w = h;
         super.setBounds(x, y, w, h);
-        label.setBounds(x + ((getWidth() / 2) - (getLabelWidth() / 2)), y + getHeight() + 5, getLabelWidth(), 24);
+        setIcon(new ImageIcon(getImage().getScaledInstance(w, h, 4)));
+        label.setBounds(x + (w / 2) - (getLabelWidth() / 2), y + h + 5, getLabelWidth(), fontSize);
+    }
 
+    private int getFontSize(int width) {
+        for (int i = 15; i > 1; i--) {
+            this.label.setFont(IndigoLauncher.getMinecraftFont(i));
+            if (getLabelWidth() <= width) { return i - (i % 2); }
+        }
+        return 2;
     }
 
     private int getLabelWidth() {
         FontRenderContext frc = new FontRenderContext(label.getFont().getTransform(), true, true);
-        return (int) (label.getFont().getStringBounds(label.getText(), frc).getWidth()) + 5;
+        return (int) (label.getFont().getStringBounds(label.getText(), frc).getWidth());
     }
 
     public String getAccountKey() {

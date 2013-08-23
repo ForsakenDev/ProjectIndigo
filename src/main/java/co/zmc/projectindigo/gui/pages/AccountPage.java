@@ -26,7 +26,6 @@
  */
 package co.zmc.projectindigo.gui.pages;
 
-import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -38,12 +37,14 @@ import java.awt.event.MouseListener;
 import javax.swing.JPanel;
 
 import co.zmc.projectindigo.gui.BaseFrame;
+import co.zmc.projectindigo.gui.MainFrame;
 import co.zmc.projectindigo.gui.components.Avatar;
 import co.zmc.projectindigo.gui.components.Image;
 import co.zmc.projectindigo.gui.components.PasswordBox;
 import co.zmc.projectindigo.gui.components.TextBox;
 import co.zmc.projectindigo.gui.components.TransparentButton;
 import co.zmc.projectindigo.gui.components.TransparentImage;
+import co.zmc.projectindigo.utils.Utils;
 
 @SuppressWarnings("serial")
 public class AccountPage extends BasePage {
@@ -101,10 +102,16 @@ public class AccountPage extends BasePage {
         JPanel userList = new JPanel();
         userList.setOpaque(false);
         userList.setLayout(new GridBagLayout());
-        for (String user : _baseFrame.getUserManager().getSavedUsernames()) {
+        int sidebarSize = ((MainFrame) baseFrame).getSidePanel().getWidth();
+        int padding = 50;
+        int numServers = _baseFrame.getUserManager().getSavedUsernames().size();
+        int[][] tableCoords = Utils.getDynamicTableCoords(getWidth() - sidebarSize - padding, getHeight() - padding, numServers);
+
+        for (int i = 0; i < _baseFrame.getUserManager().getSavedUsernames().size(); i++) {
+            String user = _baseFrame.getUserManager().getSavedUsernames().get(i);
             final String name = _baseFrame.getUserManager().getAccountName(user);
-            Avatar avatar = new Avatar(this, name, user, 100);
-            userList.add(avatar);
+            Avatar avatar = new Avatar(this, name, user);
+            avatar.setBounds(sidebarSize + (padding / 2) + tableCoords[i][0], (padding / 2) + tableCoords[i][1], tableCoords[i][2], tableCoords[i][3]);
             avatar.addMouseListener(new MouseListener() {
 
                 public void mouseClicked(MouseEvent e) {
@@ -127,12 +134,6 @@ public class AccountPage extends BasePage {
                 }
             });
         }
-        Dimension dim = new Dimension(getWidth(), getHeight() - 78);
-        userList.setSize(dim);
-        userList.setPreferredSize(dim);
-        userList.setBounds(0, 0, dim.width, dim.height);
-
-        add(userList, 0);
     }
 
     @Override

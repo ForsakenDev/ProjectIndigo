@@ -179,22 +179,27 @@ public class Utils {
         return tableCoords;
     }
 
+    public static final int MAX_TILE_WIDTH = 250;
+
     private static int[][] getTableCoords(int numPerRow, int totalAreaWidth, int totalAreaHeight, int numData) {
         int[][] table = new int[numData][4];
 
         int tileWidth = (int) ((double) (totalAreaWidth / numPerRow) * 0.6D);
+        if (tileWidth > MAX_TILE_WIDTH) {
+            tileWidth = MAX_TILE_WIDTH;
+        }
         int cellPaddingX = (totalAreaWidth - tileWidth) / numPerRow;
         int cellPaddingY = cellPaddingX / 3;
         int tileHeight = tileWidth;
         int numRows = numData / numPerRow;
-
+        int modX = cellPaddingX / 5;
         for (int i = 0; i < numData; i++) {
             int row = (i / numPerRow);
             int col = (i % numPerRow);
             int numColOnCurrRow = (numRows == row ? numData % numPerRow : numPerRow);
 
             table[i] = new int[] {
-                    (cellPaddingX / 3) + (totalAreaWidth / 2) + (tileWidth * col) + (((cellPaddingX / 2) * col))
+                    modX + (totalAreaWidth / 2) + (tileWidth * col) + (((cellPaddingX / 2) * col))
                             - (((tileWidth + (cellPaddingX / 2)) * numColOnCurrRow) / 2), (tileHeight * row) + ((cellPaddingY * row) / 2), tileWidth,
                     tileHeight };
         }
