@@ -51,10 +51,10 @@ public class ServerIcon extends JLabel {
     private final JLabel label;
 
     public ServerIcon(JLayeredPane pane, int serverId, String serverName) {
-        this(pane, serverId, serverName, 150);
+        this(pane, serverId, serverName, 150, 150);
     }
 
-    public ServerIcon(JLayeredPane pane, int serverId, String serverName, int width) {
+    public ServerIcon(JLayeredPane pane, int serverId, String serverName, int width, int height) {
         this.label = new JLabel(serverName);
         this.edit = new JLabel();
         this.info = new JLabel();
@@ -74,10 +74,7 @@ public class ServerIcon extends JLabel {
             e.printStackTrace();
         }
 
-        Dimension dim = new Dimension(width, width);
-        setSize(dim);
-        setPreferredSize(dim);
-        dim = new Dimension(edit.getIcon().getIconWidth(), edit.getIcon().getIconHeight());
+        Dimension dim = new Dimension(edit.getIcon().getIconWidth(), edit.getIcon().getIconHeight());
         edit.setSize(dim);
         edit.setPreferredSize(dim);
         edit.setEnabled(false);
@@ -85,30 +82,44 @@ public class ServerIcon extends JLabel {
         info.setSize(dim);
         info.setPreferredSize(dim);
         info.setEnabled(false);
+        int iconHeight = height - 24 - info.getIcon().getIconHeight();
+        dim = new Dimension(iconHeight, iconHeight);
+        setSize(dim);
+        setPreferredSize(dim);
 
         setVerticalAlignment(0);
         setHorizontalAlignment(0);
-        setIcon(new ImageIcon(getImage().getScaledInstance(width, width, 4)));
         setVerticalAlignment(1);
         setHorizontalAlignment(2);
         this.label.setForeground(Color.WHITE);
         this.label.setFont(IndigoLauncher.getMinecraftFont(14));
         label.setCursor(null);
         label.setOpaque(false);
-        setBounds(0, 0, width, width);
     }
 
     public void setBounds(int x, int y, int w, int h) {
+        int fontSize = getFontSize(w);
+        y += info.getHeight();
+        h -= (info.getHeight() + fontSize + 5);
+        w = h;
         super.setBounds(x, y, w, h);
-        label.setBounds(x + ((getWidth() / 2) - (getLabelWidth() / 2)), y + getHeight() + 5, getLabelWidth(), 24);
-        info.setBounds(x + ((getWidth() / 2) - info.getWidth()), y - info.getHeight(), info.getWidth(), info.getHeight());
-        edit.setBounds(x + ((getWidth() / 2)), y - edit.getHeight(), edit.getWidth(), edit.getHeight());
+        setIcon(new ImageIcon(getImage().getScaledInstance(w, h, 4)));
+        label.setBounds(x + (w / 2) - (getLabelWidth() / 2), y + h + 5, getLabelWidth(), fontSize);
+        info.setBounds(x + (w / 2) - info.getWidth(), y - info.getHeight(), info.getWidth(), info.getHeight());
+        edit.setBounds(x + (w / 2), y - edit.getHeight(), edit.getWidth(), edit.getHeight());
+    }
 
+    private int getFontSize(int width) {
+        for (int i = 15; i > 1; i--) {
+            this.label.setFont(IndigoLauncher.getMinecraftFont(i));
+            if (getLabelWidth() <= width) { return i - (i % 2); }
+        }
+        return 2;
     }
 
     private int getLabelWidth() {
         FontRenderContext frc = new FontRenderContext(label.getFont().getTransform(), true, true);
-        return (int) (label.getFont().getStringBounds(label.getText(), frc).getWidth()) + 10;
+        return (int) (label.getFont().getStringBounds(label.getText(), frc).getWidth());
     }
 
     public String getServerName() {

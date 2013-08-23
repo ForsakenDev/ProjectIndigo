@@ -26,16 +26,17 @@
  */
 package co.zmc.projectindigo.gui.pages;
 
-import java.awt.Dimension;
-import java.awt.GridBagLayout;
+import java.util.Date;
 
-import javax.swing.JPanel;
+import javax.swing.JLabel;
 
 import co.zmc.projectindigo.data.Server;
 import co.zmc.projectindigo.gui.BaseFrame;
+import co.zmc.projectindigo.gui.MainFrame;
 import co.zmc.projectindigo.gui.components.Image;
 import co.zmc.projectindigo.gui.components.TransparentImage;
 import co.zmc.projectindigo.managers.ServerManager;
+import co.zmc.projectindigo.utils.Utils;
 
 @SuppressWarnings("serial")
 public class ServersPage extends BasePage {
@@ -56,18 +57,16 @@ public class ServersPage extends BasePage {
         if (serverManager == null) {
             serverManager = new ServerManager();
         }
-        JPanel pane = new JPanel();
-        pane.setLayout(new GridBagLayout());
-        pane.setOpaque(false);
-        for (Server s : serverManager.getServers()) {
-            pane.add(s.getLogo(this));
+        int sidebarSize = ((MainFrame) baseFrame).getSidePanel().getWidth();
+        int padding = 50;
+        int numServers = serverManager.getServers().size();
+        int[][] tableCoords = Utils.getDynamicTableCoords(getWidth() - sidebarSize - padding, getHeight() - padding, numServers);
+        for (int i = 0; i < numServers; i++) {
+            Server s = serverManager.getServers().get(i);
+            JLabel slogo = s.getLogo(this, tableCoords[i][2], tableCoords[i][3]);
+            slogo.setOpaque(true);
+            slogo.setBounds(sidebarSize + (padding / 2) + tableCoords[i][0], (padding / 2) + tableCoords[i][1], tableCoords[i][2], tableCoords[i][3]);
         }
-        Dimension dim = new Dimension(getWidth(), getHeight() - 78);
-
-        pane.setSize(dim);
-        pane.setPreferredSize(dim);
-        pane.setBounds(0, 0, dim.width, dim.height);
-        add(pane, 0);
     }
 
     @Override

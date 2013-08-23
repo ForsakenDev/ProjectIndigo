@@ -73,8 +73,8 @@ public class Server {
     public void loadModpackInformation() {
     }
 
-    public ServerIcon getLogo(JLayeredPane pane) {
-        return new ServerIcon(pane, getId(), getName());
+    public ServerIcon getLogo(JLayeredPane pane, int width, int height) {
+        return new ServerIcon(pane, getId(), getName(), width, height);
     }
 
     public BufferedImage getIcon(int size) {

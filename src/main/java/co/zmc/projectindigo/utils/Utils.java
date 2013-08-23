@@ -168,4 +168,36 @@ public class Utils {
         return null;
     }
 
+    public static int[][] getDynamicTableCoords(int totalAreaWidth, int totalAreaHeight, int numData) {
+        int numPerRow = 1;
+        int[][] tableCoords = Utils.getTableCoords(numPerRow, totalAreaWidth, totalAreaHeight, numData);
+
+        while (tableCoords[tableCoords.length - 1][1] + tableCoords[tableCoords.length - 1][3] > totalAreaHeight) {
+            numPerRow++;
+            tableCoords = Utils.getTableCoords(numPerRow, totalAreaWidth, totalAreaHeight, numData);
+        }
+        return tableCoords;
+    }
+
+    private static int[][] getTableCoords(int numPerRow, int totalAreaWidth, int totalAreaHeight, int numData) {
+        int[][] table = new int[numData][4];
+
+        int tileWidth = (int) ((double) (totalAreaWidth / numPerRow) * 0.6D);
+        int cellPaddingX = (totalAreaWidth - tileWidth) / numPerRow;
+        int cellPaddingY = cellPaddingX / 3;
+        int tileHeight = tileWidth;
+        int numRows = numData / numPerRow;
+
+        for (int i = 0; i < numData; i++) {
+            int row = (i / numPerRow);
+            int col = (i % numPerRow);
+            int numColOnCurrRow = (numRows == row ? numData % numPerRow : numPerRow);
+
+            table[i] = new int[] {
+                    (cellPaddingX / 3) + (totalAreaWidth / 2) + (tileWidth * col) + (((cellPaddingX / 2) * col))
+                            - (((tileWidth + (cellPaddingX / 2)) * numColOnCurrRow) / 2), (tileHeight * row) + ((cellPaddingY * row) / 2), tileWidth,
+                    tileHeight };
+        }
+        return table;
+    }
 }
