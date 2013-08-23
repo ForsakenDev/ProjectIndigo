@@ -26,13 +26,25 @@
  */
 package co.zmc.projectindigo.gui.pages;
 
+import java.awt.Dimension;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JPanel;
+
 import co.zmc.projectindigo.gui.BaseFrame;
+import co.zmc.projectindigo.gui.components.ComboBox;
 import co.zmc.projectindigo.gui.components.Image;
+import co.zmc.projectindigo.gui.components.SettingsPair;
+import co.zmc.projectindigo.gui.components.TextBox;
 import co.zmc.projectindigo.gui.components.TransparentImage;
+import co.zmc.projectindigo.utils.SettingsList;
 
 @SuppressWarnings("serial")
 public class SettingsPage extends BasePage {
 
+	public static SettingsList settings = new SettingsList();
+	
     public SettingsPage(BaseFrame baseFrame) {
         super(baseFrame, false);
     }
@@ -44,8 +56,29 @@ public class SettingsPage extends BasePage {
 
     @Override
     public void addComponents(BaseFrame frame) {
-    }
+    	JPanel settingsPanel = new JPanel();
+    	settingsPanel.setLayout(new BoxLayout(settingsPanel, BoxLayout.Y_AXIS));
+    	
+    	settings.add(new SettingsPair("fupdate", "Force Update", new ComboBox("No", "Yes")));
+    	settings.add(new SettingsPair("ram", "Allocated RAM", new ComboBox("256MB", "512MB", "1GB", "2GB", "4GB", "8GB")));
+    	settings.add(new SettingsPair("console", "Toggle Console", new ComboBox("On", "Off")));
+    	settings.add(new SettingsPair("java", "Java Args", new TextBox("")));
+    	settings.add(new SettingsPair("automax", "Auto Maximized", new ComboBox("No", "Yes")));
 
+    	for (SettingsPair pair : settings) {
+    		settingsPanel.add(pair);
+    		settingsPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+    	}
+    	
+    	Dimension size = new Dimension(400, settings.size() * 35);
+    	
+    	settingsPanel.setBounds((this.getWidth() - size.width) / 2 + 30, (this.getHeight() - size.height) / 2, size.width, size.height);
+    	
+    	settingsPanel.setOpaque(false);
+    	
+    	this.add(settingsPanel, 0);
+    }
+    
     @Override
     public void setupBackgroundImage() {
         add(new TransparentImage("main_bg", 0.75F, getWidth(), getHeight()));

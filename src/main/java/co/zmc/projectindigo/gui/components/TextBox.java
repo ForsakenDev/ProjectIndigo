@@ -51,6 +51,15 @@ public class TextBox extends JTextField implements FocusListener {
         this.label.setForeground(Color.BLACK);
         setFont(IndigoLauncher.getMinecraftFont(14));
     }
+    
+    public TextBox(String label) {
+        this.label = new JLabel(label);
+        addFocusListener(this);
+        setBackground(Color.WHITE);
+        setBorder(new Border(5, getBackground()));
+        this.label.setForeground(Color.BLACK);
+        setFont(IndigoLauncher.getMinecraftFont(14));
+    }
 
     public void setFont(Font font) {
         super.setFont(font);
