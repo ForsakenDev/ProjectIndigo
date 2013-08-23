@@ -33,6 +33,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
 import co.zmc.projectindigo.gui.BaseFrame;
+import co.zmc.projectindigo.gui.ComboBoxItem;
 import co.zmc.projectindigo.gui.components.ComboBox;
 import co.zmc.projectindigo.gui.components.Image;
 import co.zmc.projectindigo.gui.components.SettingsPair;
@@ -59,11 +60,23 @@ public class SettingsPage extends BasePage {
     	JPanel settingsPanel = new JPanel();
     	settingsPanel.setLayout(new BoxLayout(settingsPanel, BoxLayout.Y_AXIS));
     	
-    	settings.add(new SettingsPair("fupdate", "Force Update", new ComboBox("No", "Yes")));
-    	settings.add(new SettingsPair("ram", "Allocated RAM", new ComboBox("256MB", "512MB", "1GB", "2GB", "4GB", "8GB")));
-    	settings.add(new SettingsPair("console", "Toggle Console", new ComboBox("On", "Off")));
+    	settings.add(new SettingsPair("fupdate", "Force Update", new ComboBox(
+    			new ComboBoxItem("false", "No"), 
+    			new ComboBoxItem("true", "Yes"))));
+    	settings.add(new SettingsPair("ram", "Allocated RAM", new ComboBox(
+    			new ComboBoxItem("256M", "256MB"), 
+    			new ComboBoxItem("512M", "512MB"), 
+    			new ComboBoxItem("1024M", "1GB"), 
+    			new ComboBoxItem("2048M", "2GB"), 
+    			new ComboBoxItem("4096M", "4GB"), 
+    			new ComboBoxItem("8192M", "8GB"))));
+    	settings.add(new SettingsPair("console", "Toggle Console", new ComboBox(
+    			new ComboBoxItem("true", "On"), 
+    			new ComboBoxItem("false", "Off"))));
     	settings.add(new SettingsPair("java", "Java Args", new TextBox("")));
-    	settings.add(new SettingsPair("automax", "Auto Maximized", new ComboBox("No", "Yes")));
+    	settings.add(new SettingsPair("automax", "Auto Maximized", new ComboBox(
+    			new ComboBoxItem("false", "No"), 
+    			new ComboBoxItem("true", "Yes"))));
 
     	for (SettingsPair pair : settings) {
     		settingsPanel.add(pair);

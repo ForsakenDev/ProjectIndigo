@@ -9,11 +9,12 @@ import javax.swing.JComboBox;
 import javax.swing.plaf.basic.BasicComboBoxUI;
 
 import co.zmc.projectindigo.IndigoLauncher;
+import co.zmc.projectindigo.gui.ComboBoxItem;
 
 @SuppressWarnings("serial")
-public class ComboBox extends JComboBox<String> {
+public class ComboBox extends JComboBox<ComboBoxItem> {
 
-	public ComboBox(String... items) {
+	public ComboBox(ComboBoxItem... items) {
 		this.setFont(IndigoLauncher.getMinecraftFont(14));
 		this.setBackground(Color.WHITE);
 		this.setForeground(Color.BLACK);
@@ -27,7 +28,7 @@ public class ComboBox extends JComboBox<String> {
 		    }
 		});
 		
-		for (String item : items) {
+		for (ComboBoxItem item : items) {
 			this.addItem(item);
 		}
 	}
@@ -39,7 +40,7 @@ public class ComboBox extends JComboBox<String> {
 		
 		g2.setColor(Color.BLACK);
 		g2.setFont(getFont());
-		g2.drawString((String) getSelectedItem(), 5, getFont().getSize() + 5);
+		g2.drawString(getSelectedItem().toString(), 5, getFont().getSize() + 5);
 		
 		g2.drawPolygon(new int[] {getWidth() - 10, getWidth() - 15, getWidth() - 20}, new int[] {7, 12, 7}, 3);
 		
