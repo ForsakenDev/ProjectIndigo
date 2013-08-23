@@ -26,12 +26,21 @@
  */
 package co.zmc.projectindigo.gui.pages;
 
+import java.awt.Dimension;
+import java.awt.GridBagLayout;
+
+import javax.swing.JPanel;
+
+import co.zmc.projectindigo.data.Server;
 import co.zmc.projectindigo.gui.BaseFrame;
 import co.zmc.projectindigo.gui.components.Image;
 import co.zmc.projectindigo.gui.components.TransparentImage;
+import co.zmc.projectindigo.managers.ServerManager;
 
 @SuppressWarnings("serial")
 public class ServersPage extends BasePage {
+
+    private ServerManager serverManager;
 
     public ServersPage(BaseFrame baseFrame) {
         super(baseFrame, false);
@@ -43,7 +52,22 @@ public class ServersPage extends BasePage {
     }
 
     @Override
-    public void addComponents(BaseFrame frame) {
+    public void addComponents(BaseFrame baseFrame) {
+        if (serverManager == null) {
+            serverManager = new ServerManager();
+        }
+        JPanel pane = new JPanel();
+        pane.setLayout(new GridBagLayout());
+        pane.setOpaque(false);
+        for (Server s : serverManager.getServers()) {
+            pane.add(s.getLogo(this));
+        }
+        Dimension dim = new Dimension(getWidth(), getHeight() - 78);
+
+        pane.setSize(dim);
+        pane.setPreferredSize(dim);
+        pane.setBounds(0, 0, dim.width, dim.height);
+        add(pane, 0);
     }
 
     @Override

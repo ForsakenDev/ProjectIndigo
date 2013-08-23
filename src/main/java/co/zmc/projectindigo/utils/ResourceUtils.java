@@ -26,12 +26,20 @@
  */
 package co.zmc.projectindigo.utils;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
+
+import javax.imageio.ImageIO;
 
 import co.zmc.projectindigo.IndigoLauncher;
 
@@ -51,6 +59,12 @@ public class ResourceUtils {
     private static final URL    ICON_SETTINGS_HOVER = ResourceUtils.class.getResource(BASE_PATH + "/images/icons/settings_hover.png");
     private static final URL    SIDE_BAR_BG         = ResourceUtils.class.getResource(BASE_PATH + "/images/side_bar_bg.png");
     private static final URL    SELECTOR            = ResourceUtils.class.getResource(BASE_PATH + "/images/selector.png");
+    private static final URL    SERVER_DEFAULT      = ResourceUtils.class.getResource(BASE_PATH + "/images/servers/default.png");
+    private static final URL    SERVER_OVERLAY      = ResourceUtils.class.getResource(BASE_PATH + "/images/servers/overlay.png");
+    private static final URL    SERVER_INFO         = ResourceUtils.class.getResource(BASE_PATH + "/images/servers/info.png");
+    private static final URL    SERVER_INFO_HOVER   = ResourceUtils.class.getResource(BASE_PATH + "/images/servers/info_hover.png");
+    private static final URL    SERVER_EDIT         = ResourceUtils.class.getResource(BASE_PATH + "/images/servers/edit.png");
+    private static final URL    SERVER_EDIT_HOVER   = ResourceUtils.class.getResource(BASE_PATH + "/images/servers/edit_hover.png");
 
     public static URL getResource(String name) {
         if (name.equalsIgnoreCase("base_char")) {
@@ -77,7 +91,19 @@ public class ResourceUtils {
             return ICON_SETTINGS_HOVER;
         } else if (name.equalsIgnoreCase("side_bar_bg")) {
             return SIDE_BAR_BG;
-        } else if (name.equalsIgnoreCase("selector")) { return SELECTOR; }
+        } else if (name.equalsIgnoreCase("selector")) {
+            return SELECTOR;
+        } else if (name.equalsIgnoreCase("server_default")) {
+            return SERVER_DEFAULT;
+        } else if (name.equalsIgnoreCase("overlay")) {
+            return SERVER_OVERLAY;
+        } else if (name.equalsIgnoreCase("server_info")) {
+            return SERVER_INFO;
+        } else if (name.equalsIgnoreCase("server_info_hover")) {
+            return SERVER_INFO_HOVER;
+        } else if (name.equalsIgnoreCase("server_edit")) {
+            return SERVER_EDIT;
+        } else if (name.equalsIgnoreCase("server_edit_hover")) { return SERVER_EDIT_HOVER; }
         return null;
     }
 
@@ -98,5 +124,48 @@ public class ResourceUtils {
             }
         }
         return stream;
+    }
+
+    public static BufferedImage loadCachedImage(String path, String cacheLocation, BufferedImage defaultImage) {
+        String name = path.split("/")[path.split("/").length - 1];
+        if (!name.contains(".png")) {
+            name += ".png";
+        }
+        BufferedImage image = Utils.loadCachedImage(cacheLocation + name);
+        if (image == null) {
+            try {
+                URLConnection conn = new URL(path).openConnection();
+                conn.setDoInput(true);
+                conn.setDoOutput(false);
+                System.setProperty("http.agent",
+                        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.162 Safari/535.19");
+                conn.setRequestProperty("User-Agent",
+                        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.162 Safari/535.19");
+                HttpURLConnection.setFollowRedirects(true);
+                conn.setUseCaches(false);
+                ((HttpURLConnection) conn).setInstanceFollowRedirects(true);
+                int response = ((HttpURLConnection) conn).getResponseCode();
+                if (response == 200) {
+                    image = DrawingUtils.makeColorTransparent(ImageIO.read(conn.getInputStream()), Color.magenta);
+                    if ((image.getWidth() != defaultImage.getWidth()) || (image.getHeight() != defaultImage.getHeight())) {
+                        BufferedImage resized = new BufferedImage(defaultImage.getWidth(), defaultImage.getHeight(), image.getType());
+                        Graphics2D g = resized.createGraphics();
+                        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                        g.drawImage(image, 0, 0, defaultImage.getWidth(), defaultImage.getHeight(), 0, 0, image.getWidth(), image.getHeight(), null);
+                        g.dispose();
+                        image = resized;
+                    }
+                }
+                if (image != null) {
+                    ImageIO.write(image, "png", new File(cacheLocation, name));
+                    return image;
+                }
+                return defaultImage;
+            } catch (Exception e) {
+                return defaultImage;
+            }
+        } else {
+            return image;
+        }
     }
 }

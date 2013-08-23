@@ -39,30 +39,53 @@ import javax.swing.JLayeredPane;
 
 import co.zmc.projectindigo.IndigoLauncher;
 import co.zmc.projectindigo.utils.DirectoryLocations;
+import co.zmc.projectindigo.utils.DrawingUtils;
 import co.zmc.projectindigo.utils.ResourceUtils;
 
 @SuppressWarnings("serial")
-public class Avatar extends JLabel {
-    private String       _username;
-    private String       _accountKey;
+public class ServerIcon extends JLabel {
+    private int          _serverId;
+    private String       _serverName;
+    private final JLabel info;
+    private final JLabel edit;
     private final JLabel label;
 
-    public Avatar(JLayeredPane pane, String username, String accountKey) {
-        this(pane, username, accountKey, 150);
+    public ServerIcon(JLayeredPane pane, int serverId, String serverName) {
+        this(pane, serverId, serverName, 150);
     }
 
-    public Avatar(JLayeredPane pane, String username, String accountKey, int width) {
-        this.label = new JLabel(username);
-        _username = username;
-        _accountKey = accountKey;
+    public ServerIcon(JLayeredPane pane, int serverId, String serverName, int width) {
+        this.label = new JLabel(serverName);
+        this.edit = new JLabel();
+        this.info = new JLabel();
+        _serverId = serverId;
+        _serverName = serverName;
         pane.add(this, 0);
         pane.add(this.label, 0);
+        pane.add(this.edit, 0);
+        pane.add(this.info, 0);
+
+        try {
+            info.setDisabledIcon(new ImageIcon(ImageIO.read(ResourceUtils.getResource("server_info"))));
+            info.setIcon(new ImageIcon(ImageIO.read(ResourceUtils.getResource("server_info_hover"))));
+            edit.setDisabledIcon(new ImageIcon(ImageIO.read(ResourceUtils.getResource("server_edit"))));
+            edit.setIcon(new ImageIcon(ImageIO.read(ResourceUtils.getResource("server_edit_hover"))));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         Dimension dim = new Dimension(width, width);
         setSize(dim);
         setPreferredSize(dim);
-        dim = new Dimension(getLabelWidth(), 24);
-        label.setSize(dim);
-        label.setPreferredSize(dim);
+        dim = new Dimension(edit.getIcon().getIconWidth(), edit.getIcon().getIconHeight());
+        edit.setSize(dim);
+        edit.setPreferredSize(dim);
+        edit.setEnabled(false);
+        dim = new Dimension(info.getIcon().getIconWidth(), info.getIcon().getIconHeight());
+        info.setSize(dim);
+        info.setPreferredSize(dim);
+        info.setEnabled(false);
+
         setVerticalAlignment(0);
         setHorizontalAlignment(0);
         setIcon(new ImageIcon(getImage().getScaledInstance(width, width, 4)));
@@ -70,36 +93,36 @@ public class Avatar extends JLabel {
         setHorizontalAlignment(2);
         this.label.setForeground(Color.WHITE);
         this.label.setFont(IndigoLauncher.getMinecraftFont(14));
+        label.setCursor(null);
+        label.setOpaque(false);
         setBounds(0, 0, width, width);
     }
 
     public void setBounds(int x, int y, int w, int h) {
         super.setBounds(x, y, w, h);
         label.setBounds(x + ((getWidth() / 2) - (getLabelWidth() / 2)), y + getHeight() + 5, getLabelWidth(), 24);
+        info.setBounds(x + ((getWidth() / 2) - info.getWidth()), y - info.getHeight(), info.getWidth(), info.getHeight());
+        edit.setBounds(x + ((getWidth() / 2)), y - edit.getHeight(), edit.getWidth(), edit.getHeight());
 
     }
 
     private int getLabelWidth() {
         FontRenderContext frc = new FontRenderContext(label.getFont().getTransform(), true, true);
-        return (int) (label.getFont().getStringBounds(label.getText(), frc).getWidth()) + 5;
+        return (int) (label.getFont().getStringBounds(label.getText(), frc).getWidth()) + 10;
     }
 
-    public String getAccountKey() {
-        return _accountKey;
-    }
-
-    public String getUsername() {
-        return _username;
+    public String getServerName() {
+        return _serverName;
     }
 
     private BufferedImage getImage() {
         try {
-            return ResourceUtils.loadCachedImage("http://www.zephyrunleashed.com/avatar/" + _username, DirectoryLocations.AVATAR_CACHE_DIR_LOCATION,
-                    ImageIO.read(ResourceUtils.getResource("base_char")));
+            return DrawingUtils.overlayImage(ResourceUtils.loadCachedImage("http://www.zephyrunleashed.com/data/server/" + _serverId + ".png",
+                    DirectoryLocations.SERVER_CACHE_DIR_LOCATION, ImageIO.read(ResourceUtils.getResource("server_default"))), ImageIO
+                    .read(ResourceUtils.getResource("overlay")));
         } catch (IOException e) {
             e.printStackTrace();
         }
         return new BufferedImage(getWidth(), getHeight(), 2);
     }
-
 }

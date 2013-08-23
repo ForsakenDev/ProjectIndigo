@@ -47,18 +47,10 @@ public class IndigoLauncher {
     }
 
     public static void main(String[] args) {
-        long start = System.currentTimeMillis();
-        long startup = start;
         System.setProperty("java.net.preferIPv4Stack", "true");
-        // SplashScreen splash = new
-        // SplashScreen(Toolkit.getDefaultToolkit().getImage(SplashScreen.class.getResource("/imgs/splash_screen.png")));
-        // splash.setVisible(true);
-
         logger = setupLogger();
         cleanup();
-
         setLookandFeel();
-
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 try {
@@ -69,7 +61,6 @@ public class IndigoLauncher {
                 }
             }
         });
-        // splash.dispose();
     }
 
     private static Logger setupLogger() {
@@ -92,6 +83,18 @@ public class IndigoLauncher {
         if (!file.exists()) {
             file.mkdir();
         }
+        file = new File(DirectoryLocations.IMAGE_DIR_LOCATION);
+        if (!file.exists()) {
+            file.mkdir();
+        }
+        file = new File(DirectoryLocations.AVATAR_CACHE_DIR_LOCATION);
+        if (!file.exists()) {
+            file.mkdir();
+        }
+        file = new File(DirectoryLocations.SERVER_CACHE_DIR_LOCATION);
+        if (!file.exists()) {
+            file.mkdir();
+        }
     }
 
     private static void setLookandFeel() {
@@ -103,8 +106,7 @@ public class IndigoLauncher {
 
     public static final Font getMinecraftFont(int size) {
         try {
-            Font font = Font.createFont(Font.TRUETYPE_FONT,
-                    ResourceUtils.getResourceAsStream("minecraft_font"));
+            Font font = Font.createFont(Font.TRUETYPE_FONT, ResourceUtils.getResourceAsStream("minecraft_font"));
             font = font.deriveFont((float) size);
             return font;
         } catch (IOException e) {

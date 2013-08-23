@@ -52,9 +52,9 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
     protected URL[]      _jarURLs;
     private final Logger logger = Logger.getLogger("launcher");
 
-    public DownloadHandler(String reqVersion) {
+    public DownloadHandler(String serverName, String reqVersion) {
         _reqVersion = reqVersion;
-        _binDir = new File(String.format(DirectoryLocations.BIN_DIR_LOCATION, reqVersion));
+        _binDir = new File(String.format(DirectoryLocations.SERVER_MINECRAFT_BIN_DIR_LOCATION, serverName, reqVersion));
         _status = "";
     }
 

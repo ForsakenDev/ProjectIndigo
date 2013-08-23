@@ -27,10 +27,18 @@
 package co.zmc.projectindigo.utils;
 
 import java.awt.AlphaComposite;
+import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.ConvolveOp;
+import java.awt.image.FilteredImageSource;
+import java.awt.image.ImageFilter;
+import java.awt.image.ImageProducer;
 import java.awt.image.Kernel;
+import java.awt.image.RGBImageFilter;
 import java.lang.ref.SoftReference;
 
 public class DrawingUtils {
@@ -115,5 +123,52 @@ public class DrawingUtils {
             }
             return img;
         }
+    }
+
+    public static BufferedImage roundCorners(BufferedImage src, int radius) {
+        int w = src.getWidth();
+        int h = src.getHeight();
+        int type = BufferedImage.TYPE_INT_ARGB;
+        BufferedImage dst = new BufferedImage(w, h, type);
+        Graphics2D g2 = dst.createGraphics();
+        RoundRectangle2D r2 = new RoundRectangle2D.Double(0, 0, w, h, radius, radius);
+        g2.setClip(r2);
+        g2.drawImage(src, 0, 0, null);
+        g2.dispose();
+        return dst;
+    }
+
+    public static BufferedImage overlayImage(BufferedImage under, BufferedImage over) {
+        BufferedImage dest = under;
+        Graphics2D g2 = dest.createGraphics();
+        g2.drawImage(over.getScaledInstance(under.getWidth(), under.getHeight(), 4), 0, 0, null);
+        g2.dispose();
+        return dest;
+    }
+
+    public static BufferedImage makeColorTransparent(BufferedImage im, final Color color) {
+        ImageFilter filter = new RGBImageFilter() {
+            public int markerRGB = color.getRGB() | 0xFFFF0000;
+
+            public final int filterRGB(int x, int y, int rgb) {
+                if ((rgb | 0xFF000000) == markerRGB) {
+                    return 0x00FFFFFF & rgb;
+                } else {
+                    return rgb;
+                }
+            }
+        };
+        ImageProducer ip = new FilteredImageSource(im.getSource(), filter);
+        return getBI(Toolkit.getDefaultToolkit().createImage(ip));
+    }
+
+    private static BufferedImage getBI(Image image) {
+        BufferedImage bufferedImage = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = bufferedImage.createGraphics();
+        g2.drawImage(image, 0, 0, null);
+        g2.dispose();
+
+        return bufferedImage;
+
     }
 }

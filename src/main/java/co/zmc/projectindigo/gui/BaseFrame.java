@@ -26,11 +26,18 @@
  */
 package co.zmc.projectindigo.gui;
 
+import java.applet.Applet;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
@@ -45,6 +52,7 @@ import co.zmc.projectindigo.data.LoginResponse;
 import co.zmc.projectindigo.managers.DownloadHandler;
 import co.zmc.projectindigo.managers.LoginHandler;
 import co.zmc.projectindigo.managers.UserManager;
+import co.zmc.projectindigo.mclaunch.MinecraftFrame;
 import co.zmc.projectindigo.utils.DirectoryLocations;
 import co.zmc.projectindigo.utils.Utils;
 
@@ -52,6 +60,7 @@ import co.zmc.projectindigo.utils.Utils;
 public abstract class BaseFrame extends JFrame {
     protected final UserManager userManager = new UserManager();
     protected final Logger      logger      = Logger.getLogger("launcher");
+    private final String        version     = "1.5.2";
 
     public BaseFrame(int width, int height) {
         setTitle(IndigoLauncher.TITLE);
@@ -80,20 +89,19 @@ public abstract class BaseFrame extends JFrame {
     }
 
     public void launchGame(LoginResponse response) {
-        doUpdate(response);
+        doUpdate("zephyrunleased.com", response);
     }
 
-    private final void doUpdate(final LoginResponse response) {
-        final String version = "1.5.2";
-        final String installPath = String.format(DirectoryLocations.MINECRAFT_DIR_LOCATION, version);
-        final String binPath = String.format(DirectoryLocations.BIN_DIR_LOCATION, version);
+    private final void doUpdate(final String serverName, final LoginResponse response) {
+        final String installPath = String.format(DirectoryLocations.SERVER_MINECRAFT_DIR_LOCATION, serverName, version);
+        final String binPath = String.format(DirectoryLocations.SERVER_MINECRAFT_BIN_DIR_LOCATION, serverName, version);
         if (new File(installPath, "version").exists()) {
             new File(installPath, "version").delete();
         }
 
         if (!new File(binPath + "/minecraft.jar").exists()) {
             final ProgressMonitor progMonitor = new ProgressMonitor(this, "Downloading minecraft...", "", 0, 100);
-            final DownloadHandler updater = new DownloadHandler(version) {
+            final DownloadHandler updater = new DownloadHandler(serverName, version) {
                 @Override
                 public void done() {
                     progMonitor.close();
@@ -101,7 +109,7 @@ public abstract class BaseFrame extends JFrame {
                         if (get()) {
                             getLogger().log(Level.INFO, "Game update complete");
                             Utils.removeMetaInf(binPath);
-                            launchMinecraft(response.getUsername(), response.getSessionId());
+                            launchMinecraft(serverName, response.getUsername(), response.getSessionId());
                         } else {
                             throw new NullPointerException("Error occurred during downloading the game");
                         }
@@ -134,12 +142,82 @@ public abstract class BaseFrame extends JFrame {
             });
             updater.execute();
         } else {
-            launchMinecraft(response.getUsername(), response.getSessionId());
+            launchMinecraft(serverName, response.getUsername(), response.getSessionId());
         }
     }
 
-    private void launchMinecraft(String username, String sessionId) {
-        System.exit(0);
+    private void launchMinecraft(String serverName, String username, String sessionId) {
+        String basePath = String.format(DirectoryLocations.SERVER_MINECRAFT_DIR_LOCATION, serverName, version);
+        try {
+            System.out.println("Loading jars...");
+            String[] jarFiles = new String[] { "minecraft.jar", "lwjgl.jar", "lwjgl_util.jar", "jinput.jar" };
+            ArrayList<File> classPathFiles = new ArrayList<File>();
+
+            for (String jarFile : jarFiles) {
+                classPathFiles.add(new File(new File(basePath, "bin"), jarFile));
+            }
+
+            URL[] urls = new URL[classPathFiles.size()];
+            for (int i = 0; i < classPathFiles.size(); i++) {
+                try {
+                    urls[i] = classPathFiles.get(i).toURI().toURL();
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("Added URL to classpath: " + urls[i].toString());
+            }
+
+            System.out.println("Loading natives...");
+            String nativesDir = new File(new File(basePath, "bin"), "natives").toString();
+            System.out.println("Natives loaded...");
+
+            System.setProperty("org.lwjgl.librarypath", nativesDir);
+            System.setProperty("net.java.games.input.librarypath", nativesDir);
+
+            System.setProperty("user.home", new File(basePath).getParent());
+
+            URLClassLoader cl = new URLClassLoader(urls, BaseFrame.class.getClassLoader());
+
+            System.out.println("Loading minecraft class");
+            Class<?> mc = cl.loadClass("net.minecraft.client.Minecraft");
+            System.out.println("mc = " + mc);
+            Field[] fields = mc.getDeclaredFields();
+            System.out.println("field amount: " + fields.length);
+
+            for (Field f : fields) {
+                if (f.getType() != File.class) {
+                    continue;
+                }
+                if (0 == (f.getModifiers() & (Modifier.PRIVATE | Modifier.STATIC))) {
+                    continue;
+                }
+                f.setAccessible(true);
+                f.set(null, new File(basePath));
+                System.out.println("Fixed Minecraft Path: Field was " + f.toString());
+                break;
+            }
+
+            String mcDir = mc.getMethod("a", String.class).invoke(null, (Object) "minecraft").toString();
+
+            System.out.println("MCDIR: " + mcDir);
+
+            System.out.println("Launching with applet wrapper...");
+
+            try {
+                Class<?> MCAppletClass = cl.loadClass("net.minecraft.client.MinecraftApplet");
+                Applet mcappl = (Applet) MCAppletClass.newInstance();
+                MinecraftFrame mcWindow = new MinecraftFrame("Project Indigo");
+                mcWindow.start(mcappl, username, sessionId);
+            } catch (InstantiationException e) {
+                System.out.println("Applet wrapper failed! Falling back to compatibility mode");
+                mc.getMethod("main", String[].class).invoke(null, (Object) new String[] { username, sessionId });
+            }
+        } catch (Throwable t) {
+            System.out.println("Unhandled error launching minecraft:");
+            t.printStackTrace();
+        }
+        this.setVisible(false);
+        this.dispose();
     }
 
     public void setVisible(boolean visible) {

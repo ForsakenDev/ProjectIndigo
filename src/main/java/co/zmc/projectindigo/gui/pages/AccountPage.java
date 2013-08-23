@@ -131,6 +131,7 @@ public class AccountPage extends BasePage {
         userList.setSize(dim);
         userList.setPreferredSize(dim);
         userList.setBounds(0, 0, dim.width, dim.height);
+
         add(userList, 0);
     }
 
