@@ -26,6 +26,7 @@
  */
 package co.zmc.projectindigo.gui;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.util.logging.Logger;
 
@@ -35,14 +36,19 @@ import javax.swing.SwingUtilities;
 import co.zmc.projectindigo.IndigoLauncher;
 import co.zmc.projectindigo.gui.components.Image;
 import co.zmc.projectindigo.gui.components.ProgressBar;
+import co.zmc.projectindigo.gui.components.TextBox;
+import co.zmc.projectindigo.gui.components.TransparentButton;
+import co.zmc.projectindigo.gui.components.TransparentImage;
 import co.zmc.projectindigo.managers.ServerManager;
 
 @SuppressWarnings("serial")
 public class ServerPanel extends JPanel {
-    protected IndigoLauncher _launcher;
-    protected final Logger   logger = Logger.getLogger("launcher");
-    protected ProgressBar    _progressBar;
-    protected ServerManager  _serverManager;
+    protected IndigoLauncher    _launcher;
+    protected final Logger      logger = Logger.getLogger("launcher");
+    protected TextBox           _serverIP;
+    protected TransparentButton _launchBtn;
+    protected ProgressBar       _progressBar;
+    protected ServerManager     _serverManager;
 
     public ServerPanel(IndigoLauncher launcher, int width, int height) {
         _launcher = launcher;
@@ -59,6 +65,18 @@ public class ServerPanel extends JPanel {
     public void setupLook() {
         _serverManager = new ServerManager();
         _serverManager.execute();
+
+        int padding = 25;
+        int btnWidth = 149;
+        int btnHeight = 24;
+
+        _serverIP = new TextBox(this, "Server IP Address...");
+        _launchBtn = new TransparentButton(this, "Launch", 0.8F, Color.GREEN);
+
+        _launchBtn.setBounds(getWidth() - padding - 149, getHeight() - btnHeight - (padding / 2) * 3, btnWidth, btnHeight);
+        _serverIP.setBounds(padding, getHeight() - btnHeight - (padding / 2) * 3, (getWidth() - (padding * 3) - 149), btnHeight);
+
+        add(new TransparentImage("main_bg", 0.7F, getWidth(), getHeight()));
         add(new Image("bg", getWidth(), getHeight()));
     }
 

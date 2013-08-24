@@ -44,6 +44,13 @@ public class TransparentButton extends JButton implements MouseListener {
     private boolean clicked            = false;
     private float   _transparencyLevel = 1F;
     private boolean _isToggle          = false;
+    private boolean _isHover           = false;
+    private Color   _rolloverColor;
+
+    public TransparentButton(JComponent frame, String label, float transparencyLevel, Color rolloverColor) {
+        this(frame, label, transparencyLevel);
+        _rolloverColor = rolloverColor;
+    }
 
     public TransparentButton(JComponent frame, String label, float transparencyLevel, boolean isToggle) {
         this(frame, label, transparencyLevel);
@@ -54,9 +61,11 @@ public class TransparentButton extends JButton implements MouseListener {
         _transparencyLevel = transparencyLevel;
         setText(label);
         setBackground(Color.WHITE);
+        _rolloverColor = Color.GRAY;
         addMouseListener(this);
         setFont(IndigoLauncher.getMinecraftFont(14));
         frame.add(this, 0);
+        this.setRolloverEnabled(true);
     }
 
     public void paint(Graphics g) {
@@ -65,10 +74,10 @@ public class TransparentButton extends JButton implements MouseListener {
         Composite comp = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, _transparencyLevel);
         g2d.setComposite(comp);
 
-        g2d.setColor(this.clicked ? Color.BLACK : getBackground());
+        g2d.setColor(this.clicked ? Color.BLACK : (_isHover ? _rolloverColor : getBackground()));
         g2d.fillRect(0, 0, getWidth(), getHeight());
 
-        g2d.setColor(this.clicked ? getBackground() : Color.BLACK);
+        g2d.setColor(this.clicked ? (_isHover ? _rolloverColor : getBackground()) : Color.BLACK);
         g2d.setFont(getFont());
         int width = g2d.getFontMetrics().stringWidth(getText());
         g2d.drawString(getText(), (getWidth() - width) / 2, getFont().getSize() + 4);
@@ -106,8 +115,14 @@ public class TransparentButton extends JButton implements MouseListener {
     }
 
     public void mouseEntered(MouseEvent e) {
+        if (!_isHover) {
+            _isHover = true;
+        }
     }
 
     public void mouseExited(MouseEvent e) {
+        if (_isHover) {
+            _isHover = false;
+        }
     }
 }

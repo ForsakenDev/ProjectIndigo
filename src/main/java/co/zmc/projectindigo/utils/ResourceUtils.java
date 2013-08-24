@@ -66,6 +66,7 @@ public class ResourceUtils {
     private static final URL    SERVER_INFO_HOVER   = ResourceUtils.class.getResource(BASE_PATH + "/images/servers/info_hover.png");
     private static final URL    SERVER_EDIT         = ResourceUtils.class.getResource(BASE_PATH + "/images/servers/edit.png");
     private static final URL    SERVER_EDIT_HOVER   = ResourceUtils.class.getResource(BASE_PATH + "/images/servers/edit_hover.png");
+    private static final URL    ADD_SERVER          = ResourceUtils.class.getResource(BASE_PATH + "/images/add.png");
 
     public static URL getResource(String name) {
         if (name.equalsIgnoreCase("splash_screen")) {
@@ -106,7 +107,9 @@ public class ResourceUtils {
             return SERVER_INFO_HOVER;
         } else if (name.equalsIgnoreCase("server_edit")) {
             return SERVER_EDIT;
-        } else if (name.equalsIgnoreCase("server_edit_hover")) { return SERVER_EDIT_HOVER; }
+        } else if (name.equalsIgnoreCase("server_edit_hover")) {
+            return SERVER_EDIT_HOVER;
+        } else if (name.equalsIgnoreCase("add")) { return ADD_SERVER; }
         return null;
     }
 

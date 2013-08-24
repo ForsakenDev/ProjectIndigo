@@ -47,6 +47,7 @@ import co.zmc.projectindigo.gui.components.PasswordBox;
 import co.zmc.projectindigo.gui.components.ProgressBar;
 import co.zmc.projectindigo.gui.components.TextBox;
 import co.zmc.projectindigo.gui.components.TransparentButton;
+import co.zmc.projectindigo.gui.components.TransparentImage;
 import co.zmc.projectindigo.managers.LoginHandler;
 import co.zmc.projectindigo.managers.UserManager;
 import co.zmc.projectindigo.utils.Utils;
@@ -134,6 +135,7 @@ public class LoginPanel extends JLayeredPane {
         _progressBar.setFont(IndigoLauncher.getMinecraftFont(14));
         add(_progressBar, 0);
 
+        add(new TransparentImage("main_bg", 0.4F, getWidth(), getHeight()));
         add(new Image("bg", getWidth(), getHeight()));
         _launcher.refresh();
     }
