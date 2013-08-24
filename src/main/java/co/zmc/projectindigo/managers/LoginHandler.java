@@ -106,6 +106,8 @@ public class LoginHandler extends SwingWorker<String, Void> {
                     + URLEncoder.encode(_password, "UTF-8") + "&version=13"));
             _loginFrame.stateChanged("Sending username and password...", 66);
         } catch (MalformedURLException e) {
+        } catch (IOException e) {
+            throw new MCNetworkException();
         }
         if (result == null) { throw new MCNetworkException(); }
         if (!result.contains(":")) {
