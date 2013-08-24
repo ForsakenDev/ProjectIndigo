@@ -27,85 +27,102 @@
 package co.zmc.projectindigo.managers;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Scanner;
-import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
+import co.zmc.projectindigo.IndigoLauncher;
+import co.zmc.projectindigo.data.LoginEvents;
 import co.zmc.projectindigo.data.LoginResponse;
-import co.zmc.projectindigo.gui.BaseFrame;
+import co.zmc.projectindigo.exceptions.AccountMigratedException;
+import co.zmc.projectindigo.exceptions.BadLoginException;
+import co.zmc.projectindigo.exceptions.MCNetworkException;
+import co.zmc.projectindigo.exceptions.MinecraftUserNotPremiumException;
+import co.zmc.projectindigo.exceptions.OutdatedMCLauncherException;
+import co.zmc.projectindigo.exceptions.PermissionDeniedException;
+import co.zmc.projectindigo.gui.LoginPanel;
 
 public class LoginHandler extends SwingWorker<String, Void> {
 
-    private BaseFrame           _baseFrame;
+    private LoginPanel          _loginFrame;
     private String              _username;
     private String              _password;
-    private boolean             _saveUser;
     private static final Logger logger = Logger.getLogger("launcher");
 
-    public LoginHandler(BaseFrame baseFrame, String username, String password, boolean saveUser) {
-        _baseFrame = baseFrame;
+    public LoginHandler(LoginPanel loginFrame, String username, String password) {
+        _loginFrame = loginFrame;
         _username = username;
         _password = password;
-        _saveUser = saveUser;
     }
 
     @Override
     protected String doInBackground() {
         try {
-            return getString(new URL("https://login.minecraft.net/?user=" + URLEncoder.encode(_username, "UTF-8") + "&password="
-                    + URLEncoder.encode(_password, "UTF-8") + "&version=13"));
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(_baseFrame, "Minecraft sessions appear to be down? Cannot connect to minecraft.net");
-            logger.log(Level.SEVERE, "Minecraft sessions appear to be down? Cannot connect to minecraft.net");
+            _loginFrame.stateChanged("Logging in as " + _username + "...", 33);
+            String result = doLogin();
+            _loginFrame.stateChanged("Reading response...", 99);
+            LoginResponse response = new LoginResponse(result);
+            _loginFrame.stateChanged("Logged in and lauching...", 100);
+            logger.log(Level.INFO, "Login successful, Starting minecraft..");
+            _loginFrame.getUserManager().saveUsername(_username, response.getUsername(), _password);
+            _loginFrame.setResponse(response);
+            _loginFrame.onEvent(LoginEvents.SAVE_USER_LAUNCH);
+        } catch (AccountMigratedException e) {
+            _loginFrame.onEvent(LoginEvents.ACCOUNT_MIGRATED);
+        } catch (BadLoginException e) {
+            _loginFrame.onEvent(LoginEvents.BAD_LOGIN);
+        } catch (MinecraftUserNotPremiumException e) {
+            _loginFrame.onEvent(LoginEvents.USER_NOT_PREMIUM);
+        } catch (PermissionDeniedException e) {
+            _loginFrame.onEvent(LoginEvents.PERMISSION_DENIED);
+            this.cancel(true);
+        } catch (MCNetworkException e) {
+            _loginFrame.onEvent(LoginEvents.NETWORK_DOWN);
+            this.cancel(true);
+        } catch (OutdatedMCLauncherException e) {
+            JOptionPane.showMessageDialog(_loginFrame.getParent(), "Incompatible login version. Contact " + IndigoLauncher.TITLE
+                    + " about updating the launcher!");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            this.cancel(true);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return "";
     }
 
-    @Override
-    public void done() {
-        String responseStr = "";
+    public String doLogin() throws BadLoginException, MinecraftUserNotPremiumException, MCNetworkException, OutdatedMCLauncherException,
+            UnsupportedEncodingException, IOException {
+        String result = null;
         try {
-            responseStr = get();
-            LoginResponse response = new LoginResponse(responseStr);
-            if (_saveUser) {
-                _baseFrame.getUserManager().saveUsername(_username, response.getUsername(), _password);
-                _baseFrame.getUserManager().writeUsernameList();
-            }
-            logger.log(Level.INFO, "Login successful, Starting minecraft..");
-            _baseFrame.launchGame(response);
-        } catch (NullPointerException e) {
-            if (responseStr.contains(":")) {
-                JOptionPane.showMessageDialog(_baseFrame, "Invalid response from server");
-                logger.log(Level.SEVERE, "Invalid response from server");
-            } else {
-                if (responseStr.equalsIgnoreCase("bad login")) {
-                    JOptionPane.showMessageDialog(_baseFrame, "Invalid username or password");
-                    logger.log(Level.SEVERE, "Invalid username or password");
-                } else if (responseStr.equalsIgnoreCase("old version")) {
-                    JOptionPane.showMessageDialog(_baseFrame, "Outdated Launcher");
-                    logger.log(Level.SEVERE, "Outdated Launcher");
-                } else {
-                    JOptionPane.showMessageDialog(_baseFrame, "Login Failed: " + responseStr);
-                    logger.log(Level.SEVERE, "Login Failed: " + responseStr);
-                }
-            }
-        } catch (InterruptedException err) {
-            logger.log(Level.SEVERE, err.getMessage());
-        } catch (ExecutionException err) {
-            if (err.getCause() instanceof IOException || err.getCause() instanceof MalformedURLException) {
-                JOptionPane.showMessageDialog(_baseFrame, "Minecraft sessions appear to be down? Cannot connect to minecraft.net");
-                logger.log(Level.SEVERE, "Minecraft sessions appear to be down? Cannot connect to minecraft.net");
-                logger.log(Level.SEVERE, err.getMessage());
-            }
+            result = getString(new URL("https://login.minecraft.net/?user=" + URLEncoder.encode(_username, "UTF-8") + "&password="
+                    + URLEncoder.encode(_password, "UTF-8") + "&version=13"));
+            _loginFrame.stateChanged("Sending username and password...", 66);
+        } catch (MalformedURLException e) {
         }
-
+        if (result == null) { throw new MCNetworkException(); }
+        if (!result.contains(":")) {
+            if (result.toLowerCase().contains("bad login")) {
+                throw new BadLoginException();
+            } else if (result.toLowerCase().contains("not premium")) {
+                throw new MinecraftUserNotPremiumException();
+            } else if (result.toLowerCase().contains("old version")) {
+                throw new OutdatedMCLauncherException();
+            } else if (result.toLowerCase().contains("migrated")) {
+                throw new AccountMigratedException();
+            } else {
+                System.err.print("Unknown login result: " + result);
+            }
+            throw new MCNetworkException();
+        }
+        return result;
     }
 
     private String getString(URL url) throws IOException {

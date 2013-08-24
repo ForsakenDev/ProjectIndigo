@@ -31,8 +31,8 @@ import java.awt.Font;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 
+import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
 import javax.swing.JTextField;
 
 import co.zmc.projectindigo.IndigoLauncher;
@@ -41,20 +41,11 @@ import co.zmc.projectindigo.IndigoLauncher;
 public class TextBox extends JTextField implements FocusListener {
     protected final JLabel label;
 
-    public TextBox(JLayeredPane parent, String label) {
+    public TextBox(JComponent parent, String label) {
         this.label = new JLabel(label);
         addFocusListener(this);
         parent.add(this, 0);
         parent.add(this.label, 0);
-        setBackground(Color.WHITE);
-        setBorder(new Border(5, getBackground()));
-        this.label.setForeground(Color.BLACK);
-        setFont(IndigoLauncher.getMinecraftFont(14));
-    }
-    
-    public TextBox(String label) {
-        this.label = new JLabel(label);
-        addFocusListener(this);
         setBackground(Color.WHITE);
         setBorder(new Border(5, getBackground()));
         this.label.setForeground(Color.BLACK);

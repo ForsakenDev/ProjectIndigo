@@ -101,14 +101,14 @@ public class DrawingUtils {
         private static BufferedImage ensureBuffer0Capacity(int width, int height) {
             BufferedImage img0 = _buffer0 != null ? (BufferedImage) _buffer0.get() : null;
             img0 = ensureBufferCapacity(width, height, img0);
-            _buffer0 = new SoftReference(img0);
+            _buffer0 = new SoftReference<BufferedImage>(img0);
             return img0;
         }
 
         private static BufferedImage ensureBuffer1Capacity(int width, int height) {
             BufferedImage img1 = _buffer1 != null ? (BufferedImage) _buffer0.get() : null;
             img1 = ensureBufferCapacity(width, height, img1);
-            _buffer1 = new SoftReference(img1);
+            _buffer1 = new SoftReference<BufferedImage>(img1);
             return img1;
         }
 

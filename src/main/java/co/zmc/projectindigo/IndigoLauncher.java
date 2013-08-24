@@ -26,52 +26,75 @@
  */
 package co.zmc.projectindigo;
 
-import java.awt.EventQueue;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
+import java.awt.GraphicsEnvironment;
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Logger;
 
-import co.zmc.projectindigo.gui.MainFrame;
+import javax.swing.JFrame;
+import javax.swing.WindowConstants;
+
+import co.zmc.projectindigo.data.LoginResponse;
+import co.zmc.projectindigo.gui.LoginPanel;
+import co.zmc.projectindigo.gui.ServerPanel;
+import co.zmc.projectindigo.gui.components.ProgressSplashScreen;
 import co.zmc.projectindigo.utils.DirectoryLocations;
 import co.zmc.projectindigo.utils.ResourceUtils;
 import co.zmc.projectindigo.utils.Utils;
 
-public class IndigoLauncher {
-    public static final String TITLE  = "Project Indigo";
-    private static Logger      logger = null;
+@SuppressWarnings("serial")
+public class IndigoLauncher extends JFrame {
+    public static final String    TITLE            = "Project Indigo";
+    private static IndigoLauncher _launcher;
+    private LoginResponse         _loginResponse;
+    public Dimension              _loginPanelSize  = new Dimension(400, 200);
+    public Dimension              _serverPanelSize = new Dimension(900, 580);
+    public ServerPanel            _serverPanel;
+    public LoginPanel             _loginPanel;
+    public ProgressSplashScreen   _splash;
 
     public IndigoLauncher() {
-        main(new String[0]);
-    }
-
-    public static void main(String[] args) {
-        System.setProperty("java.net.preferIPv4Stack", "true");
-        logger = setupLogger();
+        _launcher = this;
+        _splash = new ProgressSplashScreen("Loading assets...", 20);
+        _splash.setVisible(true);
+        _splash.updateProgress("Cleaning directories...", 40);
         cleanup();
+        _splash.updateProgress("Setting system values...", 60);
         setLookandFeel();
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    MainFrame frame = new MainFrame();
-                    frame.setVisible(true);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+        initComponents();
+        _splash.updateProgress("Launching login...", 100);
+        launchLoginFrame();
+        _splash.dispose();
+        setVisible(true);
     }
 
-    private static Logger setupLogger() {
-        Logger logger = Logger.getLogger("launcher");
-        File logDirectory = new File(Utils.getDynamicStorageLocation(), "logs");
-        if (!logDirectory.exists()) {
-            logDirectory.mkdir();
+    private void setLookandFeel() {
+        System.setProperty("java.net.preferIPv4Stack", "true");
+        if (Utils.getCurrentOS() == Utils.OS.MACOSX) {
+            System.setProperty("apple.laf.useScreenMenuBar", "true");
+            System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Indigo");
         }
-        File logs = new File(logDirectory, "Indigo%D.log");
 
-        return logger;
+        setTitle(IndigoLauncher.TITLE);
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        setResizable(false);
+        setSize(_loginPanelSize);
+        setPreferredSize(_loginPanelSize);
+        setLocationRelativeTo(null);
+    }
+
+    private void initComponents() {
+
+        _loginPanel = new LoginPanel(_launcher, _loginPanelSize.width, _loginPanelSize.height);
+        _loginPanel.setVisible(true);
+        add(_loginPanel);
+
+        _serverPanel = new ServerPanel(_launcher, _serverPanelSize.width, _serverPanelSize.height);
+        _serverPanel.setVisible(false);
+        add(_serverPanel);
     }
 
     private static void cleanup() {
@@ -91,17 +114,6 @@ public class IndigoLauncher {
         if (!file.exists()) {
             file.mkdir();
         }
-        file = new File(DirectoryLocations.SERVER_CACHE_DIR_LOCATION);
-        if (!file.exists()) {
-            file.mkdir();
-        }
-    }
-
-    private static void setLookandFeel() {
-        if (Utils.getCurrentOS() == Utils.OS.MACOSX) {
-            System.setProperty("apple.laf.useScreenMenuBar", "true");
-            System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Indigo");
-        }
     }
 
     public static final Font getMinecraftFont(int size) {
@@ -115,5 +127,38 @@ public class IndigoLauncher {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public final void setResponse(LoginResponse loginResponse) {
+        _loginResponse = loginResponse;
+    }
+
+    public void refresh() {
+        repaint();
+    }
+
+    public void launchLoginFrame() {
+        setSize(_loginPanelSize);
+        setPreferredSize(_loginPanelSize);
+        setLocationRelativeTo(null);
+
+        _loginPanel.setVisible(true);
+        _serverPanel.setVisible(false);
+    }
+
+    public void launchServerFrame() {
+        GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        this.setMaximizedBounds(new Rectangle((env.getCenterPoint().x - (_serverPanelSize.width / 2)),
+                (env.getCenterPoint().y - (_serverPanelSize.height / 2)), _serverPanelSize.width, _serverPanelSize.height));
+        this.setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+
+        setLocationRelativeTo(null);
+        _loginPanel.setVisible(false);
+        _serverPanel.setVisible(true);
+
+    }
+
+    public LoginResponse getLoginResponse() {
+        return _loginResponse;
     }
 }

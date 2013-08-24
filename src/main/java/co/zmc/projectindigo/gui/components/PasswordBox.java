@@ -31,8 +31,8 @@ import java.awt.Font;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 
+import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
 import javax.swing.JPasswordField;
 
 import co.zmc.projectindigo.IndigoLauncher;
@@ -41,7 +41,7 @@ import co.zmc.projectindigo.IndigoLauncher;
 public class PasswordBox extends JPasswordField implements FocusListener {
     private final JLabel label;
 
-    public PasswordBox(JLayeredPane parent, String label) {
+    public PasswordBox(JComponent parent, String label) {
         this.label = new JLabel(label);
         addFocusListener(this);
         parent.add(this, 0);

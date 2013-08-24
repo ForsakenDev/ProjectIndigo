@@ -169,7 +169,7 @@ public class Utils {
     }
 
     public static int[][] getDynamicTableCoords(int totalAreaWidth, int totalAreaHeight, int numData) {
-        int numPerRow = 1;
+        int numPerRow = 3;
         int[][] tableCoords = Utils.getTableCoords(numPerRow, totalAreaWidth, totalAreaHeight, numData);
 
         while (tableCoords[tableCoords.length - 1][1] + tableCoords[tableCoords.length - 1][3] > totalAreaHeight) {

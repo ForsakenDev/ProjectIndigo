@@ -50,13 +50,14 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
 
 import co.zmc.projectindigo.data.UserPassword;
+import co.zmc.projectindigo.gui.components.ProgressSplashScreen;
 import co.zmc.projectindigo.utils.DirectoryLocations;
 
 public class UserManager {
     protected Map<String, UserPassword> usernames = new LinkedHashMap<String, UserPassword>();
 
-    public UserManager() {
-        readSavedUsernames();
+    public UserManager(ProgressSplashScreen progressSplashScreen) {
+        readSavedUsernames(progressSplashScreen);
     }
 
     public final List<String> getSavedUsernames() {
@@ -106,10 +107,11 @@ public class UserManager {
         }
     }
 
-    private void readSavedUsernames() {
+    private void readSavedUsernames(ProgressSplashScreen _splash) {
         try {
             File lastLogin = new File(DirectoryLocations.DATA_DIR_LOCATION, "lastlogin");
             if (!lastLogin.exists()) { return; }
+            _splash.updateProgress("Loading stored users...", 80);
             Cipher cipher = getCipher(2, "passwordfile");
             DataInputStream dis;
             if (cipher != null) dis = new DataInputStream(new CipherInputStream(new FileInputStream(lastLogin), cipher));
@@ -117,9 +119,12 @@ public class UserManager {
                 dis = new DataInputStream(new FileInputStream(lastLogin));
             }
             try {
+                int extra = 5;
                 while (true) {
                     String key = dis.readUTF();
                     String user = dis.readUTF();
+                    _splash.updateProgress("Loading " + user + "...", 80 + extra);
+                    extra += 5;
                     boolean isHash = dis.readBoolean();
                     if (isHash) {
                         byte[] hash = new byte[32];

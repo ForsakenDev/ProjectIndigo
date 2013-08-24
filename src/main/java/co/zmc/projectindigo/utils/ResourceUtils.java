@@ -46,6 +46,7 @@ import co.zmc.projectindigo.IndigoLauncher;
 public class ResourceUtils {
 
     private static final String BASE_PATH           = "/co/zmc/projectindigo/resources";
+    private static final URL    SPLASH_SCREEN       = ResourceUtils.class.getResource(BASE_PATH + "/images/splash_screen.png");
     private static final URL    BASE_CHAR           = ResourceUtils.class.getResource(BASE_PATH + "/images/char.png");
     private static final URL    BG                  = ResourceUtils.class.getResource(BASE_PATH + "/images/bg.jpg");
     private static final URL    MAIN_BG             = ResourceUtils.class.getResource(BASE_PATH + "/images/main_bg.jpg");
@@ -67,7 +68,9 @@ public class ResourceUtils {
     private static final URL    SERVER_EDIT_HOVER   = ResourceUtils.class.getResource(BASE_PATH + "/images/servers/edit_hover.png");
 
     public static URL getResource(String name) {
-        if (name.equalsIgnoreCase("base_char")) {
+        if (name.equalsIgnoreCase("splash_screen")) {
+            return SPLASH_SCREEN;
+        } else if (name.equalsIgnoreCase("base_char")) {
             return BASE_CHAR;
         } else if (name.equalsIgnoreCase("bg")) {
             return BG;

@@ -28,35 +28,43 @@ package co.zmc.projectindigo.gui.components;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.font.FontRenderContext;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
 
 import co.zmc.projectindigo.IndigoLauncher;
+import co.zmc.projectindigo.gui.LoginPanel;
 import co.zmc.projectindigo.utils.DirectoryLocations;
 import co.zmc.projectindigo.utils.ResourceUtils;
 
 @SuppressWarnings("serial")
-public class Avatar extends JLabel {
+public class Avatar extends JLabel implements MouseListener {
     private String       _username;
     private String       _accountKey;
     private final JLabel label;
+    private LoginPanel   _loginFrame;
 
-    public Avatar(JLayeredPane pane, String username, String accountKey) {
-        this(pane, username, accountKey, 150);
+    public Avatar(LoginPanel loginFrame, String username, String accountKey) {
+        this(loginFrame, username, accountKey, 150);
     }
 
-    public Avatar(JLayeredPane pane, String username, String accountKey, int width) {
+    public Avatar(LoginPanel loginFrame, String username, String accountKey, int width) {
         this.label = new JLabel(username);
         _username = username;
         _accountKey = accountKey;
-        pane.add(this, 0);
-        pane.add(this.label, 0);
+        _loginFrame = loginFrame;
+        loginFrame.add(this, 0);
+        loginFrame.add(this.label, 0);
+        setBorder(null);
+        setFocusable(false);
+        addMouseListener(this);
         Dimension dim = new Dimension(width, width);
         setSize(dim);
         setPreferredSize(dim);
@@ -65,12 +73,19 @@ public class Avatar extends JLabel {
         label.setPreferredSize(dim);
         setVerticalAlignment(0);
         setHorizontalAlignment(0);
-        setIcon(new ImageIcon(getImage().getScaledInstance(width, width, 4)));
         setVerticalAlignment(1);
         setHorizontalAlignment(2);
-        this.label.setForeground(Color.WHITE);
-        this.label.setFont(IndigoLauncher.getMinecraftFont(14));
+        setIcon(new ImageIcon(getImage().getScaledInstance(width, width, 4)));
+        label.setForeground(Color.WHITE);
+        label.setFont(IndigoLauncher.getMinecraftFont(14));
+        label.setVisible(false);
         setBounds(0, 0, width, width);
+    }
+
+    @Override
+    public void setIcon(Icon icon) {
+        super.setIcon(icon);
+        setDisabledIcon(getIcon());
     }
 
     public void setBounds(int x, int y, int w, int h) {
@@ -92,7 +107,7 @@ public class Avatar extends JLabel {
 
     private int getLabelWidth() {
         FontRenderContext frc = new FontRenderContext(label.getFont().getTransform(), true, true);
-        return (int) (label.getFont().getStringBounds(label.getText(), frc).getWidth());
+        return (int) (label.getFont().getStringBounds(label.getText(), frc).getWidth()) + ((1 * label.getText().length()) / 2);
     }
 
     public String getAccountKey() {
@@ -111,6 +126,30 @@ public class Avatar extends JLabel {
             e.printStackTrace();
         }
         return new BufferedImage(getWidth(), getHeight(), 2);
+    }
+
+    public void mouseClicked(MouseEvent e) {
+    }
+
+    public void mouseEntered(MouseEvent e) {
+        if (super.isEnabled()) {
+            this.label.setVisible(true);
+        }
+    }
+
+    public void mouseExited(MouseEvent e) {
+        if (super.isEnabled()) {
+            this.label.setVisible(false);
+        }
+    }
+
+    public void mousePressed(MouseEvent e) {
+        if (super.isEnabled()) {
+            _loginFrame.tryLogin(getAccountKey());
+        }
+    }
+
+    public void mouseReleased(MouseEvent e) {
     }
 
 }

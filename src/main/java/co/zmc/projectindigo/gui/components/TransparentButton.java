@@ -35,6 +35,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 import javax.swing.JButton;
+import javax.swing.JComponent;
 
 import co.zmc.projectindigo.IndigoLauncher;
 
@@ -44,18 +45,18 @@ public class TransparentButton extends JButton implements MouseListener {
     private float   _transparencyLevel = 1F;
     private boolean _isToggle          = false;
 
-    public TransparentButton(String label, float transparencyLevel, boolean isToggle) {
-        this(label, transparencyLevel);
+    public TransparentButton(JComponent frame, String label, float transparencyLevel, boolean isToggle) {
+        this(frame, label, transparencyLevel);
         _isToggle = isToggle;
     }
 
-    public TransparentButton(String label, float transparencyLevel) {
+    public TransparentButton(JComponent frame, String label, float transparencyLevel) {
         _transparencyLevel = transparencyLevel;
         setText(label);
         setBackground(Color.WHITE);
-        setBorder(new Border(5, getBackground()));
         addMouseListener(this);
         setFont(IndigoLauncher.getMinecraftFont(14));
+        frame.add(this, 0);
     }
 
     public void paint(Graphics g) {
@@ -74,6 +75,12 @@ public class TransparentButton extends JButton implements MouseListener {
 
         g2d.setColor(old);
         g2d.dispose();
+    }
+
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        this.clicked = !enabled;
+        repaint();
     }
 
     public boolean isClicked() {
