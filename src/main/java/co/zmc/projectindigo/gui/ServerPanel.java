@@ -38,7 +38,6 @@ import co.zmc.projectindigo.gui.components.Image;
 import co.zmc.projectindigo.gui.components.ProgressBar;
 import co.zmc.projectindigo.gui.components.TextBox;
 import co.zmc.projectindigo.gui.components.TransparentButton;
-import co.zmc.projectindigo.gui.components.TransparentImage;
 import co.zmc.projectindigo.managers.ServerManager;
 
 @SuppressWarnings("serial")
@@ -76,7 +75,6 @@ public class ServerPanel extends JPanel {
         _launchBtn.setBounds(getWidth() - padding - 149, getHeight() - btnHeight - (padding / 2) * 3, btnWidth, btnHeight);
         _serverIP.setBounds(padding, getHeight() - btnHeight - (padding / 2) * 3, (getWidth() - (padding * 3) - 149), btnHeight);
 
-        add(new TransparentImage("main_bg", 0.7F, getWidth(), getHeight()));
         add(new Image("bg", getWidth(), getHeight()));
     }
 
