@@ -43,15 +43,14 @@ import co.zmc.projectindigo.gui.ServerPanel;
 import co.zmc.projectindigo.gui.components.ProgressSplashScreen;
 import co.zmc.projectindigo.utils.DirectoryLocations;
 import co.zmc.projectindigo.utils.ResourceUtils;
-import co.zmc.projectindigo.utils.Utils;
 
 @SuppressWarnings("serial")
 public class IndigoLauncher extends JFrame {
     public static final String    TITLE            = "Project Indigo";
     private static IndigoLauncher _launcher;
-    private LoginResponse         _loginResponse;
     public Dimension              _loginPanelSize  = new Dimension(400, 200);
     public Dimension              _serverPanelSize = new Dimension(900, 580);
+    private LoginResponse         _loginResponse;
     public ServerPanel            _serverPanel;
     public LoginPanel             _loginPanel;
     public ProgressSplashScreen   _splash;
@@ -72,12 +71,6 @@ public class IndigoLauncher extends JFrame {
     }
 
     private void setLookandFeel() {
-        System.setProperty("java.net.preferIPv4Stack", "true");
-        if (Utils.getCurrentOS() == Utils.OS.MACOSX) {
-            System.setProperty("apple.laf.useScreenMenuBar", "true");
-            System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Indigo");
-        }
-
         setTitle(IndigoLauncher.TITLE);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setResizable(false);
@@ -87,7 +80,6 @@ public class IndigoLauncher extends JFrame {
     }
 
     private void initComponents() {
-
         _loginPanel = new LoginPanel(_launcher, _loginPanelSize.width, _loginPanelSize.height);
         _loginPanel.setVisible(true);
         add(_loginPanel);

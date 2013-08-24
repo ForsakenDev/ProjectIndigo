@@ -33,7 +33,6 @@ public class ServerPanel extends JPanel {
     public void setupLook() {
         _serverManager = new ServerManager();
         _serverManager.execute();
-
         add(new Image("bg", getWidth(), getHeight()));
     }
 

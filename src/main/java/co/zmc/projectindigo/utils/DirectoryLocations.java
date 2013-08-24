@@ -35,7 +35,8 @@ public class DirectoryLocations {
     public static final String AVATAR_CACHE_DIR_LOCATION         = BASE_DIR_LOCATION + "images/avatars/";
     public static final String SERVER_CACHE_DIR_LOCATION         = BASE_DIR_LOCATION + "images/servers/";
     public static final String BACKGROUND_DIR_LOCATION           = IMAGE_DIR_LOCATION + "background/";
-    public static final String SERVER_DIR_LOCATION               = BASE_DIR_LOCATION + "%s/minecraft/%s/";
+    public static final String SERVER_DIR_LOCATION               = BASE_DIR_LOCATION + "%s/";
+    public static final String SERVER_DATA_DIR_LOCATION          = BASE_DIR_LOCATION + "%s/data/";
     public static final String SERVER_MINECRAFT_DIR_LOCATION     = BASE_DIR_LOCATION + "%s/minecraft/%s/";
     public static final String SERVER_MINECRAFT_BIN_DIR_LOCATION = SERVER_MINECRAFT_DIR_LOCATION + "bin/";
 }
