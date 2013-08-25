@@ -61,7 +61,7 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
     @Override
     protected Boolean doInBackground() {
         logger.log(Level.INFO, "Checking if MC exists");
-        setStatus("Downloading jars...");
+        // Downloading jars
         if (!loadJarURLs()) { return false; }
         if (!_binDir.exists()) {
             logger.log(Level.INFO, "Could not find the bin directory, creating it at: " + _binDir.getPath());
@@ -72,7 +72,7 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
             logger.log(Level.SEVERE, "Download Failed");
             return false;
         }
-        setStatus("Extracting files...");
+        // ectracting files
         logger.log(Level.INFO, "Extracting Files");
         if (!extractNatives()) {
             logger.log(Level.SEVERE, "Extraction Failed");
@@ -145,7 +145,7 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
                     }
                     InputStream dlStream = dlConnection.getInputStream();
                     FileOutputStream outStream = new FileOutputStream(new File(_binDir, jarFileName));
-                    setStatus("Downloading " + jarFileName + "...");
+                    // Downloading " + jarFileName
                     byte[] buffer = new byte[24000];
                     int readLen;
                     int currentDLSize = 0;
@@ -177,7 +177,7 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
     }
 
     protected boolean extractNatives() {
-        setStatus("Extracting natives...");
+        // Extracting natives..
         File nativesJar = new File(_binDir, getFilename(_jarURLs[_jarURLs.length - 1]));
         File nativesDir = new File(_binDir, "natives");
         if (!nativesDir.isDirectory()) {
@@ -194,7 +194,7 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
                     currentEntry = zipIn.getNextEntry();
                     continue;
                 }
-                setStatus("Extracting " + currentEntry + "...");
+                // Extracting " + currentEntry
                 FileOutputStream outStream = new FileOutputStream(new File(nativesDir, currentEntry.getName()));
                 int readLen;
                 byte[] buffer = new byte[1024];
@@ -225,15 +225,5 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
             string = string.substring(0, string.indexOf('?'));
         }
         return string.substring(string.lastIndexOf('/') + 1);
-    }
-
-    protected void setStatus(String newStatus) {
-        String oldStatus = _status;
-        _status = newStatus;
-        firePropertyChange("status", oldStatus, newStatus);
-    }
-
-    public String getStatus() {
-        return _status;
     }
 }
