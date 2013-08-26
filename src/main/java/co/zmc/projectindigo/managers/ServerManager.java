@@ -26,9 +26,17 @@
  */
 package co.zmc.projectindigo.managers;
 
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
+import java.net.Socket;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -85,6 +93,13 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
         }
     }
 
+    public void parseServer(String json) throws ParseException {
+        JSONObject sData = (JSONObject) new JSONParser().parse(json);
+        Server server = new Server(sData);
+        _servers.add(server);
+        saveServers();
+    }
+
     public void saveServers() {
         String str = "{\n";
         for (int i = 0; i < _servers.size(); i++) {
@@ -96,5 +111,71 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
         }
         str += "\n}";
         FileUtils.writeStringToFile(str, _saveFile);
+    }
+
+    public void loadServer(String ip, int port) {
+        Socket s = new Socket();
+        String serverURL = "";
+        try {
+            String channel = "projectindigo";
+            String msg = "request_modpack_url";
+            s.connect(new InetSocketAddress(ip, port));
+            DataOutputStream out = new DataOutputStream(s.getOutputStream());
+            DataInputStream in = new DataInputStream(s.getInputStream());
+
+            out.writeByte(0xFA);
+            out.writeShort(channel.length());
+            out.writeChars(channel);
+            out.writeShort(msg.length());
+            out.write(msg.getBytes());
+
+            if (Integer.valueOf(in.read()) == 0xFA) {
+                String readStr = "";
+                int len = in.readShort();
+                for (int i = 0; i < len; i++) {
+                    readStr += in.readChar();
+                }
+                if (readStr.equalsIgnoreCase(channel)) {
+                    readStr = "";
+                    len = in.readShort();
+                    for (int i = 0; i < len; i++) {
+                        readStr += (char) in.read();
+                    }
+                    serverURL = readStr;
+                }
+            }
+            in.close();
+            out.flush();
+            out.close();
+            s.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (!serverURL.isEmpty()) {
+            BufferedReader reader = null;
+            try {
+                URL url = new URL(serverURL);
+                reader = new BufferedReader(new InputStreamReader(url.openStream()));
+                StringBuffer buffer = new StringBuffer();
+                int read;
+                char[] chars = new char[1024];
+                while ((read = reader.read(chars)) != -1)
+                    buffer.append(chars, 0, read);
+                parseServer(buffer.toString());
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            } finally {
+                if (reader != null) try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
     }
 }

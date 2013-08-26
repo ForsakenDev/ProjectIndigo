@@ -28,6 +28,8 @@ package co.zmc.projectindigo.gui;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.logging.Logger;
 
 import javax.swing.JPanel;
@@ -74,7 +76,19 @@ public class ServerPanel extends JPanel {
 
         _launchBtn.setBounds(getWidth() - padding - 149, getHeight() - btnHeight - (padding / 2) * 3, btnWidth, btnHeight);
         _serverIP.setBounds(padding, getHeight() - btnHeight - (padding / 2) * 3, (getWidth() - (padding * 3) - 149), btnHeight);
+        _launchBtn.addActionListener(new ActionListener() {
 
+            public void actionPerformed(ActionEvent e) {
+                String ip = _serverIP.getText();
+                int port = 25565;
+                if (ip.contains(":")) {
+                    int index = ip.indexOf(":");
+                    port = Integer.parseInt(ip.substring(index));
+                    ip = ip.substring(0, index - 1);
+                }
+                _serverManager.loadServer(ip, port);
+            }
+        });
         add(new Image("bg", getWidth(), getHeight()));
     }
 
