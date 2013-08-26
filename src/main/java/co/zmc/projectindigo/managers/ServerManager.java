@@ -26,17 +26,13 @@
  */
 package co.zmc.projectindigo.managers;
 
-import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
 import java.net.Socket;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -93,6 +89,13 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
         }
     }
 
+    public void parseServer(String json, int port) throws ParseException {
+        JSONObject sData = (JSONObject) new JSONParser().parse(json);
+        Server server = new Server(sData, port);
+        _servers.add(server);
+        saveServers();
+    }
+
     public void parseServer(String json) throws ParseException {
         JSONObject sData = (JSONObject) new JSONParser().parse(json);
         Server server = new Server(sData);
@@ -107,7 +110,7 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
             if (i > 0) {
                 str += ", \n";
             }
-            str += "\"" + (i + 1) + "\": " + s.toString();
+            str += "  \"" + (i + 1) + "\": " + s.toString();
         }
         str += "\n}";
         FileUtils.writeStringToFile(str, _saveFile);
@@ -119,10 +122,12 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
         try {
             String channel = "projectindigo";
             String msg = "request_modpack_url";
+            System.out.println("Connecting to server " + ip + ":" + port);
             s.connect(new InetSocketAddress(ip, port));
             DataOutputStream out = new DataOutputStream(s.getOutputStream());
             DataInputStream in = new DataInputStream(s.getInputStream());
 
+            System.out.println("Requesting server information");
             out.writeByte(0xFA);
             out.writeShort(channel.length());
             out.writeChars(channel);
@@ -152,28 +157,11 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
             e.printStackTrace();
         }
         if (!serverURL.isEmpty()) {
-            BufferedReader reader = null;
+            System.out.println("Reading server information");
             try {
-                URL url = new URL(serverURL);
-                reader = new BufferedReader(new InputStreamReader(url.openStream()));
-                StringBuffer buffer = new StringBuffer();
-                int read;
-                char[] chars = new char[1024];
-                while ((read = reader.read(chars)) != -1)
-                    buffer.append(chars, 0, read);
-                parseServer(buffer.toString());
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+                parseServer(serverURL, port);
             } catch (ParseException e) {
                 e.printStackTrace();
-            } finally {
-                if (reader != null) try {
-                    reader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             }
 
         }

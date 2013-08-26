@@ -82,20 +82,22 @@ public class ServerPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 String ip = _serverIP.getText().trim();
                 if (!ip.contains(" ")) {
-	                int port = 25565;
-	                try {
-		                if (ip.contains(":")) {
-		                    int index = ip.indexOf(":");
-		                    port = Integer.parseInt(ip.substring(index));
-		                    ip = ip.substring(0, index - 1);
-		                }
-		                
-		                _serverManager.loadServer(ip, port);
-	                } catch (NumberFormatException e1) {
-	                	JOptionPane.showMessageDialog(null, "ERROR - Port must be number!");
-	                }
+                    int port = 25565;
+                    try {
+                        if (ip.contains(":")) {
+                            int index = ip.indexOf(":");
+                            port = Integer.parseInt(ip.substring(index));
+                            ip = ip.substring(0, index - 1);
+                        }
+
+                        _serverManager.loadServer(ip, port);
+                    } catch (NumberFormatException e1) {
+                        JOptionPane.showMessageDialog(getParent(), "You need to include a valid port number", "Invalid Port",
+                                JOptionPane.WARNING_MESSAGE);
+                    }
                 } else {
-                	JOptionPane.showMessageDialog(null, "ERROR - Malformed address!");
+                    JOptionPane.showMessageDialog(getParent(), "You need to include a valid IP Address", "Invalid IP Address",
+                            JOptionPane.WARNING_MESSAGE);
                 }
             }
         });

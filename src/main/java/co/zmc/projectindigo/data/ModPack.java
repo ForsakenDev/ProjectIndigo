@@ -30,11 +30,13 @@ public class ModPack {
 
     private String _packHost;
     private String _packName;
+    private String _packURL;
     private String _packVersion;
 
-    public ModPack(String packHost, String packName, String packVersion) {
+    public ModPack(String packHost, String packName, String packURL, String packVersion) {
         _packHost = packHost;
         _packName = packName;
+        _packURL = packURL;
         _packVersion = packVersion;
     }
 
@@ -44,6 +46,10 @@ public class ModPack {
 
     public String getPackName() {
         return _packName;
+    }
+
+    public String getPackURL() {
+        return _packURL;
     }
 
     public String getPackVersion() {
