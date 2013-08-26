@@ -31,12 +31,14 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import org.json.simple.JSONObject;
@@ -153,6 +155,10 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
             out.flush();
             out.close();
             s.close();
+        } catch (ConnectException e) {
+            JOptionPane.showMessageDialog(null, "Failed to connect to the server... Are you sure the address is right?", "Connection failed",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
         } catch (Exception e) {
             e.printStackTrace();
         }
