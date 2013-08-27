@@ -151,15 +151,14 @@ public class IndigoLauncher extends JFrame {
         double yDist = _serverPanelSize.height - _loginPanelSize.height;
         final double xAccel = 2 * xDist * Math.pow(playTime, -2);
         final double yAccel = 2 * yDist * Math.pow(playTime, -2);
-        final JFrame frame = this;
         
         Timer timer = new Timer(10, new ActionListener() {
 			double xVelocity = 0;
 			double yVelocity = 0;
-			double xSize = frame.getSize().width;
-			double ySize = frame.getSize().height;
-			double xLocation = frame.getLocation().x;
-			double yLocation = frame.getLocation().y;
+			double xSize = _launcher.getSize().width;
+			double ySize = _launcher.getSize().height;
+			double xLocation = _launcher.getLocation().x;
+			double yLocation = _launcher.getLocation().y;
 			long lastTime = 0;
         	public void actionPerformed(ActionEvent e) {
         		if (lastTime == 0) {
@@ -178,11 +177,11 @@ public class IndigoLauncher extends JFrame {
         		xLocation -= (xVelocity * deltaTime) / 2;
         		yLocation -= (yVelocity * deltaTime) / 2;
         		
-        		frame.setSize((int)xSize, (int)ySize);
-        		frame.setLocation((int)xLocation, (int)yLocation);
+        		_launcher.setSize((int)xSize, (int)ySize);
+        		_launcher.setLocation((int)xLocation, (int)yLocation);
         		
         		if (System.currentTimeMillis() - startTime > playTime) {
-        			frame.setSize(_serverPanelSize);
+        			_launcher.setSize(_serverPanelSize);
         			((Timer)e.getSource()).stop();
         		}
         	}
