@@ -31,10 +31,13 @@ import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 
 import javax.swing.JFrame;
+import javax.swing.Timer;
 import javax.swing.WindowConstants;
 
 import co.zmc.projectindigo.data.LoginResponse;
@@ -138,15 +141,56 @@ public class IndigoLauncher extends JFrame {
         _serverPanel.setVisible(false);
     }
 
+    private long startTime = 0;
     public void launchServerFrame() {
-        GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        this.setMaximizedBounds(new Rectangle((env.getCenterPoint().x - (_serverPanelSize.width / 2)),
-                (env.getCenterPoint().y - (_serverPanelSize.height / 2)), _serverPanelSize.width, _serverPanelSize.height));
-        this.setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
-
-        setLocationRelativeTo(null);
-        _loginPanel.setVisible(false);
         _serverPanel.setVisible(true);
+        _loginPanel.setVisible(false);
+
+        final int playTime = 600;
+        double xDist = _serverPanelSize.width - _loginPanelSize.width;
+        double yDist = _serverPanelSize.height - _loginPanelSize.height;
+        final double xAccel = 2 * xDist * Math.pow(playTime, -2);
+        final double yAccel = 2 * yDist * Math.pow(playTime, -2);
+        final JFrame frame = this;
+        
+        Timer timer = new Timer(10, new ActionListener() {
+			double xVelocity = 0;
+			double yVelocity = 0;
+			double xSize = frame.getSize().width;
+			double ySize = frame.getSize().height;
+			double xLocation = frame.getLocation().x;
+			double yLocation = frame.getLocation().y;
+			long lastTime = 0;
+        	public void actionPerformed(ActionEvent e) {
+        		if (lastTime == 0) {
+        			lastTime = System.currentTimeMillis();
+        		}
+        		
+        		long deltaTime = System.currentTimeMillis() - lastTime;
+        		lastTime = System.currentTimeMillis();
+        		
+        		xVelocity += xAccel * deltaTime;
+        		yVelocity += yAccel * deltaTime;
+        		
+        		xSize += xVelocity * deltaTime;
+        		ySize += yVelocity * deltaTime;
+        		
+        		xLocation -= (xVelocity * deltaTime) / 2;
+        		yLocation -= (yVelocity * deltaTime) / 2;
+        		
+        		frame.setSize((int)xSize, (int)ySize);
+        		frame.setLocation((int)xLocation, (int)yLocation);
+        		
+        		if (System.currentTimeMillis() - startTime > playTime) {
+        			frame.setSize(_serverPanelSize);
+        			((Timer)e.getSource()).stop();
+        		}
+        	}
+		});
+        startTime = System.currentTimeMillis();
+        timer.start();
+    	
+        setLocationRelativeTo(null);
 
     }
 
