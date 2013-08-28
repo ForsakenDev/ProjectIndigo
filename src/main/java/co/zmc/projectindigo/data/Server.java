@@ -36,10 +36,6 @@ public class Server {
     private String  _logo;
     private ModPack _modPack;
 
-    public Server(JSONObject server) {
-        this(server, 25565);
-    }
-
     public Server(JSONObject server, int port) {
         _name = (String) server.get("name");
         _ip = (String) server.get("ip");
@@ -82,5 +78,13 @@ public class Server {
         data += "\n    \"modpack_version\": \"" + getModPack().getPackVersion() + "\"";
         data += "\n  }";
         return data;
+    }
+    
+    public int getPlayersOnline() {
+        return 83;
+    }
+    
+    public int getTotalOnline() {
+        return 1000;
     }
 }

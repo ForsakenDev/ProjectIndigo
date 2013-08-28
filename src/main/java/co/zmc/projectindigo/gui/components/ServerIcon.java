@@ -29,7 +29,6 @@ package co.zmc.projectindigo.gui.components;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.font.FontRenderContext;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -38,27 +37,23 @@ import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 
 import co.zmc.projectindigo.IndigoLauncher;
-import co.zmc.projectindigo.utils.DirectoryLocations;
-import co.zmc.projectindigo.utils.DrawingUtils;
 import co.zmc.projectindigo.utils.ResourceUtils;
 
 @SuppressWarnings("serial")
 public class ServerIcon extends JLabel {
-    private int          _serverId;
     private String       _serverName;
     private final JLabel info;
     private final JLabel edit;
     private final JLabel label;
 
-    public ServerIcon(JLayeredPane pane, int serverId, String serverName) {
-        this(pane, serverId, serverName, 150, 150);
+    public ServerIcon(JLayeredPane pane, String serverName) {
+        this(pane, serverName, 150, 150);
     }
 
-    public ServerIcon(JLayeredPane pane, int serverId, String serverName, int width, int height) {
+    public ServerIcon(JLayeredPane pane, String serverName, int width, int height) {
         this.label = new JLabel(serverName);
         this.edit = new JLabel();
         this.info = new JLabel();
-        _serverId = serverId;
         _serverName = serverName;
         pane.add(this, 0);
         pane.add(this.label, 0);
@@ -103,7 +98,6 @@ public class ServerIcon extends JLabel {
         h -= (info.getHeight() + fontSize + 5);
         w = h;
         super.setBounds(x, y, w, h);
-        setIcon(new ImageIcon(getImage().getScaledInstance(w, h, 4)));
         label.setBounds(x + (w / 2) - (getLabelWidth() / 2), y + h + 5, getLabelWidth(), fontSize);
         info.setBounds(x + (w / 2) - info.getWidth(), y - info.getHeight(), info.getWidth(), info.getHeight());
         edit.setBounds(x + (w / 2), y - edit.getHeight(), edit.getWidth(), edit.getHeight());
@@ -126,14 +120,4 @@ public class ServerIcon extends JLabel {
         return _serverName;
     }
 
-    private BufferedImage getImage() {
-        try {
-            return DrawingUtils.overlayImage(ResourceUtils.loadCachedImage("http://www.zephyrunleashed.com/data/server/" + _serverId + ".png",
-                    DirectoryLocations.SERVER_CACHE_DIR_LOCATION, ImageIO.read(ResourceUtils.getResource("server_default"))), ImageIO
-                    .read(ResourceUtils.getResource("overlay")));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return new BufferedImage(getWidth(), getHeight(), 2);
-    }
 }

@@ -65,7 +65,7 @@ public class ServerPanel extends JPanel {
     }
 
     public void setupLook() {
-        _serverManager = new ServerManager();
+        _serverManager = new ServerManager(this);
         _serverManager.execute();
 
         int padding = 25;

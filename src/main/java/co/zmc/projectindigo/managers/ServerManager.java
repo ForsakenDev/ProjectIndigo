@@ -46,6 +46,8 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import co.zmc.projectindigo.data.Server;
+import co.zmc.projectindigo.gui.ServerPanel;
+import co.zmc.projectindigo.gui.components.ServerInfo;
 import co.zmc.projectindigo.utils.DirectoryLocations;
 import co.zmc.projectindigo.utils.FileUtils;
 
@@ -54,6 +56,11 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
     private String            _status;
     private int               _percentComplete;
     private List<Server>      _servers  = new ArrayList<Server>();
+    private ServerPanel       _serverPanel;
+
+    public ServerManager(ServerPanel serverPanel) {
+        _serverPanel = serverPanel;
+    }
 
     @Override
     protected Boolean doInBackground() {
@@ -85,10 +92,19 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
         }
         if (servers != null) {
             for (Object i : servers.keySet()) {
-                Server server = new Server((JSONObject) servers.get(i));
-                _servers.add(server);
+                try {
+                    parseServer((JSONObject) servers.get(i));
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
             }
         }
+    }
+
+    public void parseServer(JSONObject sData) throws NumberFormatException, ParseException {
+        parseServer(sData.toJSONString(), Integer.parseInt((String) sData.get("port")));
     }
 
     public void parseServer(String json, int port) throws ParseException {
@@ -96,13 +112,17 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
         Server server = new Server(sData, port);
         _servers.add(server);
         saveServers();
+        int yOffset = (_servers.size()) * (36 + 5);
+        ServerInfo info = new ServerInfo(_serverPanel, server);
+        info.setBounds(25, yOffset, 200, 26);
+        _serverPanel.add(info);
     }
 
-    public void parseServer(String json) throws ParseException {
-        JSONObject sData = (JSONObject) new JSONParser().parse(json);
-        Server server = new Server(sData);
-        _servers.add(server);
-        saveServers();
+    public Server getServer(String name) {
+        for (Server s : _servers) {
+            if (s.getName().equalsIgnoreCase(name)) { return s; }
+        }
+        return null;
     }
 
     public void saveServers() {
