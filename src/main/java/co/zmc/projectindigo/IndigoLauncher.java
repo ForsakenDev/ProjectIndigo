@@ -31,6 +31,7 @@ import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -146,7 +147,7 @@ public class IndigoLauncher extends JFrame {
         _serverPanel.setVisible(true);
         _loginPanel.setVisible(false);
 
-        final int playTime = 600;
+        final int playTime = 400;
         double xDist = _serverPanelSize.width - _loginPanelSize.width;
         double yDist = _serverPanelSize.height - _loginPanelSize.height;
         final double xAccel = 2 * xDist * Math.pow(playTime, -2);
@@ -181,7 +182,9 @@ public class IndigoLauncher extends JFrame {
         		_launcher.setLocation((int)xLocation, (int)yLocation);
         		
         		if (System.currentTimeMillis() - startTime > playTime) {
+        			Dimension screenRes = Toolkit.getDefaultToolkit().getScreenSize();
         			_launcher.setSize(_serverPanelSize);
+        			_launcher.setLocation((screenRes.width - _launcher.getWidth()) / 2, (screenRes.height - _launcher.getHeight()) / 2);
         			((Timer)e.getSource()).stop();
         		}
         	}
