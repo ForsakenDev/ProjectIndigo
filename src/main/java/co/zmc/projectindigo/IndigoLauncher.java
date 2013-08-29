@@ -29,8 +29,6 @@ package co.zmc.projectindigo;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
-import java.awt.GraphicsEnvironment;
-import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -110,6 +108,10 @@ public class IndigoLauncher extends JFrame {
         if (!file.exists()) {
             file.mkdir();
         }
+        file = new File(DirectoryLocations.SERVERS_BASE_DIR_LOCATION);
+        if (!file.exists()) {
+            file.mkdir();
+        }
     }
 
     public static final Font getMinecraftFont(int size) {
@@ -143,6 +145,7 @@ public class IndigoLauncher extends JFrame {
     }
 
     private long startTime = 0;
+
     public void launchServerFrame() {
         _serverPanel.setVisible(true);
         _loginPanel.setVisible(false);
@@ -152,46 +155,47 @@ public class IndigoLauncher extends JFrame {
         double yDist = _serverPanelSize.height - _loginPanelSize.height;
         final double xAccel = 2 * xDist * Math.pow(playTime, -2);
         final double yAccel = 2 * yDist * Math.pow(playTime, -2);
-        
+
         Timer timer = new Timer(10, new ActionListener() {
-			double xVelocity = 0;
-			double yVelocity = 0;
-			double xSize = _launcher.getSize().width;
-			double ySize = _launcher.getSize().height;
-			double xLocation = _launcher.getLocation().x;
-			double yLocation = _launcher.getLocation().y;
-			long lastTime = 0;
-        	public void actionPerformed(ActionEvent e) {
-        		if (lastTime == 0) {
-        			lastTime = System.currentTimeMillis();
-        		}
-        		
-        		long deltaTime = System.currentTimeMillis() - lastTime;
-        		lastTime = System.currentTimeMillis();
-        		
-        		xVelocity += xAccel * deltaTime;
-        		yVelocity += yAccel * deltaTime;
-        		
-        		xSize += xVelocity * deltaTime;
-        		ySize += yVelocity * deltaTime;
-        		
-        		xLocation -= (xVelocity * deltaTime) / 2;
-        		yLocation -= (yVelocity * deltaTime) / 2;
-        		
-        		_launcher.setSize((int)xSize, (int)ySize);
-        		_launcher.setLocation((int)xLocation, (int)yLocation);
-        		
-        		if (System.currentTimeMillis() - startTime > playTime) {
-        			Dimension screenRes = Toolkit.getDefaultToolkit().getScreenSize();
-        			_launcher.setSize(_serverPanelSize);
-        			_launcher.setLocation((screenRes.width - _launcher.getWidth()) / 2, (screenRes.height - _launcher.getHeight()) / 2);
-        			((Timer)e.getSource()).stop();
-        		}
-        	}
-		});
+            double xVelocity = 0;
+            double yVelocity = 0;
+            double xSize     = _launcher.getSize().width;
+            double ySize     = _launcher.getSize().height;
+            double xLocation = _launcher.getLocation().x;
+            double yLocation = _launcher.getLocation().y;
+            long   lastTime  = 0;
+
+            public void actionPerformed(ActionEvent e) {
+                if (lastTime == 0) {
+                    lastTime = System.currentTimeMillis();
+                }
+
+                long deltaTime = System.currentTimeMillis() - lastTime;
+                lastTime = System.currentTimeMillis();
+
+                xVelocity += xAccel * deltaTime;
+                yVelocity += yAccel * deltaTime;
+
+                xSize += xVelocity * deltaTime;
+                ySize += yVelocity * deltaTime;
+
+                xLocation -= (xVelocity * deltaTime) / 2;
+                yLocation -= (yVelocity * deltaTime) / 2;
+
+                _launcher.setSize((int) xSize, (int) ySize);
+                _launcher.setLocation((int) xLocation, (int) yLocation);
+
+                if (System.currentTimeMillis() - startTime > playTime) {
+                    Dimension screenRes = Toolkit.getDefaultToolkit().getScreenSize();
+                    _launcher.setSize(_serverPanelSize);
+                    _launcher.setLocation((screenRes.width - _launcher.getWidth()) / 2, (screenRes.height - _launcher.getHeight()) / 2);
+                    ((Timer) e.getSource()).stop();
+                }
+            }
+        });
         startTime = System.currentTimeMillis();
         timer.start();
-    	
+
         setLocationRelativeTo(null);
 
     }
