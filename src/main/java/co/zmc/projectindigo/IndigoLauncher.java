@@ -26,6 +26,7 @@
  */
 package co.zmc.projectindigo;
 
+import java.applet.Applet;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
@@ -34,28 +35,36 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.Timer;
 import javax.swing.WindowConstants;
 
 import co.zmc.projectindigo.data.LoginResponse;
+import co.zmc.projectindigo.data.Server;
 import co.zmc.projectindigo.gui.LoginPanel;
 import co.zmc.projectindigo.gui.ServerPanel;
 import co.zmc.projectindigo.gui.components.ProgressSplashScreen;
+import co.zmc.projectindigo.mclaunch.MinecraftFrame;
 import co.zmc.projectindigo.utils.DirectoryLocations;
 import co.zmc.projectindigo.utils.ResourceUtils;
 
 @SuppressWarnings("serial")
 public class IndigoLauncher extends JFrame {
-    public static final String    TITLE            = "Project Indigo";
-    private static IndigoLauncher _launcher;
-    public Dimension              _loginPanelSize  = new Dimension(400, 200);
-    public Dimension              _serverPanelSize = new Dimension(900, 580);
-    private LoginResponse         _loginResponse;
-    public ServerPanel            _serverPanel;
-    public LoginPanel             _loginPanel;
-    public ProgressSplashScreen   _splash;
+    public static final String   TITLE            = "Project Indigo";
+    public static IndigoLauncher _launcher;
+    public Dimension             _loginPanelSize  = new Dimension(400, 200);
+    public Dimension             _serverPanelSize = new Dimension(900, 580);
+    private LoginResponse        _loginResponse;
+    public ServerPanel           _serverPanel;
+    public LoginPanel            _loginPanel;
+    public ProgressSplashScreen  _splash;
 
     public IndigoLauncher() {
         _launcher = this;
@@ -202,5 +211,79 @@ public class IndigoLauncher extends JFrame {
 
     public LoginResponse getLoginResponse() {
         return _loginResponse;
+    }
+
+    public void launchMinecraft(Server server) {
+        try {
+            System.out.println("Loading jars...");
+            String[] jarFiles = new String[] { "minecraft.jar", "lwjgl.jar", "lwjgl_util.jar", "jinput.jar" };
+            ArrayList<File> classPathFiles = new ArrayList<File>();
+
+            for (String jarFile : jarFiles) {
+                classPathFiles.add(new File(server.getBinDir(), jarFile));
+            }
+
+            URL[] urls = new URL[classPathFiles.size()];
+            for (int i = 0; i < classPathFiles.size(); i++) {
+                try {
+                    urls[i] = classPathFiles.get(i).toURI().toURL();
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("Added URL to classpath: " + urls[i].toString());
+            }
+
+            System.out.println("Loading natives...");
+            String nativesDir = new File(server.getBinDir(), "natives").toString();
+            System.out.println("Natives loaded...");
+
+            System.setProperty("org.lwjgl.librarypath", nativesDir);
+            System.setProperty("net.java.games.input.librarypath", nativesDir);
+
+            System.setProperty("user.home", server.getBaseDir().getParent());
+
+            URLClassLoader cl = new URLClassLoader(urls, IndigoLauncher.class.getClassLoader());
+
+            System.out.println("Loading minecraft class");
+            Class<?> mc = cl.loadClass("net.minecraft.client.Minecraft");
+            System.out.println("mc = " + mc);
+            Field[] fields = mc.getDeclaredFields();
+            System.out.println("field amount: " + fields.length);
+
+            for (Field f : fields) {
+                if (f.getType() != File.class) {
+                    continue;
+                }
+                if (0 == (f.getModifiers() & (Modifier.PRIVATE | Modifier.STATIC))) {
+                    continue;
+                }
+                f.setAccessible(true);
+                f.set(null, server.getBaseDir());
+                System.out.println("Fixed Minecraft Path: Field was " + f.toString());
+                break;
+            }
+
+            String mcDir = mc.getMethod("a", String.class).invoke(null, (Object) "minecraft").toString();
+
+            System.out.println("MCDIR: " + mcDir);
+
+            System.out.println("Launching with applet wrapper...");
+
+            try {
+                Class<?> MCAppletClass = cl.loadClass("net.minecraft.client.MinecraftApplet");
+                Applet mcappl = (Applet) MCAppletClass.newInstance();
+                MinecraftFrame mcWindow = new MinecraftFrame(TITLE);
+                mcWindow.start(mcappl, _loginResponse.getUsername(), _loginResponse.getSessionId());
+            } catch (InstantiationException e) {
+                System.out.println("Applet wrapper failed! Falling back to compatibility mode");
+                mc.getMethod("main", String[].class).invoke(null,
+                        (Object) new String[] { _loginResponse.getUsername(), _loginResponse.getSessionId() });
+            }
+        } catch (Throwable t) {
+            System.out.println("Unhandled error launching minecraft:");
+            t.printStackTrace();
+        }
+        this.setVisible(false);
+        this.dispose();
     }
 }

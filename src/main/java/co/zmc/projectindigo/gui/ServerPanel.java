@@ -78,7 +78,6 @@ public class ServerPanel extends JPanel {
         _launchBtn.setBounds(getWidth() - padding - 149, getHeight() - btnHeight - (padding / 2) * 3, btnWidth, btnHeight);
         _serverIP.setBounds(padding, getHeight() - btnHeight - (padding / 2) * 3, (getWidth() - (padding * 3) - 149), btnHeight);
         _launchBtn.addActionListener(new ActionListener() {
-
             public void actionPerformed(ActionEvent e) {
                 String ip = _serverIP.getText().trim();
                 if (!ip.contains(" ")) {

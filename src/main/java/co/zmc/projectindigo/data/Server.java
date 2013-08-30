@@ -34,7 +34,6 @@ import co.zmc.projectindigo.managers.DownloadHandler;
 import co.zmc.projectindigo.utils.DirectoryLocations;
 
 public class Server {
-
     private String _name;
     private String _ip;
     private int    _port;

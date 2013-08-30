@@ -27,6 +27,8 @@
 package co.zmc.projectindigo.gui.components;
 
 import java.awt.Color;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -38,7 +40,7 @@ import co.zmc.projectindigo.data.Server;
 public class ServerInfo extends JLabel {
     private final JLabel _info;
 
-    public ServerInfo(JPanel pane, Server server) {
+    public ServerInfo(JPanel pane, final Server server) {
         _info = new JLabel(server.getIp() + ":" + server.getPort() + " (" + server.getPlayersOnline() + "/" + server.getTotalOnline() + ")");
         setText(server.getName());
         pane.add(this, 0);
@@ -51,6 +53,24 @@ public class ServerInfo extends JLabel {
         setFont(IndigoLauncher.getMinecraftFont(20));
         _info.setForeground(Color.GRAY);
         _info.setFont(IndigoLauncher.getMinecraftFont(12));
+        this.addMouseListener(new MouseListener() {
+
+            public void mouseClicked(MouseEvent e) {
+                IndigoLauncher._launcher.launchMinecraft(server);
+            }
+
+            public void mouseEntered(MouseEvent e) {
+            }
+
+            public void mouseExited(MouseEvent e) {
+            }
+
+            public void mousePressed(MouseEvent e) {
+            }
+
+            public void mouseReleased(MouseEvent e) {
+            }
+        });
     }
 
     public void setBounds(int x, int y, int w, int h) {
