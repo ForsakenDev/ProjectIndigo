@@ -203,7 +203,7 @@ public class MinecraftLauncher {
             }
             
             policy.addAdditionalPerm("permission java.io.FilePermission \"" + basepath.replaceAll("\\\\", "/") + "/-\", \"read, write, delete\"");
-            policy.addAdditionalPerm("permission java.io.FilePermission \"" + nativesDir.replaceAll("\\\\", "/") + "-\", \"read\"");
+            policy.addAdditionalPerm("permission java.io.FilePermission \"" + nativesDir.replaceAll("\\\\", "/") + "/-\", \"read\"");
             policy.addAdditionalPerm("permission java.io.FilePermission \"" + System.getProperty("java.io.tmpdir").replaceAll("\\\\", "/") + "-\", \"read, write, delete\"");
             
             policy.addAdditionalPerm("permission java.net.SocketPermission \"" + ip + ":" + port + "\", \"accept, resolve, listen, connect\"");
