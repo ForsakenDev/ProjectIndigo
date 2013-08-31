@@ -35,7 +35,7 @@ public class ProgressSplashScreen extends SplashScreen {
         super();
         _progressBar.setFont(IndigoLauncher.getMinecraftFont(14));
         _progressBar.setMaximum(100);
-        _progressBar.setBounds(_icon.getIconWidth() / 2 - (270 / 2), (_icon.getIconHeight() / 2) - (29 / 2), 270, 29);
+        _progressBar.setBounds(_icon.getIconWidth() / 2 - (370 / 2), (_icon.getIconHeight() / 2) - (29 / 2), 370, 29);
         updateProgress(reason, initialValue);
         _progressBar.setVisible(true);
         getContentPane().add(_progressBar);

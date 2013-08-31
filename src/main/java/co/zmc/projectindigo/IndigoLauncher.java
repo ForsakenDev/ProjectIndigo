@@ -61,13 +61,18 @@ public class IndigoLauncher extends JFrame {
 
     public IndigoLauncher() {
         _launcher = this;
-        _splash = new ProgressSplashScreen("Loading assets...", 20);
+        _splash = new ProgressSplashScreen("Loading assets...", 0);
         _splash.setVisible(true);
-        _splash.updateProgress("Cleaning directories...", 40);
+        _splash.updateProgress("Cleaning directories...", 0);
         cleanup();
-        _splash.updateProgress("Setting system values...", 60);
+        _splash.updateProgress("Directories cleaned...", 100);
+        _splash.updateProgress("Setting system values...", 0);
         setLookandFeel();
+        _splash.updateProgress("Setting up base components", 50);
         initComponents();
+    }
+
+    public void launchLogin() {
         _splash.updateProgress("Launching login...", 100);
         launchLoginFrame();
         _splash.dispose();
@@ -89,6 +94,7 @@ public class IndigoLauncher extends JFrame {
         add(_loginPanel);
 
         _serverPanel = new ServerPanel(_launcher, _serverPanelSize.width, _serverPanelSize.height);
+        _serverPanel.loadServerManager();
         _serverPanel.setVisible(false);
         add(_serverPanel);
     }

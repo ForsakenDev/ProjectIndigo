@@ -63,10 +63,12 @@ public class ServerPanel extends JPanel {
         setupLook();
     }
 
-    public void setupLook() {
+    public void loadServerManager() {
         _serverManager = new ServerManager(this);
         _serverManager.execute();
+    }
 
+    public void setupLook() {
         int padding = 25;
         int btnWidth = 149;
         int btnHeight = 24;

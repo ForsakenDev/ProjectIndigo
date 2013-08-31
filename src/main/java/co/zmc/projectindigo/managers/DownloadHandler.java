@@ -41,6 +41,7 @@ import java.util.zip.ZipInputStream;
 
 import javax.swing.SwingWorker;
 
+import co.zmc.projectindigo.IndigoLauncher;
 import co.zmc.projectindigo.data.Server;
 import co.zmc.projectindigo.utils.Utils;
 
@@ -61,12 +62,14 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
     protected Boolean doInBackground() {
         logger.log(Level.INFO, "Checking if MC exists");
         // Downloading jars
+        IndigoLauncher._launcher._splash.updateProgress("Installing " + _server.getName() + "...", 0);
         if (!loadJarURLs()) { return false; }
         if (!_server.getBinDir().exists()) {
             _server.getBinDir().mkdirs();
         }
         logger.log(Level.INFO, "Downloading Jars");
         if (!downloadJars()) {
+
             logger.log(Level.SEVERE, "Download Failed");
             return false;
         }
@@ -78,6 +81,11 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
         }
         logger.log(Level.INFO, "Download complete");
         return true;
+    }
+
+    @Override
+    protected void done() {
+        IndigoLauncher._launcher.launchLogin();
     }
 
     protected boolean loadJarURLs() {
@@ -170,7 +178,7 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
             } else if (prog < 0) {
                 prog = 0;
             }
-            setProgress(prog);
+            IndigoLauncher._launcher._splash.updateProgress("Downloading " + jarFileName + "...", prog);
         }
         dlStream.close();
         outStream.close();
