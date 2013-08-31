@@ -31,7 +31,15 @@ public class Main {
         main(new String[0]);
     }
 
+    public Main(String defaultUser) {
+        main(new String[] { defaultUser });
+    }
+
     public static void main(String[] args) {
-        new IndigoLauncher();
+        if (args.length == 1) {
+            new IndigoLauncher(args[0]);
+        } else {
+            new IndigoLauncher("");
+        }
     }
 }

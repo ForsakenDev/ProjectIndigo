@@ -217,7 +217,7 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
                 saveServers();
                 IndigoLauncher._launcher.setVisible(false);
                 IndigoLauncher._launcher.dispose();
-                new Main();
+                new Main(IndigoLauncher._launcher.getUsername());
             } catch (ParseException e) {
                 e.printStackTrace();
             }

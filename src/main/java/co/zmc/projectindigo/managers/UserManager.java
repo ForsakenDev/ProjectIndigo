@@ -95,6 +95,13 @@ public class UserManager {
         return false;
     }
 
+    public final String getAccountKey(String username) {
+        for (String s : usernames.keySet()) {
+            if (usernames.get(s).getUsername().equalsIgnoreCase(username)) { return s; }
+        }
+        return "";
+    }
+
     public final String getAccountName(String username) {
         if (usernames.containsKey(username)) { return usernames.get(username).getUsername(); }
         return username;

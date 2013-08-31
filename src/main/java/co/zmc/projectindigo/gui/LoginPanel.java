@@ -62,7 +62,7 @@ public class LoginPanel extends JLayeredPane {
     protected ProgressBar       _progressBar;
     protected String            _activeUser;
 
-    public LoginPanel(IndigoLauncher launcher, int width, int height) {
+    public LoginPanel(IndigoLauncher launcher, int width, int height, String defaultLogin) {
         _launcher = launcher;
         _userManager = new UserManager(_launcher._splash);
         setLayout(null);
@@ -73,6 +73,9 @@ public class LoginPanel extends JLayeredPane {
         setPreferredSize(dim);
         setBounds(0, 0, width, height);
         setupLook();
+        if (!defaultLogin.isEmpty()) {
+            tryLogin(_userManager.getAccountKey(defaultLogin));
+        }
     }
 
     public void setupLook() {
