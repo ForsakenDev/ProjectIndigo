@@ -64,8 +64,8 @@ public class IndigoLauncher extends JFrame {
     public ServerPanel           _serverPanel;
     public LoginPanel            _loginPanel;
     public ProgressSplashScreen  _splash;
-    public static String policyLocation = "";
-    private ArrayList<String> additionalPerms = new ArrayList<String>();
+    public static String         policyLocation   = "";
+    private ArrayList<String>    additionalPerms  = new ArrayList<String>();
 
     public IndigoLauncher() {
         _launcher = this;
@@ -251,24 +251,22 @@ public class IndigoLauncher extends JFrame {
             cpb.append(new File(server.getBinDir(), jarFile).getAbsolutePath());
         }
         copySecurityPolicy();
-        String nativesDirPermFormatted = server.getBaseDir().getAbsolutePath().replaceAll("\\\\", "/") + "/minecraft/bin/natives/";
-        //Mac and linux natives will need to be specified individually as well. I have no idea what they are.
-        addAdditionalPerm("permission java.lang.RuntimePermission \"loadLibrary." + nativesDirPermFormatted + "jinput-dx8.dll" + "\"");
-        addAdditionalPerm("permission java.lang.RuntimePermission \"loadLibrary." + nativesDirPermFormatted + "jinput-dx8_64.dll" + "\"");
-        addAdditionalPerm("permission java.lang.RuntimePermission \"loadLibrary." + nativesDirPermFormatted + "jinput-raw.dll" + "\"");
-        addAdditionalPerm("permission java.lang.RuntimePermission \"loadLibrary." + nativesDirPermFormatted + "jinput-raw_64.dll" + "\"");
-        addAdditionalPerm("permission java.lang.RuntimePermission \"loadLibrary." + nativesDirPermFormatted + "lwjgl.dll" + "\"");
-        addAdditionalPerm("permission java.lang.RuntimePermission \"loadLibrary." + nativesDirPermFormatted + "lwjgl64.dll" + "\"");
-        addAdditionalPerm("permission java.lang.RuntimePermission \"loadLibrary." + nativesDirPermFormatted + "OpenAL32.dll" + "\"");
-        addAdditionalPerm("permission java.lang.RuntimePermission \"loadLibrary." + nativesDirPermFormatted + "OpenAL64.dll" + "\"");
-        
-        addAdditionalPerm("permission java.io.FilePermission \"" + server.getBaseDir().getParent().replaceAll("\\\\", "/") + "/-\", \"read, write, delete\"");
-        addAdditionalPerm("permission java.io.FilePermission \"" + System.getProperty("java.io.tmpdir").replaceAll("\\\\", "/") + "-\", \"read, write, delete\"");
-        
-        addAdditionalPerm("permission java.net.SocketPermission \"" + server.getIp() +"\", \"accept, resolve, listen, connect\"");
-        
+        File file = new File(server.getBaseDir(), "/minecraft/bin/natives");
+        if (file.isDirectory()) {
+            for (File f : file.listFiles()) {
+                addAdditionalPerm("permission java.lang.RuntimePermission \"loadLibrary." + f.getAbsolutePath().replaceAll("\\\\", "/") + "\"");
+            }
+        }
+
+        addAdditionalPerm("permission java.io.FilePermission \"" + server.getBaseDir().getParent().replaceAll("\\\\", "/")
+                + "/-\", \"read, write, delete\"");
+        addAdditionalPerm("permission java.io.FilePermission \"" + System.getProperty("java.io.tmpdir").replaceAll("\\\\", "/")
+                + "-\", \"read, write, delete\"");
+
+        addAdditionalPerm("permission java.net.SocketPermission \"" + server.getIp() + "\", \"accept, resolve, listen, connect\"");
+
         writeAdditionalPerms(policyLocation);
-        
+
         List<String> arguments = new ArrayList<String>();
 
         String separator = System.getProperty("file.separator");
@@ -293,9 +291,9 @@ public class IndigoLauncher extends JFrame {
         arguments.add(TITLE);
 
         for (String arg : arguments) {
-        	System.out.println(arg);
+            System.out.println(arg);
         }
-        
+
         ProcessBuilder processBuilder = new ProcessBuilder(arguments);
         processBuilder.redirectErrorStream(true);
         try {
@@ -305,45 +303,45 @@ public class IndigoLauncher extends JFrame {
         }
         return null;
     }
-    
+
     public boolean copySecurityPolicy() {
-    	InputStream policy = IndigoLauncher.class.getResourceAsStream("/co/zmc/projectindigo/resources/security/security.policy");
-    	File newPolicyFile = new File(DirectoryLocations.DATA_DIR_LOCATION + "security.policy");
-    	policyLocation = newPolicyFile.getAbsolutePath();
-    	System.out.println("Copying over new security policy.");
-    	try {
-			OutputStream newOut = new FileOutputStream(newPolicyFile);
-			byte[] buffer = new byte[1024];
-			int read;
-			while ((read = policy.read(buffer)) > 0) {
-				newOut.write(buffer, 0, read);
-			}
-			newOut.close();
-			policy.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-    	System.out.println("Success.");
-    	return true;
+        InputStream policy = IndigoLauncher.class.getResourceAsStream("/co/zmc/projectindigo/resources/security/security.policy");
+        File newPolicyFile = new File(DirectoryLocations.DATA_DIR_LOCATION + "security.policy");
+        policyLocation = newPolicyFile.getAbsolutePath();
+        System.out.println("Copying over new security policy.");
+        try {
+            OutputStream newOut = new FileOutputStream(newPolicyFile);
+            byte[] buffer = new byte[1024];
+            int read;
+            while ((read = policy.read(buffer)) > 0) {
+                newOut.write(buffer, 0, read);
+            }
+            newOut.close();
+            policy.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Success.");
+        return true;
     }
-    
+
     public void addAdditionalPerm(String perm) {
-    	additionalPerms.add("\ngrant{" + perm + ";};");
+        additionalPerms.add("\ngrant{" + perm + ";};");
     }
-    
+
     public void writeAdditionalPerms(String location) {
-    	try {
-    		FileWriter out = new FileWriter(location, true);
-    		out.write("\n//AUTO-GENERATED PERMS BEGIN\n");
-    		for (String perm : additionalPerms) {
-        		System.out.println("Writing additional perm " + perm.replaceAll("\n", ""));
-    			out.write(perm);
-    		}
-    		out.flush();
-    		out.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+        try {
+            FileWriter out = new FileWriter(location, true);
+            out.write("\n//AUTO-GENERATED PERMS BEGIN\n");
+            for (String perm : additionalPerms) {
+                System.out.println("Writing additional perm " + perm.replaceAll("\n", ""));
+                out.write(perm);
+            }
+            out.flush();
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-    
+
 }
