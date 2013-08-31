@@ -21,8 +21,7 @@
  * You should have received a copy of the GNU Lesser General Public License,
  * the MIT license and the ZephyrUnleashed License Version 1 along with this program.
  * If not, see <http://www.gnu.org/licenses/> for the GNU Lesser General Public
- * License and see <http://spout.in/licensev1> for the full license,
- * including the MIT license.
+ * License.
  */
 package co.zmc.projectindigo;
 
@@ -41,6 +40,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 import javax.swing.Timer;
@@ -54,6 +56,7 @@ import co.zmc.projectindigo.gui.components.ProgressSplashScreen;
 import co.zmc.projectindigo.mclaunch.MinecraftFrame;
 import co.zmc.projectindigo.utils.DirectoryLocations;
 import co.zmc.projectindigo.utils.ResourceUtils;
+import co.zmc.projectindigo.utils.Utils;
 
 @SuppressWarnings("serial")
 public class IndigoLauncher extends JFrame {
@@ -213,77 +216,73 @@ public class IndigoLauncher extends JFrame {
         return _loginResponse;
     }
 
-    public void launchMinecraft(Server server) {
-        try {
-            System.out.println("Loading jars...");
-            String[] jarFiles = new String[] { "minecraft.jar", "lwjgl.jar", "lwjgl_util.jar", "jinput.jar" };
-            ArrayList<File> classPathFiles = new ArrayList<File>();
+    private String forgename = "MinecraftForge.zip";
 
-            for (String jarFile : jarFiles) {
-                classPathFiles.add(new File(server.getBinDir(), jarFile));
-            }
-
-            URL[] urls = new URL[classPathFiles.size()];
-            for (int i = 0; i < classPathFiles.size(); i++) {
-                try {
-                    urls[i] = classPathFiles.get(i).toURI().toURL();
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
+    public Process launchMinecraft(Server server) {
+        String[] jarFiles = new String[] { "minecraft.jar", "lwjgl.jar", "lwjgl_util.jar", "jinput.jar" };
+        StringBuilder cpb = new StringBuilder("");
+        File instModsDir = new File(server.getBaseDir(), "instMods/");
+        if (instModsDir.isDirectory()) {
+            String[] files = instModsDir.list();
+            Arrays.sort(files);
+            for (String name : files) {
+                if (!name.equals(forgename)) {
+                    if (name.toLowerCase().contains("forge") && name.toLowerCase().contains("minecraft") && name.toLowerCase().endsWith(".zip")) {
+                        if (new File(instModsDir, forgename).exists()) {
+                            if (!new File(instModsDir, forgename).equals(new File(instModsDir, name))) {
+                                new File(instModsDir, name).delete();
+                            }
+                        } else {
+                            new File(instModsDir, name).renameTo(new File(instModsDir, forgename));
+                        }
+                    } else if (!name.equalsIgnoreCase(forgename) && (name.toLowerCase().endsWith(".zip") || name.toLowerCase().endsWith(".jar"))) {
+                        cpb.append(Utils.getJavaDelimiter());
+                        cpb.append(new File(instModsDir, name).getAbsolutePath());
+                    }
                 }
-                System.out.println("Added URL to classpath: " + urls[i].toString());
             }
-
-            System.out.println("Loading natives...");
-            String nativesDir = new File(server.getBinDir(), "natives").toString();
-            System.out.println("Natives loaded...");
-
-            System.setProperty("org.lwjgl.librarypath", nativesDir);
-            System.setProperty("net.java.games.input.librarypath", nativesDir);
-
-            System.setProperty("user.home", server.getBaseDir().getParent());
-
-            URLClassLoader cl = new URLClassLoader(urls, IndigoLauncher.class.getClassLoader());
-
-            System.out.println("Loading minecraft class");
-            Class<?> mc = cl.loadClass("net.minecraft.client.Minecraft");
-            System.out.println("mc = " + mc);
-            Field[] fields = mc.getDeclaredFields();
-            System.out.println("field amount: " + fields.length);
-
-            for (Field f : fields) {
-                if (f.getType() != File.class) {
-                    continue;
-                }
-                if (0 == (f.getModifiers() & (Modifier.PRIVATE | Modifier.STATIC))) {
-                    continue;
-                }
-                f.setAccessible(true);
-                f.set(null, server.getBaseDir());
-                System.out.println("Fixed Minecraft Path: Field was " + f.toString());
-                break;
-            }
-
-            String mcDir = mc.getMethod("a", String.class).invoke(null, (Object) "minecraft").toString();
-
-            System.out.println("MCDIR: " + mcDir);
-
-            System.out.println("Launching with applet wrapper...");
-
-            try {
-                Class<?> MCAppletClass = cl.loadClass("net.minecraft.client.MinecraftApplet");
-                Applet mcappl = (Applet) MCAppletClass.newInstance();
-                MinecraftFrame mcWindow = new MinecraftFrame(TITLE);
-                mcWindow.start(mcappl, _loginResponse.getUsername(), _loginResponse.getSessionId());
-            } catch (InstantiationException e) {
-                System.out.println("Applet wrapper failed! Falling back to compatibility mode");
-                mc.getMethod("main", String[].class).invoke(null,
-                        (Object) new String[] { _loginResponse.getUsername(), _loginResponse.getSessionId() });
-            }
-        } catch (Throwable t) {
-            System.out.println("Unhandled error launching minecraft:");
-            t.printStackTrace();
+        } else {
+            System.out.println("Not loading any instMods (minecraft jar mods), as the directory does not exist.");
         }
-        this.setVisible(false);
-        this.dispose();
+
+        cpb.append(Utils.getJavaDelimiter());
+        cpb.append(new File(instModsDir, forgename).getAbsolutePath());
+
+        for (String jarFile : jarFiles) {
+            cpb.append(Utils.getJavaDelimiter());
+            cpb.append(new File(server.getBinDir(), jarFile).getAbsolutePath());
+        }
+
+        List<String> arguments = new ArrayList<String>();
+
+        String separator = System.getProperty("file.separator");
+        String path = System.getProperty("java.home") + separator + "bin" + separator + "java"
+                + (Utils.getCurrentOS() == Utils.OS.WINDOWS ? "w" : "");
+        arguments.add(path);
+
+        arguments.add("-XX:+UseConcMarkSweepGC");
+        arguments.add("-XX:+CMSIncrementalMode");
+        arguments.add("-XX:+AggressiveOpts");
+        arguments.add("-XX:+CMSClassUnloadingEnabled");
+        arguments.add("-XX:PermSize=128m");
+
+        arguments.add("-cp");
+        arguments.add(System.getProperty("java.class.path") + cpb.toString());
+
+        arguments.add(IndigoLauncher.class.getCanonicalName());
+        arguments.add(server.getBaseDir().getName());
+        arguments.add(forgename);
+        arguments.add(_loginResponse.getUsername());
+        arguments.add(_loginResponse.getSessionId());
+        arguments.add(TITLE);
+
+        ProcessBuilder processBuilder = new ProcessBuilder(arguments);
+        processBuilder.redirectErrorStream(true);
+        try {
+            return processBuilder.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

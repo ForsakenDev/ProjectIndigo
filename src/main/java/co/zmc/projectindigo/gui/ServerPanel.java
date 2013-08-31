@@ -21,8 +21,7 @@
  * You should have received a copy of the GNU Lesser General Public License,
  * the MIT license and the ZephyrUnleashed License Version 1 along with this program.
  * If not, see <http://www.gnu.org/licenses/> for the GNU Lesser General Public
- * License and see <http://spout.in/licensev1> for the full license,
- * including the MIT license.
+ * License.
  */
 package co.zmc.projectindigo.gui;
 
@@ -85,10 +84,9 @@ public class ServerPanel extends JPanel {
                     try {
                         if (ip.contains(":")) {
                             int index = ip.indexOf(":");
-                            port = Integer.parseInt(ip.substring(index));
-                            ip = ip.substring(0, index - 1);
+                            port = Integer.parseInt(ip.substring(index + 1));
+                            ip = ip.substring(0, index);
                         }
-
                         _serverManager.loadServer(ip, port);
                     } catch (NumberFormatException e1) {
                         JOptionPane.showMessageDialog(getParent(), "You need to include a valid port number", "Invalid Port",

@@ -21,8 +21,7 @@
  * You should have received a copy of the GNU Lesser General Public License,
  * the MIT license and the ZephyrUnleashed License Version 1 along with this program.
  * If not, see <http://www.gnu.org/licenses/> for the GNU Lesser General Public
- * License and see <http://spout.in/licensev1> for the full license,
- * including the MIT license.
+ * License.
  */
 package co.zmc.projectindigo.data;
 
