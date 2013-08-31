@@ -47,7 +47,7 @@ public class Launcher extends Applet implements AppletStub {
         this.documentBase = documentBase;
     }
 
-    public void setParameter(String name, String value) {
+    public void addParameter(String name, String value) {
         params.put(name, value);
     }
 

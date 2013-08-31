@@ -28,6 +28,7 @@ package co.zmc.projectindigo.gui.components;
 import java.awt.Color;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.IOException;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -55,7 +56,11 @@ public class ServerInfo extends JLabel {
         this.addMouseListener(new MouseListener() {
 
             public void mouseClicked(MouseEvent e) {
-                IndigoLauncher._launcher.launchMinecraft(server);
+                try {
+                    IndigoLauncher._launcher.launchMinecraft(server);
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
             }
 
             public void mouseEntered(MouseEvent e) {

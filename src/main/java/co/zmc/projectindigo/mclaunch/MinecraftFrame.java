@@ -27,70 +27,84 @@ package co.zmc.projectindigo.mclaunch;
 
 import java.applet.Applet;
 import java.awt.Dimension;
-import java.awt.Window;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.swing.JFrame;
 import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
 
 import net.minecraft.Launcher;
-import co.zmc.projectindigo.utils.Utils;
-import co.zmc.projectindigo.utils.Utils.OS;
 
 @SuppressWarnings("serial")
 public class MinecraftFrame extends JFrame {
     private Launcher appletWrap = null;
-    Dimension        size       = new Dimension(900, 480);
 
     public MinecraftFrame(String title) {
         super(title);
-
         try {
-            UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+            for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
         } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        if (Utils.getCurrentOS() == OS.MACOSX) {
             try {
-                Class<?> fullScreenUtilityClass = Class.forName("com.apple.eawt.FullScreenUtilities");
-                java.lang.reflect.Method setWindowCanFullScreenMethod = fullScreenUtilityClass.getDeclaredMethod("setWindowCanFullScreen",
-                        new Class[] { Window.class, Boolean.TYPE });
-                setWindowCanFullScreenMethod.invoke(null, new Object[] { this, Boolean.valueOf(true) });
-            } catch (Exception e) {
-                e.printStackTrace();
+                UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+            } catch (Exception e1) {
             }
         }
 
+        // setIconImage(Toolkit.getDefaultToolkit().createImage(imagePath));
         super.setVisible(true);
         setResizable(true);
-        fixSize(size);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                new Thread() {
+                    public void run() {
+                        try {
+                            Thread.sleep(30000L);
+                        } catch (InterruptedException localInterruptedException) {
+                        }
+                        System.out.println("FORCING EXIT!");
+                        System.exit(0);
+                    }
+                }.start();
+                if (appletWrap != null) {
+                    appletWrap.stop();
+                    appletWrap.destroy();
+                }
+                System.exit(0);
+            }
+        });
     }
 
-    public void start(Applet mcApplet, String user, String session) {
+    public void start(Applet mcApplet, String basePath, String user, String session, String ip, String port) {
+
         try {
             appletWrap = new Launcher(mcApplet, new URL("http://www.minecraft.net/game"));
         } catch (MalformedURLException ignored) {
         }
-        appletWrap.setParameter("username", user);
-        appletWrap.setParameter("sessionid", session);
-        appletWrap.setParameter("stand-alone", "true");
+        appletWrap.addParameter("working_directory", basePath);
+        appletWrap.addParameter("username", user);
+        appletWrap.addParameter("sessionid", session);
+        appletWrap.addParameter("stand-alone", "true");
+        appletWrap.addParameter("server", ip);
+        appletWrap.addParameter("port", port);
         mcApplet.setStub(appletWrap);
         add(appletWrap);
 
+        Dimension size = new Dimension(900, 480);
         appletWrap.setPreferredSize(size);
 
         pack();
         validate();
         appletWrap.init();
         appletWrap.start();
-        fixSize(size);
         setVisible(true);
-
-    }
-
-    private void fixSize(Dimension size) {
-        setSize(size);
     }
 }

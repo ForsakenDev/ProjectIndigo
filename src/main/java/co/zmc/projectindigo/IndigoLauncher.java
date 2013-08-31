@@ -32,14 +32,7 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.Timer;
@@ -50,22 +43,21 @@ import co.zmc.projectindigo.data.Server;
 import co.zmc.projectindigo.gui.LoginPanel;
 import co.zmc.projectindigo.gui.ServerPanel;
 import co.zmc.projectindigo.gui.components.ProgressSplashScreen;
+import co.zmc.projectindigo.mclaunch.MinecraftLauncher;
 import co.zmc.projectindigo.utils.DirectoryLocations;
+import co.zmc.projectindigo.utils.InputStreamLogger;
 import co.zmc.projectindigo.utils.ResourceUtils;
-import co.zmc.projectindigo.utils.Utils;
 
 @SuppressWarnings("serial")
 public class IndigoLauncher extends JFrame {
     public static final String   TITLE            = "Project Indigo";
     public static IndigoLauncher _launcher;
     public Dimension             _loginPanelSize  = new Dimension(400, 200);
-    public Dimension             _serverPanelSize = new Dimension(900, 580);
+    public static Dimension      _serverPanelSize = new Dimension(900, 580);
     private LoginResponse        _loginResponse;
     public ServerPanel           _serverPanel;
     public LoginPanel            _loginPanel;
     public ProgressSplashScreen  _splash;
-    public static String         policyLocation   = "";
-    private ArrayList<String>    additionalPerms  = new ArrayList<String>();
 
     public IndigoLauncher() {
         _launcher = this;
@@ -214,134 +206,17 @@ public class IndigoLauncher extends JFrame {
         return _loginResponse;
     }
 
-    private String forgename = "MinecraftForge.zip";
-
-    public Process launchMinecraft(Server server) {
-        String[] jarFiles = new String[] { "minecraft.jar", "lwjgl.jar", "lwjgl_util.jar", "jinput.jar" };
-        StringBuilder cpb = new StringBuilder("");
-        File instModsDir = new File(server.getBaseDir(), "instMods/");
-        if (instModsDir.isDirectory()) {
-            String[] files = instModsDir.list();
-            Arrays.sort(files);
-            for (String name : files) {
-                if (!name.equals(forgename)) {
-                    if (name.toLowerCase().contains("forge") && name.toLowerCase().contains("minecraft") && name.toLowerCase().endsWith(".zip")) {
-                        if (new File(instModsDir, forgename).exists()) {
-                            if (!new File(instModsDir, forgename).equals(new File(instModsDir, name))) {
-                                new File(instModsDir, name).delete();
-                            }
-                        } else {
-                            new File(instModsDir, name).renameTo(new File(instModsDir, forgename));
-                        }
-                    } else if (!name.equalsIgnoreCase(forgename) && (name.toLowerCase().endsWith(".zip") || name.toLowerCase().endsWith(".jar"))) {
-                        cpb.append(Utils.getJavaDelimiter());
-                        cpb.append(new File(instModsDir, name).getAbsolutePath());
-                    }
-                }
-            }
-        } else {
-            System.out.println("Not loading any instMods (minecraft jar mods), as the directory does not exist.");
-        }
-
-        cpb.append(Utils.getJavaDelimiter());
-        cpb.append(new File(instModsDir, forgename).getAbsolutePath());
-
-        for (String jarFile : jarFiles) {
-            cpb.append(Utils.getJavaDelimiter());
-            cpb.append(new File(server.getBinDir(), jarFile).getAbsolutePath());
-        }
-        copySecurityPolicy();
-        File file = new File(server.getBaseDir(), "/minecraft/bin/natives");
-        if (file.isDirectory()) {
-            for (File f : file.listFiles()) {
-                addAdditionalPerm("permission java.lang.RuntimePermission \"loadLibrary." + f.getAbsolutePath().replaceAll("\\\\", "/") + "\"");
-            }
-        }
-
-        addAdditionalPerm("permission java.io.FilePermission \"" + server.getBaseDir().getParent().replaceAll("\\\\", "/")
-                + "/-\", \"read, write, delete\"");
-        addAdditionalPerm("permission java.io.FilePermission \"" + System.getProperty("java.io.tmpdir").replaceAll("\\\\", "/")
-                + "-\", \"read, write, delete\"");
-
-        addAdditionalPerm("permission java.net.SocketPermission \"" + server.getIp() + "\", \"accept, resolve, listen, connect\"");
-
-        writeAdditionalPerms(policyLocation);
-
-        List<String> arguments = new ArrayList<String>();
-
-        String separator = System.getProperty("file.separator");
-        String path = System.getProperty("java.home") + separator + "bin" + separator + "java"
-                + (Utils.getCurrentOS() == Utils.OS.WINDOWS ? "w" : "");
-        arguments.add(path);
-
-        arguments.add("-XX:+UseConcMarkSweepGC");
-        arguments.add("-XX:+CMSIncrementalMode");
-        arguments.add("-XX:+AggressiveOpts");
-        arguments.add("-XX:+CMSClassUnloadingEnabled");
-        arguments.add("-XX:PermSize=128m");
-
-        arguments.add("-cp");
-        arguments.add(System.getProperty("java.class.path") + cpb.toString());
-
-        arguments.add(IndigoLauncher.class.getCanonicalName());
-        arguments.add(server.getBaseDir().getName());
-        arguments.add(forgename);
-        arguments.add(_loginResponse.getUsername());
-        arguments.add(_loginResponse.getSessionId());
-        arguments.add(TITLE);
-
-        for (String arg : arguments) {
-            System.out.println(arg);
-        }
-
-        ProcessBuilder processBuilder = new ProcessBuilder(arguments);
-        processBuilder.redirectErrorStream(true);
+    public void launchMinecraft(Server server) throws IOException {
+        Process pro = MinecraftLauncher.launchMinecraft(server, _loginResponse.getUsername(), _loginResponse.getSessionId(), "MinecraftForge.zip",
+                "1024", "128M");
+        InputStreamLogger.start(pro.getInputStream());
         try {
-            return processBuilder.start();
-        } catch (IOException e) {
+            Thread.sleep(3500);
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return null;
-    }
-
-    public boolean copySecurityPolicy() {
-        InputStream policy = IndigoLauncher.class.getResourceAsStream("/co/zmc/projectindigo/resources/security/security.policy");
-        File newPolicyFile = new File(DirectoryLocations.DATA_DIR_LOCATION + "security.policy");
-        policyLocation = newPolicyFile.getAbsolutePath();
-        System.out.println("Copying over new security policy.");
-        try {
-            OutputStream newOut = new FileOutputStream(newPolicyFile);
-            byte[] buffer = new byte[1024];
-            int read;
-            while ((read = policy.read(buffer)) > 0) {
-                newOut.write(buffer, 0, read);
-            }
-            newOut.close();
-            policy.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        System.out.println("Success.");
-        return true;
-    }
-
-    public void addAdditionalPerm(String perm) {
-        additionalPerms.add("\ngrant{" + perm + ";};");
-    }
-
-    public void writeAdditionalPerms(String location) {
-        try {
-            FileWriter out = new FileWriter(location, true);
-            out.write("\n//AUTO-GENERATED PERMS BEGIN\n");
-            for (String perm : additionalPerms) {
-                System.out.println("Writing additional perm " + perm.replaceAll("\n", ""));
-                out.write(perm);
-            }
-            out.flush();
-            out.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        setVisible(false);
+        dispose();
     }
 
 }
