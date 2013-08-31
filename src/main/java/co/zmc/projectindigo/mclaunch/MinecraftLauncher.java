@@ -186,7 +186,6 @@ public class MinecraftLauncher {
             System.out.println("Natives loaded...");
             System.setProperty("org.lwjgl.librarypath", nativesDir);
             System.setProperty("net.java.games.input.librarypath", nativesDir);
-            System.setProperty("user.home", new File(basepath).getAbsolutePath());
             System.setProperty("minecraft.applet.TargetDirectory", basepath);
 
             URLClassLoader cl = new URLClassLoader(urls, MinecraftLauncher.class.getClassLoader());

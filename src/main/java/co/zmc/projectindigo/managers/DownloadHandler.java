@@ -188,6 +188,7 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
         dlStream.close();
         outStream.close();
         return (dlConnection instanceof HttpURLConnection && (currentDLSize == fileSize || fileSize <= 0));
+
     }
 
     protected boolean extractNatives() {
@@ -253,7 +254,7 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
                 }
                 if (currentEntry.isDirectory()) {
                     File tmp = new File(modpackDir, currentEntry.getName());
-                    if (!tmp.exists()) {
+                    if (!tmp.exists() && !currentEntry.getName().equalsIgnoreCase("bin")) {
                         tmp.mkdir();
                     }
                     currentEntry = zipIn.getNextEntry();

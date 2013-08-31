@@ -13,12 +13,13 @@ import co.zmc.projectindigo.utils.DirectoryLocations;
 
 public class PolicyManager {
 
-	private ArrayList<String> additionalPerms = new ArrayList<String>();
-	private String policyLocation = "";
-	
+    private ArrayList<String> additionalPerms = new ArrayList<String>();
+    private String            policyLocation  = "";
+
     public boolean copySecurityPolicy() {
         InputStream policy = IndigoLauncher.class.getResourceAsStream("/co/zmc/projectindigo/resources/security/security.policy");
         File newPolicyFile = new File(DirectoryLocations.DATA_DIR_LOCATION + "security.policy");
+
         policyLocation = newPolicyFile.getAbsolutePath();
         System.out.println("Copying over new security policy.");
         try {
@@ -38,7 +39,7 @@ public class PolicyManager {
     }
 
     public void addAdditionalPerm(String perm) {
-    	additionalPerms.add("\ngrant{" + perm + ";};");
+        additionalPerms.add("\ngrant{" + perm + ";};");
     }
 
     public void writeAdditionalPerms(String location) {
@@ -55,9 +56,9 @@ public class PolicyManager {
             e.printStackTrace();
         }
     }
-    
+
     public String getPolicyLocation() {
-    	return policyLocation;
+        return policyLocation;
     }
 
 }
