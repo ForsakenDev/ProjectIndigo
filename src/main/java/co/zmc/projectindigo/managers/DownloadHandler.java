@@ -63,29 +63,34 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
         logger.log(Level.INFO, "Checking if MC exists");
         // Downloading jars
         IndigoLauncher._launcher._splash.updateProgress("Installing " + _server.getName() + "...", 0);
-        if (!loadJarURLs()) { return false; }
         if (!_server.getBinDir().exists()) {
             _server.getBinDir().mkdirs();
+        } else {
+            return true;
         }
+        if (!loadJarURLs()) { return false; }
         logger.log(Level.INFO, "Downloading Jars");
         if (!downloadJars()) {
-
             logger.log(Level.SEVERE, "Download Failed");
             return false;
         }
         // extracting files
+        IndigoLauncher._launcher._splash.updateProgress("Extracting files...", 0);
+
         logger.log(Level.INFO, "Extracting Files");
         if (!(extractModpack() && extractNatives())) {
             logger.log(Level.SEVERE, "Extraction Failed");
             return false;
         }
+
         logger.log(Level.INFO, "Download complete");
         return true;
     }
 
     @Override
     protected void done() {
-        IndigoLauncher._launcher.launchLogin();
+        IndigoLauncher._launcher._splash.updateProgress("Download complete", 100);
+        IndigoLauncher._launcher._serverPanel.getServerManager().addServer(_server);
     }
 
     protected boolean loadJarURLs() {
@@ -182,9 +187,7 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
         }
         dlStream.close();
         outStream.close();
-        if (dlConnection instanceof HttpURLConnection && (currentDLSize == fileSize || fileSize <= 0)) { return true; }
-        return false;
-
+        return (dlConnection instanceof HttpURLConnection && (currentDLSize == fileSize || fileSize <= 0));
     }
 
     protected boolean extractNatives() {

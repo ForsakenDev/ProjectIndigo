@@ -44,7 +44,7 @@ public class Server {
     private File   _baseDir;
     private File   _binDir;
 
-    public Server(JSONObject server, int port) {
+    public Server(JSONObject server, int port, boolean isNew) {
         _name = (String) server.get("name");
         _ip = (String) server.get("ip");
         _port = port;
@@ -55,8 +55,10 @@ public class Server {
 
         _baseDir = new File(String.format(DirectoryLocations.SERVER_DIR_LOCATION, getIp()));
         _binDir = new File(String.format(DirectoryLocations.SERVER_MINECRAFT_BIN_DIR_LOCATION, getIp()));
-        if (!isDownloaded()) {
-            mkdir();
+        if (!isNew) {
+            if (!isDownloaded()) {
+                mkdir();
+            }
             download();
         }
     }

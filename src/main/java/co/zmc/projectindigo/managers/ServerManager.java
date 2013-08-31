@@ -44,6 +44,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import co.zmc.projectindigo.IndigoLauncher;
+import co.zmc.projectindigo.Main;
 import co.zmc.projectindigo.data.Server;
 import co.zmc.projectindigo.gui.ServerPanel;
 import co.zmc.projectindigo.gui.components.ServerInfo;
@@ -51,11 +53,14 @@ import co.zmc.projectindigo.utils.DirectoryLocations;
 import co.zmc.projectindigo.utils.FileUtils;
 
 public class ServerManager extends SwingWorker<Boolean, Void> {
-    private static final File _saveFile = new File(DirectoryLocations.DATA_DIR_LOCATION, "servers");
+    private static final File _saveFile         = new File(DirectoryLocations.DATA_DIR_LOCATION, "servers");
     private String            _status;
     private int               _percentComplete;
-    private List<Server>      _servers  = new ArrayList<Server>();
+    private List<Server>      _servers          = new ArrayList<Server>();
     private ServerPanel       _serverPanel;
+    private int               numToLoad         = 0;
+    private int               currentParseIndex = 0;
+    private JSONObject        servers           = null;
 
     public ServerManager(ServerPanel serverPanel) {
         _serverPanel = serverPanel;
@@ -67,6 +72,14 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
         return true;
     }
 
+    @Override
+    protected void done() {
+        if (numToLoad == 0) {
+            IndigoLauncher._launcher.launchLogin();
+            return;
+        }
+    }
+
     public String getStatus() {
         return _status;
     }
@@ -76,7 +89,7 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
     }
 
     public void loadServers() {
-        JSONObject servers = null;
+
         try {
             if (!_saveFile.exists()) {
                 _saveFile.createNewFile();
@@ -89,32 +102,48 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        numToLoad = servers.size();
+
         if (servers != null) {
-            for (Object i : servers.keySet()) {
-                try {
-                    parseServer((JSONObject) servers.get(i));
-                } catch (NumberFormatException e) {
-                    e.printStackTrace();
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            }
+            parseNext();
         }
     }
 
     public void parseServer(JSONObject sData) throws NumberFormatException, ParseException {
-        parseServer(sData.toJSONString(), Integer.parseInt((String) sData.get("port")));
+        parseServer(sData.toJSONString(), Integer.parseInt((String) sData.get("port")), false);
     }
 
-    public void parseServer(String json, int port) throws ParseException {
+    public void parseServer(String json, int port, boolean isNew) throws ParseException {
         JSONObject sData = (JSONObject) new JSONParser().parse(json);
-        Server server = new Server(sData, port);
+        Server s = new Server(sData, port, isNew);
+        if (isNew) {
+            _servers.add(s);
+        }
+    }
+
+    private void parseNext() {
+        try {
+            parseServer((JSONObject) servers.get(servers.keySet().toArray()[currentParseIndex]));
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void addServer(Server server) {
         _servers.add(server);
         saveServers();
         int yOffset = (_servers.size()) * (36 + 5);
         ServerInfo info = new ServerInfo(_serverPanel, server);
         info.setBounds(25, yOffset, 200, 26);
         _serverPanel.add(info);
+        if (_servers.size() == numToLoad) {
+            IndigoLauncher._launcher.launchLogin();
+        } else {
+            currentParseIndex++;
+            parseNext();
+        }
     }
 
     public Server getServer(String name) {
@@ -184,7 +213,11 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
         if (!serverURL.isEmpty()) {
             System.out.println("Reading server information");
             try {
-                parseServer(serverURL, port);
+                parseServer(serverURL, port, true);
+                saveServers();
+                IndigoLauncher._launcher.setVisible(false);
+                IndigoLauncher._launcher.dispose();
+                new Main();
             } catch (ParseException e) {
                 e.printStackTrace();
             }

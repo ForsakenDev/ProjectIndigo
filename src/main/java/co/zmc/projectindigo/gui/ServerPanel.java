@@ -63,6 +63,10 @@ public class ServerPanel extends JPanel {
         setupLook();
     }
 
+    public ServerManager getServerManager() {
+        return _serverManager;
+    }
+
     public void loadServerManager() {
         _serverManager = new ServerManager(this);
         _serverManager.execute();
