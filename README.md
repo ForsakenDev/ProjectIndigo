@@ -6,7 +6,7 @@ Instead of having a select few packs available and server owners having to make 
 forced upon them by the pack, server owners decide the mods and configs for their own server. Project
 Indigo will automatically keep the clients up to date with the server mods.
 
-Bugs can be fixed and mods can be changed all on the fly, without having to worry about client-server comatibility.
+Bugs can be fixed and mods can be changed all on the fly, without having to worry about client-server compatibility.
 
 This offers server owners a whole new level of flexibility in the features, style and gameplay they want for
 their server.
