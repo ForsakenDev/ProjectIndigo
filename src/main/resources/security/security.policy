@@ -4,6 +4,7 @@ grant {
 	permission java.util.PropertyPermission "java.vendor", "read";
 	permission java.util.PropertyPermission "java.vendor.url", "read";
 	permission java.util.PropertyPermission "java.class.version", "read";
+	permission java.util.PropertyPermission "java.class.path", "read";
 	permission java.util.PropertyPermission "os.name", "read";
 	permission java.util.PropertyPermission "os.version", "read";
 	permission java.util.PropertyPermission "os.arch", "read";
@@ -19,15 +20,17 @@ grant {
 	permission java.util.PropertyPermission "java.vm.version", "read";
 	permission java.util.PropertyPermission "java.vm.vendor", "read";
 	permission java.util.PropertyPermission "java.vm.name", "read";
+	permission java.util.PropertyPermission "java.home", "read";
+	permission java.util.PropertyPermission "java.library.path", "read";
 	permission java.util.PropertyPermission "file.encoding", "read";
 	permission java.util.PropertyPermission "user.home", "read";
-	permission java.util.PropertyPermission "java.library.path", "read";
 	permission java.util.PropertyPermission "os_architecture", "read";
 	permission java.util.PropertyPermission "java_version", "read";
 	permission java.util.PropertyPermission "sun.arch.data.model", "read";
 	
 	permission java.util.PropertyPermission "org.lwjgl.*", "read";
 	permission java.util.PropertyPermission "fml.*", "read";
+	permission java.util.PropertyPermission "fml_*", "read";
 	permission java.util.PropertyPermission "minecraft.*", "read";
 	
 	//Runtime perms
@@ -38,6 +41,7 @@ grant {
 	permission java.lang.RuntimePermission "loadLibrary.jawt";
 	permission java.lang.RuntimePermission "createClassLoader";
 	permission java.lang.RuntimePermission "setContextClassLoader";
+	permission java.lang.RuntimePermission "setIO";
 	
 	//Net perms
 	permission java.net.SocketPermission "session.minecraft.net:80", "accept, resolve, listen, connect";
