@@ -42,6 +42,7 @@ public class Server {
     private String _mcVersion;
 
     private File   _baseDir;
+    private File   _minecraftDir;
     private File   _binDir;
 
     public Server(JSONObject server, int port, boolean isNew) {
@@ -54,6 +55,7 @@ public class Server {
         _mcVersion = (String) server.get("mc_version");
 
         _baseDir = new File(String.format(DirectoryLocations.SERVER_DIR_LOCATION, getIp()));
+        _minecraftDir = new File(String.format(DirectoryLocations.SERVER_MINECRAFT_DIR_LOCATION, getIp()));
         _binDir = new File(String.format(DirectoryLocations.SERVER_MINECRAFT_BIN_DIR_LOCATION, getIp()));
         if (!isNew) {
             if (!isDownloaded()) {
@@ -79,6 +81,10 @@ public class Server {
 
     public File getBinDir() {
         return _binDir;
+    }
+
+    public File getMinecraftDir() {
+        return _minecraftDir;
     }
 
     public void download() {

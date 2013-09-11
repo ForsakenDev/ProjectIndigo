@@ -52,8 +52,8 @@ import co.zmc.projectindigo.utils.ResourceUtils;
 public class IndigoLauncher extends JFrame {
     public static final String   TITLE            = "Project Indigo";
     public static IndigoLauncher _launcher;
-    public Dimension             _loginPanelSize  = new Dimension(400, 200);
     public static Dimension      _serverPanelSize = new Dimension(900, 580);
+    public Dimension             _loginPanelSize  = new Dimension(400, 200);
     private LoginResponse        _loginResponse;
     public ServerPanel           _serverPanel;
     public LoginPanel            _loginPanel;

@@ -43,10 +43,10 @@ import co.zmc.projectindigo.security.PolicyManager;
 import co.zmc.projectindigo.utils.Utils;
 
 public class MinecraftLauncher {
-	
+
     public static Process launchMinecraft(Server server, String username, String sessionId, String forgename, String rmax, String maxPermSize)
             throws IOException {
-    	String[] jarFiles = new String[] { "minecraft.jar", "lwjgl.jar", "lwjgl_util.jar", "jinput.jar" };
+        String[] jarFiles = new String[] { "minecraft.jar", "lwjgl.jar", "lwjgl_util.jar", "jinput.jar" };
         StringBuilder cpb = new StringBuilder("");
         File instModsDir = new File(server.getBaseDir(), "instMods/");
         if (instModsDir.isDirectory()) {
@@ -79,7 +79,7 @@ public class MinecraftLauncher {
             cpb.append(Utils.getJavaDelimiter());
             cpb.append(new File(server.getBinDir(), jarFile).getAbsolutePath().replaceAll(" ", "\\ "));
         }
-        
+
         List<String> arguments = new ArrayList<String>();
 
         String separator = System.getProperty("file.separator");
@@ -98,7 +98,7 @@ public class MinecraftLauncher {
         } else {
             arguments.add("-XX:PermSize=" + maxPermSize);
         }
-        
+
         arguments.add("-cp");
         arguments.add(System.getProperty("java.class.path") + cpb.toString().replaceAll(" ", "\\\\ "));
 
@@ -190,25 +190,27 @@ public class MinecraftLauncher {
 
             URLClassLoader cl = new URLClassLoader(urls, MinecraftLauncher.class.getClassLoader());
             System.out.println("Loading minecraft class");
-            
+
             PolicyManager policy = new PolicyManager();
             policy.copySecurityPolicy();
-            
             File file = new File(nativesDir);
             if (file.isDirectory()) {
                 for (File f : file.listFiles()) {
-                    policy.addAdditionalPerm("permission java.lang.RuntimePermission \"loadLibrary." + f.getAbsolutePath().replaceAll("\\\\", "/") + "\"");
+                    policy.addAdditionalPerm("permission java.lang.RuntimePermission \"loadLibrary." + f.getAbsolutePath().replaceAll("\\\\", "/")
+                            + "\"");
                 }
             }
-            
-            policy.addAdditionalPerm("permission java.io.FilePermission \"" + basepath.replaceAll("\\\\", "/") + "/-\", \"read, write, delete\"");
+
+            policy.addAdditionalPerm("permission java.io.FilePermission \""
+                    + new File(basepath).getParentFile().getAbsolutePath().replaceAll("\\\\", "/") + "/-\", \"read, write, delete\"");
             policy.addAdditionalPerm("permission java.io.FilePermission \"" + nativesDir.replaceAll("\\\\", "/") + "/-\", \"read\"");
-            policy.addAdditionalPerm("permission java.io.FilePermission \"" + System.getProperty("java.io.tmpdir").replaceAll("\\\\", "/") + "-\", \"read, write, delete\"");
-            
+            policy.addAdditionalPerm("permission java.io.FilePermission \"" + System.getProperty("java.io.tmpdir").replaceAll("\\\\", "/")
+                    + "-\", \"read, write, delete\"");
+
             policy.addAdditionalPerm("permission java.net.SocketPermission \"" + ip + ":" + port + "\", \"accept, resolve, listen, connect\"");
 
             policy.writeAdditionalPerms(policy.getPolicyLocation());
-            
+
             System.out.println("Setting security policy to " + policy.getPolicyLocation());
             System.setProperty("java.security.policy", policy.getPolicyLocation());
             Policy.getPolicy().refresh();

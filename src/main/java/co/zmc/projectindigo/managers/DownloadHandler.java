@@ -27,6 +27,7 @@ package co.zmc.projectindigo.managers;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,6 +35,9 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
+import java.util.jar.JarOutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
@@ -78,7 +82,7 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
         IndigoLauncher._launcher._splash.updateProgress("Extracting files...", 0);
 
         logger.log(Level.INFO, "Extracting Files");
-        if (!(extractModpack() && extractNatives())) {
+        if (!(extractModpack() && extractNatives() && removeMetaInf())) {
             logger.log(Level.SEVERE, "Extraction Failed");
             return false;
         }
@@ -191,6 +195,43 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
 
     }
 
+    protected boolean removeMetaInf() {
+        File outputTmpFile = new File(_server.getBinDir(), "minecraft.jar.tmp");
+        File inputFile = new File(_server.getBinDir(), "minecraft.jar");
+        try {
+            JarInputStream input = new JarInputStream(new FileInputStream(inputFile));
+            JarOutputStream output = new JarOutputStream(new FileOutputStream(outputTmpFile));
+            JarEntry entry;
+
+            while ((entry = input.getNextJarEntry()) != null) {
+                if (entry.getName().contains("META-INF")) {
+                    continue;
+                }
+                output.putNextEntry(entry);
+                byte buffer[] = new byte[1024];
+                int amo;
+                while ((amo = input.read(buffer, 0, 1024)) != -1) {
+                    output.write(buffer, 0, amo);
+                }
+                output.closeEntry();
+            }
+
+            input.close();
+            output.close();
+
+            if (!inputFile.delete()) {
+                System.out.println("Failed to delete Minecraft.jar.");
+                return false;
+            }
+            outputTmpFile.renameTo(inputFile);
+        } catch (FileNotFoundException e) {
+            System.out.println(e.getMessage());
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+        return true;
+    }
+
     protected boolean extractNatives() {
         // Extracting natives..
         File nativesJar = new File(_server.getBinDir(), getFilename(_jarURLs[_jarURLs.length - 1]));
@@ -254,7 +295,7 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
                 }
                 if (currentEntry.isDirectory()) {
                     File tmp = new File(modpackDir, currentEntry.getName());
-                    if (!tmp.exists() && !currentEntry.getName().equalsIgnoreCase("bin")) {
+                    if (!tmp.exists()) {
                         tmp.mkdir();
                     }
                     currentEntry = zipIn.getNextEntry();
