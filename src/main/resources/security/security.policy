@@ -30,7 +30,6 @@ grant {
 	
 	permission java.util.PropertyPermission "org.lwjgl.*", "read";
 	permission java.util.PropertyPermission "fml.*", "read";
-	permission java.util.PropertyPermission "fml_*", "read";
 	permission java.util.PropertyPermission "minecraft.*", "read";
 	
 	//Runtime perms

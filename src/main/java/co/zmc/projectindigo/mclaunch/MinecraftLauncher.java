@@ -193,12 +193,8 @@ public class MinecraftLauncher {
 
             PolicyManager policy = new PolicyManager();
             policy.copySecurityPolicy();
-            File file = new File(nativesDir);
-            if (file.isDirectory()) {
-                for (File f : file.listFiles()) {
-                    policy.addAdditionalPerm("permission java.lang.RuntimePermission \"loadLibrary." + f.getAbsolutePath().replaceAll("\\\\", "/")
-                            + "\"");
-                }
+            for (URL url : urls) {
+                policy.addAdditionalPerm("permission java.lang.RuntimePermission \"loadLibrary." + url.toString().replaceAll("\\\\", "/") + "\"");
             }
 
             policy.addAdditionalPerm("permission java.io.FilePermission \""
