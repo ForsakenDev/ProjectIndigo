@@ -32,6 +32,7 @@ import org.json.simple.JSONObject;
 import co.zmc.projectindigo.gui.components.ServerSection;
 import co.zmc.projectindigo.managers.DownloadHandler;
 import co.zmc.projectindigo.utils.DirectoryLocations;
+import co.zmc.projectindigo.utils.FileUtils;
 
 public class Server {
     private ServerSection _serverSection;
@@ -88,10 +89,25 @@ public class Server {
     }
 
     public boolean shouldDownload() {
-        return !(getMinecraftDir().exists() && getBaseDir().exists() && getBinDir().exists());
+        Server shouldUpdate = _serverSection.getServerManager().shouldUpdate(this);
+        if (shouldUpdate != null) {
+            _baseDir = shouldUpdate._baseDir;
+            _minecraftDir = shouldUpdate._minecraftDir;
+            _binDir = shouldUpdate._binDir;
+            _name = shouldUpdate._name;
+            _ip = shouldUpdate._ip;
+            _port = shouldUpdate._port;
+            _logo = shouldUpdate._logo;
+            _downloadURL = shouldUpdate._downloadURL;
+            _version = shouldUpdate._version;
+            _mcVersion = shouldUpdate._mcVersion;
+            _serverSection.getServerManager().saveServers();
+        }
+        return !(getMinecraftDir().exists() && getBaseDir().exists() && getBinDir().exists()) || shouldUpdate != null;
     }
 
     public void download(LoginResponse response) {
+        FileUtils.deleteDirectory(getBaseDir());
         new DownloadHandler(this, _serverSection, response).execute();
     }
 

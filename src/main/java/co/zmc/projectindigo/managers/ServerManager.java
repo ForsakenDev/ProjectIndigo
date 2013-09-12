@@ -96,14 +96,8 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
         numToLoad = servers.size();
         while (currentParseIndex < numToLoad) {
             Server s = parseNext();
-            Server shouldUpdate = shouldUpdate(s);
-            if (shouldUpdate != null) {
-                FileUtils.deleteDirectory(shouldUpdate.getBaseDir());
-                addServer(shouldUpdate);
-            } else {
-                if (s != null) {
-                    addServer(s);
-                }
+            if (s != null) {
+                addServer(s);
             }
             currentParseIndex++;
         }
