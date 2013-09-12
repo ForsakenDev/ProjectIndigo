@@ -43,7 +43,7 @@ import co.zmc.projectindigo.utils.ResourceUtils;
 
 @SuppressWarnings("serial")
 public class IndigoLauncher extends JFrame {
-    public static final String   TITLE            = "Project Indigo";
+    public static final String   TITLE            = "Indigo Launcher";
     public static IndigoLauncher _launcher;
     public static Dimension      _serverPanelSize = new Dimension(900, 580);
     public Dimension             _loginPanelSize  = new Dimension(400, 200);
