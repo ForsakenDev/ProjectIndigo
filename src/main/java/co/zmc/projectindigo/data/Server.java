@@ -72,7 +72,7 @@ public class Server {
     }
 
     public boolean isDownloaded() {
-        return _binDir.exists();
+        return _binDir.exists() && _minecraftDir.exists() && _baseDir.exists();
     }
 
     public File getBaseDir() {
