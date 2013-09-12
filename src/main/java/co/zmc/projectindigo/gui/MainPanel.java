@@ -25,29 +25,33 @@
  */
 package co.zmc.projectindigo.gui;
 
+import java.awt.Color;
 import java.awt.Dimension;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 
 import javax.swing.JPanel;
 
 import co.zmc.projectindigo.IndigoLauncher;
+import co.zmc.projectindigo.data.LoginResponse;
 import co.zmc.projectindigo.gui.components.Image;
-import co.zmc.projectindigo.gui.components.SidePanel;
-import co.zmc.projectindigo.gui.page.AccountPage;
-import co.zmc.projectindigo.gui.page.BasePage;
-import co.zmc.projectindigo.gui.page.MainPage;
-import co.zmc.projectindigo.gui.page.ServerPage;
-import co.zmc.projectindigo.gui.page.SettingsPage;
+import co.zmc.projectindigo.gui.components.LoginSection;
+import co.zmc.projectindigo.gui.components.ServerSection;
+import co.zmc.projectindigo.managers.ServerManager;
 
 @SuppressWarnings("serial")
 public class MainPanel extends JPanel {
-    protected IndigoLauncher _launcher;
-    protected final Logger   logger         = Logger.getLogger("launcher");
-    protected List<BasePage> _pages         = new ArrayList<BasePage>();
-    protected int            _currentPageId = 0;
-    protected SidePanel      _sidePanel;
+    protected ServerManager       _serverManager;
+    private LoginResponse         _loginResponse;
+    public static final Color     BORDER_COLOUR    = new Color(45, 45, 45, 160);
+    public static final Color     HIGHLIGHT_COLOUR = new Color(13, 86, 166, 200);
+
+    public static final int       PADDING          = 10;
+    public static final Dimension BTN_SIZE         = new Dimension(110, 24);
+
+    protected IndigoLauncher      _launcher;
+    protected final Logger        logger           = Logger.getLogger("launcher");
+    private LoginSection          _loginSection;
+    private ServerSection         _serverSection;
 
     public MainPanel(IndigoLauncher launcher, int width, int height) {
         _launcher = launcher;
@@ -59,29 +63,13 @@ public class MainPanel extends JPanel {
         setPreferredSize(dim);
         setBounds(0, 0, width, height);
         setupLook();
+
     }
 
     public void setupLook() {
         setLayout(null);
-        _sidePanel = new SidePanel(this);
-        _sidePanel.setBounds(0, 0, _sidePanel.getWidth(), _sidePanel.getHeight());
-        _sidePanel.setVisible(true);
-
-        if (_pages == null) {
-            _pages = new ArrayList<BasePage>();
-        }
-        _pages.add(new MainPage(this));
-        _pages.add(new ServerPage(this));
-        _pages.add(new AccountPage(this));
-        _pages.add(new SettingsPage(this));
-
-        _sidePanel.reload(this);
-        add(_sidePanel);
-
-        for (BasePage page : _pages) {
-            add(page);
-        }
-
+        _loginSection = new LoginSection(this);
+        _serverSection = new ServerSection(this);
         add(new Image("bg", getWidth(), getHeight()));
     }
 
@@ -89,29 +77,23 @@ public class MainPanel extends JPanel {
         return logger;
     }
 
-    public List<BasePage> getPages() {
-        return _pages;
+    public String getUsername() {
+        return _loginResponse.getUsername();
     }
 
-    public int getCurrentPageId() {
-        return _currentPageId;
+    public final void setResponse(LoginResponse loginResponse) {
+        _loginResponse = loginResponse;
     }
 
-    public void setCurrentPageId(int currentPageId) {
-        _pages.get(_currentPageId).setVisible(false);
-        _pages.get(currentPageId).setVisible(true);
-        _currentPageId = currentPageId;
+    public LoginResponse getLoginResponse() {
+        return _loginResponse;
     }
 
-    public ServerPage getMainPage() {
-        for (BasePage page : _pages) {
-            if (page instanceof ServerPage) { return (ServerPage) page; }
-        }
-        return (ServerPage) _pages.get(1);
+    public ServerSection getServerSection() {
+        return _serverSection;
     }
 
-    public SidePanel getSidePanel() {
-        return _sidePanel;
+    public LoginSection getLoginSection() {
+        return _loginSection;
     }
-
 }

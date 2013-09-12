@@ -29,23 +29,26 @@ import java.io.File;
 
 import org.json.simple.JSONObject;
 
+import co.zmc.projectindigo.gui.components.ServerSection;
 import co.zmc.projectindigo.managers.DownloadHandler;
 import co.zmc.projectindigo.utils.DirectoryLocations;
 
 public class Server {
-    private String _name;
-    private String _ip;
-    private int    _port;
-    private String _logo;
-    private String _downloadURL;
-    private String _version;
-    private String _mcVersion;
+    private ServerSection _serverSection;
+    private String        _name;
+    private String        _ip;
+    private int           _port;
+    private String        _logo;
+    private String        _downloadURL;
+    private String        _version;
+    private String        _mcVersion;
 
-    private File   _baseDir;
-    private File   _minecraftDir;
-    private File   _binDir;
+    private File          _baseDir;
+    private File          _minecraftDir;
+    private File          _binDir;
 
-    public Server(JSONObject server, int port, boolean isNew) {
+    public Server(ServerSection section, JSONObject server, int port, boolean isNew) {
+        _serverSection = section;
         _name = (String) server.get("name");
         _ip = (String) server.get("ip");
         _port = port;
@@ -54,15 +57,13 @@ public class Server {
         _version = (String) server.get("version");
         _mcVersion = (String) server.get("mc_version");
 
-        _baseDir = new File(String.format(DirectoryLocations.SERVER_DIR_LOCATION, getIp()));
-        _minecraftDir = new File(String.format(DirectoryLocations.SERVER_MINECRAFT_DIR_LOCATION, getIp()));
-        _binDir = new File(String.format(DirectoryLocations.SERVER_MINECRAFT_BIN_DIR_LOCATION, getIp()));
-        if (!isNew) {
-            if (!isDownloaded()) {
-                mkdir();
-            }
-            download();
+        _baseDir = new File(String.format(DirectoryLocations.SERVER_DIR_LOCATION, getFullIp()));
+        _minecraftDir = new File(String.format(DirectoryLocations.SERVER_MINECRAFT_DIR_LOCATION, getFullIp()));
+        _binDir = new File(String.format(DirectoryLocations.SERVER_MINECRAFT_BIN_DIR_LOCATION, getFullIp()));
+        if (!isDownloaded()) {
+            mkdir();
         }
+        download();
     }
 
     public void mkdir() {
@@ -88,12 +89,16 @@ public class Server {
     }
 
     public void download() {
-        DownloadHandler handler = new DownloadHandler(this);
-        handler.execute();
+        new DownloadHandler(this, _serverSection).execute();
     }
 
     public String getName() {
         return _name;
+    }
+
+    public String getFullIp() {
+        if (getPort() != 25565) { return getIp() + ":" + getPort(); }
+        return getIp();
     }
 
     public String getIp() {
@@ -134,11 +139,11 @@ public class Server {
         return data;
     }
 
-    public int getPlayersOnline() {
+    public int getPlayers() {
         return 83;
     }
 
-    public int getTotalOnline() {
+    public int getMaxPlayers() {
         return 1000;
     }
 }

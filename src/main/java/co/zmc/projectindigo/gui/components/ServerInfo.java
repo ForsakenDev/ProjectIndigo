@@ -26,60 +26,62 @@
 package co.zmc.projectindigo.gui.components;
 
 import java.awt.Color;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.io.IOException;
+import java.awt.font.FontRenderContext;
 
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 
 import co.zmc.projectindigo.IndigoLauncher;
 import co.zmc.projectindigo.data.Server;
+import co.zmc.projectindigo.gui.MainPanel;
 
 @SuppressWarnings("serial")
 public class ServerInfo extends JLabel {
-    private final JLabel _info;
+    private JLabel     _ip;
+    private JLabel     _users;
+    private Server     _server;
+    private boolean    _active = false;
+    private RoundedBox _serverBox;
 
-    public ServerInfo(JLayeredPane pane, final Server server) {
-        _info = new JLabel(server.getIp() + ":" + server.getPort() + " (" + server.getPlayersOnline() + "/" + server.getTotalOnline() + ")");
+    public ServerInfo(JLayeredPane pane, Server server) {
+        _server = server;
+        _ip = new JLabel(_server.getFullIp());
+        _users = new JLabel(_server.getPlayers() + "/" + _server.getMaxPlayers());
         setText(server.getName());
+        _serverBox = new RoundedBox(MainPanel.HIGHLIGHT_COLOUR);
+        _serverBox.setVisible(_active);
+        pane.add(_serverBox);
         pane.add(this, 0);
-        pane.add(_info, 0);
-        setVerticalAlignment(0);
-        setHorizontalAlignment(0);
-        setVerticalAlignment(1);
-        setHorizontalAlignment(2);
+        pane.add(_ip, 0);
+        pane.add(_users, 0);
+
         setForeground(Color.WHITE);
         setFont(IndigoLauncher.getMinecraftFont(20));
-        _info.setForeground(Color.GRAY);
-        _info.setFont(IndigoLauncher.getMinecraftFont(12));
-        this.addMouseListener(new MouseListener() {
 
-            public void mouseClicked(MouseEvent e) {
-                try {
-                    IndigoLauncher._launcher.launchMinecraft(server);
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-            }
+        _ip.setForeground(Color.GRAY);
+        _ip.setFont(IndigoLauncher.getMinecraftFont(12));
 
-            public void mouseEntered(MouseEvent e) {
-            }
-
-            public void mouseExited(MouseEvent e) {
-            }
-
-            public void mousePressed(MouseEvent e) {
-            }
-
-            public void mouseReleased(MouseEvent e) {
-            }
-        });
+        _users.setForeground(Color.WHITE);
+        _users.setFont(IndigoLauncher.getMinecraftFont(20));
     }
 
     public void setBounds(int x, int y, int w, int h) {
+        _serverBox.setBounds(x - MainPanel.PADDING, y - MainPanel.PADDING, w + (MainPanel.PADDING * 2), h + 12 + 5 + (MainPanel.PADDING * 2));
+        w -= getUserWidth() + MainPanel.PADDING;
         super.setBounds(x, y, w, h);
-        _info.setBounds(x, y + 16, w, h);
+        _users.setBounds(x + w + MainPanel.PADDING, y, getUserWidth(), h);
+        _ip.setBounds(x, y + h + 5, w, 12);
     }
 
+    private int getUserWidth() {
+        FontRenderContext frc = new FontRenderContext(_users.getFont().getTransform(), true, true);
+        return (int) (_users.getFont().getStringBounds(_users.getText(), frc).getWidth());
+    }
+
+    public void setActive(boolean active) {
+        System.out.println("Active");
+        _active = active;
+        _serverBox.setVisible(active);
+
+    }
 }

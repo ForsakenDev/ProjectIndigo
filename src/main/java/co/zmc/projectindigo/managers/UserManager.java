@@ -49,14 +49,14 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
 
 import co.zmc.projectindigo.data.UserPassword;
-import co.zmc.projectindigo.gui.components.ProgressSplashScreen;
+import co.zmc.projectindigo.gui.components.LoginSection;
 import co.zmc.projectindigo.utils.DirectoryLocations;
 
 public class UserManager {
     protected Map<String, UserPassword> usernames = new LinkedHashMap<String, UserPassword>();
 
-    public UserManager(ProgressSplashScreen progressSplashScreen) {
-        readSavedUsernames(progressSplashScreen);
+    public UserManager(LoginSection section) {
+        readSavedUsernames(section);
     }
 
     public final List<String> getSavedUsernames() {
@@ -113,11 +113,12 @@ public class UserManager {
         }
     }
 
-    private void readSavedUsernames(ProgressSplashScreen _splash) {
+    private void readSavedUsernames(LoginSection section) {
+        section.setFormsEnabled(false);
         try {
             File lastLogin = new File(DirectoryLocations.DATA_DIR_LOCATION, "lastlogin");
             if (!lastLogin.exists()) { return; }
-            _splash.updateProgress("Loading stored users...", 80);
+            section.stateChanged("Loading stored users...", 80);
             Cipher cipher = getCipher(2, "passwordfile");
             DataInputStream dis;
             if (cipher != null) dis = new DataInputStream(new CipherInputStream(new FileInputStream(lastLogin), cipher));
@@ -129,7 +130,7 @@ public class UserManager {
                 while (true) {
                     String key = dis.readUTF();
                     String user = dis.readUTF();
-                    _splash.updateProgress("Loading " + user + "...", 80 + extra);
+                    section.stateChanged("Loading " + user + "...", 80 + extra);
                     extra += 5;
                     boolean isHash = dis.readBoolean();
                     if (isHash) {
@@ -147,6 +148,9 @@ public class UserManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        section.stateChanged("Finished Loading Users", 100);
+        section.setFormsEnabled(true);
+
     }
 
     public final void writeUsernameList() {

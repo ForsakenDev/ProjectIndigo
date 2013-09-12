@@ -45,33 +45,35 @@ import java.util.zip.ZipInputStream;
 
 import javax.swing.SwingWorker;
 
-import co.zmc.projectindigo.IndigoLauncher;
 import co.zmc.projectindigo.data.Server;
+import co.zmc.projectindigo.gui.components.ServerSection;
 import co.zmc.projectindigo.utils.Utils;
 
 public class DownloadHandler extends SwingWorker<Boolean, Void> {
-    protected String     _status;
-    protected Server     _server;
-    protected URL[]      _jarURLs;
-    private final Logger logger              = Logger.getLogger("launcher");
-    protected double     totalDownloadSize   = 0;
-    protected double     totalDownloadedSize = 0;
+    protected String        _status;
+    protected ServerSection _serverSection;
+    protected Server        _server;
+    protected URL[]         _jarURLs;
+    private final Logger    logger              = Logger.getLogger("launcher");
+    protected double        totalDownloadSize   = 0;
+    protected double        totalDownloadedSize = 0;
 
-    public DownloadHandler(Server server) {
+    public DownloadHandler(Server server, ServerSection section) {
         _server = server;
+        _serverSection = section;
         _status = "";
     }
 
     @Override
     protected Boolean doInBackground() {
-        logger.log(Level.INFO, "Checking if MC exists");
-        // Downloading jars
-        IndigoLauncher._launcher._splash.updateProgress("Installing " + _server.getName() + "...", 0);
+        _serverSection.setFormsEnabled(false);
         if (!_server.getBinDir().exists()) {
             _server.getBinDir().mkdirs();
         } else {
             return true;
         }
+        _serverSection.stateChanged("Installing " + _server.getName() + "...", 0);
+
         if (!loadJarURLs()) { return false; }
         logger.log(Level.INFO, "Downloading Jars");
         if (!downloadJars()) {
@@ -79,7 +81,7 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
             return false;
         }
         // extracting files
-        IndigoLauncher._launcher._splash.updateProgress("Extracting files...", 0);
+        _serverSection.stateChanged("Extracting files...", 0);
 
         logger.log(Level.INFO, "Extracting Files");
         if (!(extractModpack() && extractNatives() && removeMetaInf())) {
@@ -93,10 +95,11 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
 
     @Override
     protected void done() {
-        IndigoLauncher._launcher._splash.updateProgress("Download complete", 100);
-        // if (_server != null) {
-        // IndigoLauncher._launcher._serverPanel.getMainPage().getServerManager().addServer(_server);
-        // }
+        _serverSection.stateChanged("Download complete", 100);
+        _serverSection.setFormsEnabled(true);
+        if (_server != null) {
+            _serverSection.addServer(_server);
+        }
     }
 
     protected boolean loadJarURLs() {
@@ -189,7 +192,7 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
             } else if (prog < 0) {
                 prog = 0;
             }
-            IndigoLauncher._launcher._splash.updateProgress("Downloading " + jarFileName + "...", prog);
+            _serverSection.stateChanged("Downloading " + jarFileName + "...", prog);
         }
         dlStream.close();
         outStream.close();

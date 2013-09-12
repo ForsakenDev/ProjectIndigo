@@ -32,7 +32,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 import javax.swing.JButton;
-import javax.swing.JFrame;
+import javax.swing.JComponent;
 
 import co.zmc.projectindigo.IndigoLauncher;
 
@@ -41,11 +41,11 @@ public class Button extends JButton implements MouseListener {
     private boolean clicked   = false;
     private boolean _isToggle = false;
 
-    public Button(JFrame frame, String label) {
+    public Button(JComponent frame, String label) {
         this(frame, label, false);
     }
 
-    public Button(JFrame frame, String label, boolean isToggle) {
+    public Button(JComponent frame, String label, boolean isToggle) {
         _isToggle = isToggle;
         setText(label);
         setBackground(Color.WHITE);

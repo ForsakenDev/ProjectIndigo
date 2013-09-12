@@ -44,10 +44,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import co.zmc.projectindigo.IndigoLauncher;
-import co.zmc.projectindigo.Main;
 import co.zmc.projectindigo.data.Server;
-import co.zmc.projectindigo.gui.page.ServerPage;
+import co.zmc.projectindigo.gui.components.ServerSection;
 import co.zmc.projectindigo.utils.DirectoryLocations;
 import co.zmc.projectindigo.utils.FileUtils;
 
@@ -56,24 +54,19 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
     private String            _status;
     private int               _percentComplete;
     private List<Server>      _servers          = new ArrayList<Server>();
-    private ServerPage        _serverPage;
+    private ServerSection     _serverSection;
     private int               numToLoad         = 0;
     private int               currentParseIndex = 0;
     private JSONObject        servers           = null;
 
-    public ServerManager(ServerPage serverPage) {
-        _serverPage = serverPage;
+    public ServerManager(ServerSection serverSection) {
+        _serverSection = serverSection;
     }
 
     @Override
     protected Boolean doInBackground() {
         loadServers();
         return true;
-    }
-
-    @Override
-    protected void done() {
-        
     }
 
     public String getStatus() {
@@ -111,9 +104,9 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
 
     public void parseServer(String json, int port, boolean isNew) throws ParseException {
         JSONObject sData = (JSONObject) new JSONParser().parse(json);
-        Server s = new Server(sData, port, isNew);
-        if (isNew) {
-            _servers.add(s);
+        Server s = new Server(_serverSection, sData, port, isNew);
+        if (!isNew) {
+            addServer(s);
         }
     }
 
@@ -130,17 +123,13 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
     public void addServer(Server server) {
         _servers.add(server);
         saveServers();
-        if (_servers.size() == numToLoad) {
-            _serverPage.reloadServers();
-        } else {
-            currentParseIndex++;
-            parseNext();
-        }
+        currentParseIndex++;
+        parseNext();
     }
 
-    public Server getServer(String name) {
+    public Server getServer(String fullIp) {
         for (Server s : _servers) {
-            if (s.getName().equalsIgnoreCase(name)) { return s; }
+            if (s.getFullIp().equalsIgnoreCase(fullIp)) { return s; }
         }
         return null;
     }
@@ -211,9 +200,6 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
             try {
                 parseServer(serverURL, port, true);
                 saveServers();
-                IndigoLauncher._launcher.setVisible(false);
-                IndigoLauncher._launcher.dispose();
-                new Main(IndigoLauncher._launcher.getUsername());
             } catch (ParseException e) {
                 e.printStackTrace();
             }

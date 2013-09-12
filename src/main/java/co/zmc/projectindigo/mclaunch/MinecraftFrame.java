@@ -27,6 +27,7 @@ package co.zmc.projectindigo.mclaunch;
 
 import java.applet.Applet;
 import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.net.MalformedURLException;
@@ -100,6 +101,7 @@ public class MinecraftFrame extends JFrame {
 
         Dimension size = new Dimension(900, 480);
         appletWrap.setPreferredSize(size);
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
         pack();
         validate();

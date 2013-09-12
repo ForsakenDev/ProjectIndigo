@@ -191,26 +191,26 @@ public class MinecraftLauncher {
             URLClassLoader cl = new URLClassLoader(urls, MinecraftLauncher.class.getClassLoader());
             System.out.println("Loading minecraft class");
 
-            PolicyManager policy = new PolicyManager();
-            policy.copySecurityPolicy();
-            for (URL url : urls) {
-                policy.addAdditionalPerm("permission java.lang.RuntimePermission \"loadLibrary." + url.toString().replaceAll("\\\\", "/") + "\"");
-            }
-
-            policy.addAdditionalPerm("permission java.io.FilePermission \""
-                    + new File(basepath).getParentFile().getAbsolutePath().replaceAll("\\\\", "/") + "/-\", \"read, write, delete\"");
-            policy.addAdditionalPerm("permission java.io.FilePermission \"" + nativesDir.replaceAll("\\\\", "/") + "/-\", \"read\"");
-            policy.addAdditionalPerm("permission java.io.FilePermission \"" + System.getProperty("java.io.tmpdir").replaceAll("\\\\", "/")
-                    + "-\", \"read, write, delete\"");
-
-            policy.addAdditionalPerm("permission java.net.SocketPermission \"" + ip + ":" + port + "\", \"accept, resolve, listen, connect\"");
-
-            policy.writeAdditionalPerms(policy.getPolicyLocation());
-
-            System.out.println("Setting security policy to " + policy.getPolicyLocation());
-            System.setProperty("java.security.policy", policy.getPolicyLocation());
-            Policy.getPolicy().refresh();
-            System.setSecurityManager(new SecurityManager());
+//            PolicyManager policy = new PolicyManager();
+//            policy.copySecurityPolicy();
+//            for (URL url : urls) {
+//                policy.addAdditionalPerm("permission java.lang.RuntimePermission \"loadLibrary." + url.toString().replaceAll("\\\\", "/") + "\"");
+//            }
+//
+//            policy.addAdditionalPerm("permission java.io.FilePermission \""
+//                    + new File(basepath).getParentFile().getAbsolutePath().replaceAll("\\\\", "/") + "/-\", \"read, write, delete\"");
+//            policy.addAdditionalPerm("permission java.io.FilePermission \"" + nativesDir.replaceAll("\\\\", "/") + "/-\", \"read\"");
+//            policy.addAdditionalPerm("permission java.io.FilePermission \"" + System.getProperty("java.io.tmpdir").replaceAll("\\\\", "/")
+//                    + "-\", \"read, write, delete\"");
+//
+//            policy.addAdditionalPerm("permission java.net.SocketPermission \"" + ip + ":" + port + "\", \"accept, resolve, listen, connect\"");
+//
+//            policy.writeAdditionalPerms(policy.getPolicyLocation());
+//
+//            System.out.println("Setting security policy to " + policy.getPolicyLocation());
+//            System.setProperty("java.security.policy", policy.getPolicyLocation());
+//            Policy.getPolicy().refresh();
+//            System.setSecurityManager(new SecurityManager());
 
             try {
                 Class<?> MCAppletClass = cl.loadClass("net.minecraft.client.MinecraftApplet");

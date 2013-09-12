@@ -49,34 +49,31 @@ public class IndigoLauncher extends JFrame {
     public static IndigoLauncher _launcher;
     public static Dimension      _serverPanelSize = new Dimension(900, 580);
     public Dimension             _loginPanelSize  = new Dimension(400, 200);
-    private LoginResponse        _loginResponse;
     public MainPanel             _mainPanel;
-    public ProgressSplashScreen  _splash;
+//    public ProgressSplashScreen  _splash;
 
     public IndigoLauncher(String defaultLogin) {
         _launcher = this;
-        _splash = new ProgressSplashScreen("Loading assets...", 0);
-        _splash.setVisible(true);
-        _splash.updateProgress("Cleaning directories...", 0);
+//        _splash = new ProgressSplashScreen("Loading assets...", 0);
+//        _splash.setVisible(true);
+//        _splash.updateProgress("Cleaning directories...", 25);
         cleanup();
-        _splash.updateProgress("Directories cleaned...", 100);
-        _splash.updateProgress("Setting system values...", 0);
+//        _splash.updateProgress("Directories cleaned...", 50);
+//        _splash.updateProgress("Setting system values...", 75);
         setLookandFeel();
-        _splash.updateProgress("Setting up base components", 50);
-        initComponents(defaultLogin);
-        _splash.updateProgress("Launching...", 100);
+//        _splash.updateProgress("Launching...", 100);
+        launchMainPanel(defaultLogin);
+    }
 
+    public void launchMainPanel(String defaultLogin) {
+        initComponents(defaultLogin);
         _mainPanel.setVisible(true);
         setPreferredSize(_serverPanelSize);
         setSize(_serverPanelSize);
         setLocationRelativeTo(null);
-
-        _splash.dispose();
+        setUndecorated(true);
+//        _splash.dispose();
         setVisible(true);
-    }
-
-    public String getUsername() {
-        return _loginResponse.getUsername();
     }
 
     private void setLookandFeel() {
@@ -89,7 +86,6 @@ public class IndigoLauncher extends JFrame {
     }
 
     private void initComponents(String defaultLogin) {
-
         _mainPanel = new MainPanel(_launcher, _serverPanelSize.width, _serverPanelSize.height);
         _mainPanel.setVisible(true);
         add(_mainPanel);
@@ -131,21 +127,13 @@ public class IndigoLauncher extends JFrame {
         return null;
     }
 
-    public final void setResponse(LoginResponse loginResponse) {
-        _loginResponse = loginResponse;
-    }
-
     public void refresh() {
         repaint();
     }
 
-    public LoginResponse getLoginResponse() {
-        return _loginResponse;
-    }
-
-    public void launchMinecraft(Server server) throws IOException {
-        Process pro = MinecraftLauncher.launchMinecraft(server, _loginResponse.getUsername(), _loginResponse.getSessionId(), "MinecraftForge.zip",
-                "1024", "128M");
+    public void launchMinecraft(Server server, LoginResponse response) throws IOException {
+        Process pro = MinecraftLauncher
+                .launchMinecraft(server, response.getUsername(), response.getSessionId(), "MinecraftForge.zip", "1024", "128M");
         InputStreamLogger.start(pro.getInputStream());
         try {
             Thread.sleep(3500);

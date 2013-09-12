@@ -32,6 +32,8 @@ import java.awt.Graphics2D;
 
 import javax.swing.JProgressBar;
 
+import co.zmc.projectindigo.IndigoLauncher;
+
 @SuppressWarnings("serial")
 public class ProgressBar extends JProgressBar {
 
@@ -43,6 +45,7 @@ public class ProgressBar extends JProgressBar {
         setFocusable(false);
         setOpaque(true);
         setStringPainted(true);
+        setFont(IndigoLauncher.getMinecraftFont(14));
     }
 
     public Graphics cleanup(Graphics g) {
@@ -124,6 +127,11 @@ public class ProgressBar extends JProgressBar {
         g2.setColor(Color.BLACK);
         g2.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
         g.dispose();
+    }
+
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        setVisible(enabled);
     }
 
 }

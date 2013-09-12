@@ -46,17 +46,17 @@ import co.zmc.projectindigo.exceptions.MCNetworkException;
 import co.zmc.projectindigo.exceptions.MinecraftUserNotPremiumException;
 import co.zmc.projectindigo.exceptions.OutdatedMCLauncherException;
 import co.zmc.projectindigo.exceptions.PermissionDeniedException;
-import co.zmc.projectindigo.gui.page.AccountPage;
+import co.zmc.projectindigo.gui.components.LoginSection;
 
 public class LoginHandler extends SwingWorker<String, Void> {
 
-    private AccountPage         _accountPage;
+    private LoginSection        _loginSection;
     private String              _username;
     private String              _password;
     private static final Logger logger = Logger.getLogger("launcher");
 
-    public LoginHandler(AccountPage accountPage, String username, String password) {
-        _accountPage = accountPage;
+    public LoginHandler(LoginSection loginSection, String username, String password) {
+        _loginSection = loginSection;
         _username = username;
         _password = password;
     }
@@ -64,30 +64,29 @@ public class LoginHandler extends SwingWorker<String, Void> {
     @Override
     protected String doInBackground() {
         try {
-            _accountPage.stateChanged("Logging in as " + _username + "...", 33);
+            _loginSection.stateChanged("Logging in as " + _username + "...", 33);
             String result = doLogin();
-            _accountPage.stateChanged("Reading response...", 99);
+            _loginSection.stateChanged("Reading response...", 99);
             LoginResponse response = new LoginResponse(result);
-            _accountPage.stateChanged("Logged in and lauching...", 100);
+            _loginSection.stateChanged("Logged in and lauching...", 100);
             logger.log(Level.INFO, "Login successful, Starting minecraft..");
-            _accountPage.getUserManager().saveUsername(_username, response.getUsername(), _password);
-            _accountPage.setResponse(response);
-            _accountPage.onEvent(LoginEvents.SAVE_USER_LAUNCH);
+            _loginSection.getUserManager().saveUsername(_username, response.getUsername(), _password);
+            _loginSection.setResponse(response);
+            _loginSection.onEvent(LoginEvents.SAVE_USER_LAUNCH);
         } catch (AccountMigratedException e) {
-            _accountPage.onEvent(LoginEvents.ACCOUNT_MIGRATED);
+            _loginSection.onEvent(LoginEvents.ACCOUNT_MIGRATED);
         } catch (BadLoginException e) {
-            _accountPage.onEvent(LoginEvents.BAD_LOGIN);
+            _loginSection.onEvent(LoginEvents.BAD_LOGIN);
         } catch (MinecraftUserNotPremiumException e) {
-            _accountPage.onEvent(LoginEvents.USER_NOT_PREMIUM);
+            _loginSection.onEvent(LoginEvents.USER_NOT_PREMIUM);
         } catch (PermissionDeniedException e) {
-            _accountPage.onEvent(LoginEvents.PERMISSION_DENIED);
+            _loginSection.onEvent(LoginEvents.PERMISSION_DENIED);
             this.cancel(true);
         } catch (MCNetworkException e) {
-            _accountPage.onEvent(LoginEvents.NETWORK_DOWN);
+            _loginSection.onEvent(LoginEvents.NETWORK_DOWN);
             this.cancel(true);
         } catch (OutdatedMCLauncherException e) {
-            JOptionPane.showMessageDialog(_accountPage.getParent(), "Incompatible login version. Contact " + IndigoLauncher.TITLE
-                    + " about updating the launcher!");
+            JOptionPane.showMessageDialog(null, "Incompatible login version. Contact " + IndigoLauncher.TITLE + " about updating the launcher!");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
             this.cancel(true);
@@ -103,7 +102,7 @@ public class LoginHandler extends SwingWorker<String, Void> {
         try {
             result = getString(new URL("https://login.minecraft.net/?user=" + URLEncoder.encode(_username, "UTF-8") + "&password="
                     + URLEncoder.encode(_password, "UTF-8") + "&version=13"));
-            _accountPage.stateChanged("Sending username and password...", 66);
+            _loginSection.stateChanged("Sending username and password...", 66);
         } catch (MalformedURLException e) {
         } catch (IOException e) {
             throw new MCNetworkException();
