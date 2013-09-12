@@ -45,60 +45,88 @@ import java.util.zip.ZipInputStream;
 
 import javax.swing.SwingWorker;
 
+import co.zmc.projectindigo.IndigoLauncher;
+import co.zmc.projectindigo.data.LoginResponse;
 import co.zmc.projectindigo.data.Server;
 import co.zmc.projectindigo.gui.components.ServerSection;
+import co.zmc.projectindigo.mclaunch.MinecraftLauncher;
+import co.zmc.projectindigo.utils.InputStreamLogger;
 import co.zmc.projectindigo.utils.Utils;
 
 public class DownloadHandler extends SwingWorker<Boolean, Void> {
     protected String        _status;
     protected ServerSection _serverSection;
+    protected LoginResponse _response;
     protected Server        _server;
     protected URL[]         _jarURLs;
     private final Logger    logger              = Logger.getLogger("launcher");
     protected double        totalDownloadSize   = 0;
     protected double        totalDownloadedSize = 0;
 
-    public DownloadHandler(Server server, ServerSection section) {
+    public DownloadHandler(Server server, ServerSection section, LoginResponse response) {
         _server = server;
         _serverSection = section;
+        _response = response;
         _status = "";
     }
 
     @Override
     protected Boolean doInBackground() {
         _serverSection.setFormsEnabled(false);
-        if (!_server.getBinDir().exists()) {
-            _server.getBinDir().mkdirs();
-        } else {
-            return true;
-        }
-        _serverSection.stateChanged("Installing " + _server.getName() + "...", 0);
+        if (_server.shouldDownload()) { return load(); }
+        System.out.println("ret true1");
 
+        return true;
+    }
+
+    protected void done() {
+        System.out.println("Launching");
+        launch();
+    }
+
+    public boolean load() {
+        _server.getBinDir().mkdirs();
+
+        _serverSection.stateChanged("Installing " + _server.getName() + "...", 0);
         if (!loadJarURLs()) { return false; }
         logger.log(Level.INFO, "Downloading Jars");
         if (!downloadJars()) {
             logger.log(Level.SEVERE, "Download Failed");
             return false;
         }
-        // extracting files
         _serverSection.stateChanged("Extracting files...", 0);
-
         logger.log(Level.INFO, "Extracting Files");
-        if (!(extractModpack() && extractNatives() && removeMetaInf())) {
+        if (!(extractFiles() && removeMetaInf())) {
             logger.log(Level.SEVERE, "Extraction Failed");
             return false;
         }
+        System.out.println("ret true2");
 
-        logger.log(Level.INFO, "Download complete");
         return true;
     }
 
-    @Override
-    protected void done() {
+    public void launch() {
+        logger.log(Level.INFO, "Download complete");
         _serverSection.stateChanged("Download complete", 100);
         _serverSection.setFormsEnabled(true);
         if (_server != null) {
             _serverSection.addServer(_server);
+            Process pro;
+            try {
+                pro = MinecraftLauncher.launchMinecraft(_server, _response.getUsername(), _response.getSessionId(), "MinecraftForge.zip", "1024",
+                        "128M");
+
+                InputStreamLogger.start(pro.getInputStream());
+                try {
+                    Thread.sleep(3500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                IndigoLauncher._launcher.setVisible(false);
+                IndigoLauncher._launcher.dispose();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
         }
     }
 
@@ -201,8 +229,20 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
     }
 
     protected boolean removeMetaInf() {
+        double totalExtractSize = 0;
+        double totalExtractedSize = 0;
+        _serverSection.stateChanged("Removing META-INF...", 0);
         File outputTmpFile = new File(_server.getBinDir(), "minecraft.jar.tmp");
         File inputFile = new File(_server.getBinDir(), "minecraft.jar");
+        try {
+            FileInputStream input = new FileInputStream(inputFile);
+            totalExtractSize += input.available();
+            input.close();
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, e.getMessage());
+            return false;
+        }
+
         try {
             JarInputStream input = new JarInputStream(new FileInputStream(inputFile));
             JarOutputStream output = new JarOutputStream(new FileOutputStream(outputTmpFile));
@@ -214,9 +254,17 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
                 }
                 output.putNextEntry(entry);
                 byte buffer[] = new byte[1024];
-                int amo;
-                while ((amo = input.read(buffer, 0, 1024)) != -1) {
-                    output.write(buffer, 0, amo);
+                int readLen;
+                while ((readLen = input.read(buffer, 0, 1024)) != -1) {
+                    output.write(buffer, 0, readLen);
+                    totalExtractedSize += readLen;
+                    int prog = (int) ((totalExtractedSize / totalExtractSize) * 100);
+                    if (prog > 100) {
+                        prog = 100;
+                    } else if (prog < 0) {
+                        prog = 0;
+                    }
+                    _serverSection.stateChanged("Removing META-INF...", prog);
                 }
                 output.closeEntry();
             }
@@ -237,98 +285,81 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
         return true;
     }
 
-    protected boolean extractNatives() {
-        // Extracting natives..
-        File nativesJar = new File(_server.getBinDir(), getFilename(_jarURLs[_jarURLs.length - 1]));
-        File nativesDir = new File(_server.getBinDir(), "natives");
-        if (!nativesDir.isDirectory()) {
-            nativesDir.mkdirs();
-        }
-        FileInputStream input = null;
-        ZipInputStream zipIn = null;
-        try {
-            input = new FileInputStream(nativesJar);
-            zipIn = new ZipInputStream(input);
-            ZipEntry currentEntry = zipIn.getNextEntry();
-            while (currentEntry != null) {
-                if (currentEntry.getName().contains("META-INF")) {
-                    currentEntry = zipIn.getNextEntry();
-                    continue;
-                }
-                // Extracting " + currentEntry
-                FileOutputStream outStream = new FileOutputStream(new File(nativesDir, currentEntry.getName()));
-                int readLen;
-                byte[] buffer = new byte[1024];
-                while ((readLen = zipIn.read(buffer, 0, buffer.length)) > 0) {
-                    outStream.write(buffer, 0, readLen);
-                }
-                outStream.close();
-                currentEntry = zipIn.getNextEntry();
-            }
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, e.getMessage());
-            return false;
-        } finally {
+    protected boolean extractFiles() {
+        double totalExtractSize = 0;
+        double totalExtractedSize = 0;
+        File[][] files = new File[][] { { new File(_server.getBaseDir(), getFilename(_jarURLs[0])), _server.getBaseDir() },
+                { new File(_server.getBinDir(), getFilename(_jarURLs[_jarURLs.length - 1])), new File(_server.getBinDir(), "natives") } };
+        int[] fileSizes = new int[files.length];
+        for (int i = 0; i < files.length; i++) {
             try {
-                zipIn.close();
+                FileInputStream input = new FileInputStream(files[i][0]);
+                fileSizes[i] = input.available();
+                totalExtractSize += fileSizes[i];
                 input.close();
             } catch (IOException e) {
-                logger.log(Level.SEVERE, e.getMessage(), e);
+                logger.log(Level.SEVERE, e.getMessage());
+                return false;
             }
         }
-        nativesJar.delete();
-        return true;
-    }
-
-    protected boolean extractModpack() {
-        // Extracting modpack..
-        File modpackZip = new File(_server.getBaseDir(), getFilename(_jarURLs[0]));
-        File modpackDir = _server.getBaseDir();
-        if (!modpackDir.isDirectory()) {
-            modpackDir.mkdirs();
-        }
-        FileInputStream input = null;
-        ZipInputStream zipIn = null;
-        try {
-            input = new FileInputStream(modpackZip);
-            zipIn = new ZipInputStream(input);
-            ZipEntry currentEntry = zipIn.getNextEntry();
-            while (currentEntry != null) {
-                if (currentEntry.getName().contains("META-INF")) {
-                    currentEntry = zipIn.getNextEntry();
-                    continue;
-                }
-                if (currentEntry.isDirectory()) {
-                    File tmp = new File(modpackDir, currentEntry.getName());
-                    if (!tmp.exists()) {
-                        tmp.mkdir();
+        for (int i = 0; i < files.length; i++) {
+            File[] file = files[i];
+            if (!file[1].isDirectory()) {
+                file[1].mkdirs();
+            }
+            FileInputStream input = null;
+            ZipInputStream zipIn = null;
+            try {
+                input = new FileInputStream(file[0]);
+                zipIn = new ZipInputStream(input);
+                ZipEntry currentEntry = zipIn.getNextEntry();
+                while (currentEntry != null) {
+                    if (currentEntry.getName().contains("META-INF")) {
+                        currentEntry = zipIn.getNextEntry();
+                        continue;
                     }
+                    if (currentEntry.isDirectory()) {
+                        File tmp = new File(file[1], currentEntry.getName());
+                        if (!tmp.exists()) {
+                            tmp.mkdir();
+                        }
+                        currentEntry = zipIn.getNextEntry();
+                        continue;
+                    }
+                    FileOutputStream outStream = new FileOutputStream(new File(file[1], currentEntry.getName()));
+                    int readLen;
+                    int currentDLSize = 0;
+                    byte[] buffer = new byte[1024];
+                    while ((readLen = zipIn.read(buffer, 0, buffer.length)) > 0) {
+                        outStream.write(buffer, 0, readLen);
+                        currentDLSize += readLen;
+                        totalExtractedSize += readLen;
+                        int prog = (int) ((totalExtractedSize / totalExtractSize) * 100);
+                        if (prog > 100) {
+                            prog = 100;
+                        } else if (prog < 0) {
+                            prog = 0;
+                        }
+                        _serverSection.stateChanged("Extracting " + file[0].getName() + "...", prog);
+                    }
+                    outStream.close();
                     currentEntry = zipIn.getNextEntry();
-                    continue;
                 }
-                // Extracting " + currentEntry
-                FileOutputStream outStream = new FileOutputStream(new File(modpackDir, currentEntry.getName()));
-                int readLen;
-                byte[] buffer = new byte[1024];
-                while ((readLen = zipIn.read(buffer, 0, buffer.length)) > 0) {
-                    outStream.write(buffer, 0, readLen);
-                }
-                outStream.close();
-                currentEntry = zipIn.getNextEntry();
-            }
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, e.getMessage());
-            return false;
-        } finally {
-            try {
-                zipIn.close();
-                input.close();
             } catch (IOException e) {
-                logger.log(Level.SEVERE, e.getMessage(), e);
+                logger.log(Level.SEVERE, e.getMessage());
+                return false;
+            } finally {
+                try {
+                    zipIn.close();
+                    input.close();
+                } catch (IOException e) {
+                    logger.log(Level.SEVERE, e.getMessage(), e);
+                }
             }
+            file[0].delete();
         }
-        modpackZip.delete();
         return true;
+
     }
 
     protected String getFilename(URL url) {

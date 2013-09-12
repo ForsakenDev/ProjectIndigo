@@ -47,7 +47,7 @@ public class Server {
     private File          _minecraftDir;
     private File          _binDir;
 
-    public Server(ServerSection section, JSONObject server, int port, boolean isNew) {
+    public Server(ServerSection section, JSONObject server, int port) {
         _serverSection = section;
         _name = (String) server.get("name");
         _ip = (String) server.get("ip");
@@ -63,7 +63,6 @@ public class Server {
         if (!isDownloaded()) {
             mkdir();
         }
-        download();
     }
 
     public void mkdir() {
@@ -88,8 +87,12 @@ public class Server {
         return _minecraftDir;
     }
 
-    public void download() {
-        new DownloadHandler(this, _serverSection).execute();
+    public boolean shouldDownload() {
+        return !(getMinecraftDir().exists() && getBaseDir().exists() && getBinDir().exists());
+    }
+
+    public void download(LoginResponse response) {
+        new DownloadHandler(this, _serverSection, response).execute();
     }
 
     public String getName() {

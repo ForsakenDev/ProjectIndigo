@@ -38,10 +38,8 @@ import co.zmc.projectindigo.data.LoginResponse;
 import co.zmc.projectindigo.data.Server;
 import co.zmc.projectindigo.gui.MainPanel;
 import co.zmc.projectindigo.gui.components.ProgressSplashScreen;
-import co.zmc.projectindigo.mclaunch.MinecraftLauncher;
 import co.zmc.projectindigo.utils.DirectoryLocations;
 import co.zmc.projectindigo.utils.FileUtils;
-import co.zmc.projectindigo.utils.InputStreamLogger;
 import co.zmc.projectindigo.utils.ResourceUtils;
 
 @SuppressWarnings("serial")
@@ -134,16 +132,8 @@ public class IndigoLauncher extends JFrame {
     }
 
     public void launchMinecraft(Server server, LoginResponse response) throws IOException {
-        Process pro = MinecraftLauncher
-                .launchMinecraft(server, response.getUsername(), response.getSessionId(), "MinecraftForge.zip", "1024", "128M");
-        InputStreamLogger.start(pro.getInputStream());
-        try {
-            Thread.sleep(3500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        setVisible(false);
-        dispose();
+        System.out.println("Launching");
+        server.download(response);
     }
 
 }

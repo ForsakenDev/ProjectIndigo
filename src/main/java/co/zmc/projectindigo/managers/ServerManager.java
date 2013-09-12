@@ -78,7 +78,6 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
     }
 
     public void loadServers() {
-
         try {
             if (!_saveFile.exists()) {
                 _saveFile.createNewFile();
@@ -92,41 +91,57 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
             e.printStackTrace();
         }
         numToLoad = servers.size();
-
-        if (servers != null) {
-            parseNext();
+        while (currentParseIndex < numToLoad) {
+            Server s = parseNext();
+            Server shouldUpdate = shouldUpdate(s);
+            if (shouldUpdate != null) {
+                FileUtils.deleteDirectory(shouldUpdate.getBaseDir());
+                addServer(shouldUpdate);
+            } else {
+                if (s != null) {
+                    addServer(s);
+                }
+            }
+            currentParseIndex++;
         }
     }
 
-    public void parseServer(JSONObject sData) throws NumberFormatException, ParseException {
-        parseServer(sData.toJSONString(), Integer.parseInt((String) sData.get("port")), false);
+    public void addServer(Server server) {
+        int index = -1;
+        for (int i = 0; i < _servers.size(); i++) {
+            Server s = _servers.get(i);
+            if (s.getFullIp().equalsIgnoreCase(server.getFullIp())) {
+                index = i;
+                break;
+            }
+        }
+        if (index >= 0) {
+            _servers.remove(index);
+        }
+        _servers.add(server);
+        _serverSection.addServer(server);
     }
 
-    public void parseServer(String json, int port, boolean isNew) throws ParseException {
+    public Server parseServer(JSONObject sData) throws NumberFormatException, ParseException {
+        return parseServer(sData.toJSONString(), Integer.parseInt((String) sData.get("port")));
+    }
+
+    public Server parseServer(String json, int port) throws ParseException {
         JSONObject sData = (JSONObject) new JSONParser().parse(json);
-        Server s = new Server(_serverSection, sData, port, isNew);
-        if (!isNew) {
-            addServer(s);
-        }
+        return new Server(_serverSection, sData, port);
     }
 
-    private void parseNext() {
+    private Server parseNext() {
         if (currentParseIndex < numToLoad) {
             try {
-                parseServer((JSONObject) servers.get(servers.keySet().toArray()[currentParseIndex]));
+                return parseServer((JSONObject) servers.get(servers.keySet().toArray()[currentParseIndex]));
             } catch (NumberFormatException e) {
                 e.printStackTrace();
             } catch (ParseException e) {
                 e.printStackTrace();
             }
         }
-    }
-
-    public void addServer(Server server) {
-        _servers.add(server);
-        saveServers();
-        currentParseIndex++;
-        parseNext();
+        return null;
     }
 
     public Server getServer(String fullIp) {
@@ -151,6 +166,67 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
         }
         str += "\n}";
         FileUtils.writeStringToFile(str, _saveFile);
+    }
+
+    public Server shouldUpdate(Server server) {
+        Socket s = new Socket();
+        String serverURL = "";
+        try {
+            String channel = "projectindigo";
+            String msg = "request_modpack_url";
+            System.out.println("Connecting to server " + server.getFullIp());
+            s.connect(new InetSocketAddress(server.getIp(), server.getPort()));
+            DataOutputStream out = new DataOutputStream(s.getOutputStream());
+            DataInputStream in = new DataInputStream(s.getInputStream());
+
+            System.out.println("Requesting server information");
+            out.writeByte(0xFA);
+            out.writeShort(channel.length());
+            out.writeChars(channel);
+            out.writeShort(msg.length());
+            out.write(msg.getBytes());
+
+            if (Integer.valueOf(in.read()) == 0xFA) {
+                String readStr = "";
+                int len = in.readShort();
+                for (int i = 0; i < len; i++) {
+                    readStr += in.readChar();
+                }
+                if (readStr.equalsIgnoreCase(channel)) {
+                    readStr = "";
+                    len = in.readShort();
+                    for (int i = 0; i < len; i++) {
+                        readStr += (char) in.read();
+                    }
+                    serverURL = readStr;
+                }
+            }
+            in.close();
+            out.flush();
+            out.close();
+            s.close();
+        } catch (ConnectException e) {
+            JOptionPane.showMessageDialog(null, "Failed to connect to the server... Are you sure the address is right?", "Connection failed",
+                    JOptionPane.WARNING_MESSAGE);
+            return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (!serverURL.isEmpty()) {
+            System.out.println("Reading server information");
+            try {
+                Server newServer = parseServer(serverURL, server.getPort());
+                if (!server.getVersion().equals(newServer.getVersion())) {
+                    return newServer;
+                } else {
+                    return null;
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+        }
+        return null;
     }
 
     public void loadServer(String ip, int port) {
@@ -200,7 +276,10 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
         if (!serverURL.isEmpty()) {
             System.out.println("Reading server information");
             try {
-                parseServer(serverURL, port, true);
+                Server server = parseServer(serverURL, port);
+                if (server != null) {
+                    addServer(server);
+                }
                 saveServers();
             } catch (ParseException e) {
                 e.printStackTrace();
