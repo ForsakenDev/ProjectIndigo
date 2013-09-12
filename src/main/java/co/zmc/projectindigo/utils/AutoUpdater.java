@@ -70,13 +70,15 @@ public class AutoUpdater {
             String version = (String) ((Element) descNodes.item(0)).getElementsByTagName("version").item(0).getChildNodes().item(0).getNodeValue();
 
             InputStream pomStream = AutoUpdater.class.getClassLoader().getResourceAsStream("META-INF/maven/co.zmc/projectindigo/pom.xml");
-            doc = parseXML(pomStream);
-            descNodes = doc.getElementsByTagName("project");
-
-            String clientVersion = (String) ((Element) descNodes.item(0)).getElementsByTagName("version").item(0).getChildNodes().item(0)
-                    .getNodeValue();
-
-            return (!version.equals(clientVersion));
+            if (pomStream != null) {
+	            doc = parseXML(pomStream);
+	            descNodes = doc.getElementsByTagName("project");
+	
+	            String clientVersion = (String) ((Element) descNodes.item(0)).getElementsByTagName("version").item(0).getChildNodes().item(0)
+	                    .getNodeValue();
+	
+	            return (!version.equals(clientVersion));
+            }
 
         } catch (MalformedURLException e) {
             e.printStackTrace();
