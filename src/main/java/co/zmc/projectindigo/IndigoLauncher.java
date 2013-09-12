@@ -62,7 +62,7 @@ public class IndigoLauncher extends JFrame {
         setPreferredSize(_serverPanelSize);
         setSize(_serverPanelSize);
         setLocationRelativeTo(null);
-//        setUndecorated(true);
+        // setUndecorated(true);
         setVisible(true);
     }
 
@@ -76,7 +76,7 @@ public class IndigoLauncher extends JFrame {
     }
 
     private void initComponents(String defaultLogin) {
-        _mainPanel = new MainPanel(_launcher, _serverPanelSize.width, _serverPanelSize.height - 25);
+        _mainPanel = new MainPanel(_launcher, _serverPanelSize.width, _serverPanelSize.height);
         _mainPanel.setVisible(true);
         add(_mainPanel);
     }

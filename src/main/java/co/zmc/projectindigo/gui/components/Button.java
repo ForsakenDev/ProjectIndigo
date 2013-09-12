@@ -70,7 +70,7 @@ public class Button extends JButton implements MouseListener {
     }
 
     public boolean isClicked() {
-        return clicked;
+        return clicked || !isEnabled();
     }
 
     public void mouseClicked(MouseEvent e) {

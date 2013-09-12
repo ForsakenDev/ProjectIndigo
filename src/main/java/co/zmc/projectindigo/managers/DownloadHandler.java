@@ -247,7 +247,7 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
             JarEntry entry;
 
             while ((entry = input.getNextJarEntry()) != null) {
-                if (entry.getName().contains("META-INF")) {
+                if (entry.getName().contains("META-INF") || entry.getName().contains("__MACOSX")) {
                     continue;
                 }
                 output.putNextEntry(entry);
@@ -312,7 +312,7 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
                 zipIn = new ZipInputStream(input);
                 ZipEntry currentEntry = zipIn.getNextEntry();
                 while (currentEntry != null) {
-                    if (currentEntry.getName().contains("META-INF")) {
+                    if (currentEntry.getName().contains("META-INF") || currentEntry.getName().contains("__MACOSX")) {
                         currentEntry = zipIn.getNextEntry();
                         continue;
                     }

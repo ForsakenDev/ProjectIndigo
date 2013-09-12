@@ -61,6 +61,8 @@ public class MainPanel extends JPanel {
         setOpaque(false);
         if (Utils.getCurrentOS() == OS.MACOSX) {
             height -= 20;
+        } else if (Utils.getCurrentOS() == OS.WINDOWS) {
+            height -= 25;
         }
         setFont(IndigoLauncher.getMinecraftFont(14));
         Dimension dim = new Dimension(width, height);
