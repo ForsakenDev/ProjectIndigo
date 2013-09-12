@@ -31,7 +31,7 @@ import java.awt.event.MouseListener;
 import java.io.IOException;
 
 import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.JLayeredPane;
 
 import co.zmc.projectindigo.IndigoLauncher;
 import co.zmc.projectindigo.data.Server;
@@ -40,7 +40,7 @@ import co.zmc.projectindigo.data.Server;
 public class ServerInfo extends JLabel {
     private final JLabel _info;
 
-    public ServerInfo(JPanel pane, final Server server) {
+    public ServerInfo(JLayeredPane pane, final Server server) {
         _info = new JLabel(server.getIp() + ":" + server.getPort() + " (" + server.getPlayersOnline() + "/" + server.getTotalOnline() + ")");
         setText(server.getName());
         pane.add(this, 0);

@@ -41,7 +41,7 @@ import javax.swing.WindowConstants;
 import co.zmc.projectindigo.data.LoginResponse;
 import co.zmc.projectindigo.data.Server;
 import co.zmc.projectindigo.gui.LoginPanel;
-import co.zmc.projectindigo.gui.ServerPanel;
+import co.zmc.projectindigo.gui.MainPanel;
 import co.zmc.projectindigo.gui.components.ProgressSplashScreen;
 import co.zmc.projectindigo.mclaunch.MinecraftLauncher;
 import co.zmc.projectindigo.utils.DirectoryLocations;
@@ -55,7 +55,7 @@ public class IndigoLauncher extends JFrame {
     public static Dimension      _serverPanelSize = new Dimension(900, 580);
     public Dimension             _loginPanelSize  = new Dimension(400, 200);
     private LoginResponse        _loginResponse;
-    public ServerPanel           _serverPanel;
+    public MainPanel             _serverPanel;
     public LoginPanel            _loginPanel;
     public ProgressSplashScreen  _splash;
 
@@ -70,6 +70,7 @@ public class IndigoLauncher extends JFrame {
         setLookandFeel();
         _splash.updateProgress("Setting up base components", 50);
         initComponents(defaultLogin);
+        launchLogin();
     }
 
     public String getUsername() {
@@ -97,8 +98,7 @@ public class IndigoLauncher extends JFrame {
         _loginPanel.setVisible(true);
         add(_loginPanel);
 
-        _serverPanel = new ServerPanel(_launcher, _serverPanelSize.width, _serverPanelSize.height);
-        _serverPanel.loadServerManager();
+        _serverPanel = new MainPanel(_launcher, _serverPanelSize.width, _serverPanelSize.height);
         _serverPanel.setVisible(false);
         add(_serverPanel);
     }

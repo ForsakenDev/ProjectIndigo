@@ -53,6 +53,8 @@ public class ResourceUtils {
     private static final URL    ICON_ACCOUNT_HOVER  = ResourceUtils.class.getResource(BASE_PATH + "/images/icons/account_hover.png");
     private static final URL    ICON_HOME           = ResourceUtils.class.getResource(BASE_PATH + "/images/icons/home.png");
     private static final URL    ICON_HOME_HOVER     = ResourceUtils.class.getResource(BASE_PATH + "/images/icons/home_hover.png");
+    private static final URL    ICON_CLOUD          = ResourceUtils.class.getResource(BASE_PATH + "/images/icons/cloud.png");
+    private static final URL    ICON_CLOUD_HOVER    = ResourceUtils.class.getResource(BASE_PATH + "/images/icons/cloud_hover.png");
     private static final URL    ICON_SERVERS        = ResourceUtils.class.getResource(BASE_PATH + "/images/icons/list.png");
     private static final URL    ICON_SERVERS_HOVER  = ResourceUtils.class.getResource(BASE_PATH + "/images/icons/list_hover.png");
     private static final URL    ICON_SETTINGS       = ResourceUtils.class.getResource(BASE_PATH + "/images/icons/settings.png");
@@ -84,6 +86,10 @@ public class ResourceUtils {
             return ICON_HOME;
         } else if (name.equalsIgnoreCase("home_hover")) {
             return ICON_HOME_HOVER;
+        } else if (name.equalsIgnoreCase("cloud")) {
+            return ICON_CLOUD;
+        } else if (name.equalsIgnoreCase("cloud_hover")) {
+            return ICON_CLOUD_HOVER;
         } else if (name.equalsIgnoreCase("servers")) {
             return ICON_SERVERS;
         } else if (name.equalsIgnoreCase("servers_hover")) {

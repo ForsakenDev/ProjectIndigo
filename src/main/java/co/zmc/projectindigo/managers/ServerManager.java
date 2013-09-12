@@ -47,8 +47,7 @@ import org.json.simple.parser.ParseException;
 import co.zmc.projectindigo.IndigoLauncher;
 import co.zmc.projectindigo.Main;
 import co.zmc.projectindigo.data.Server;
-import co.zmc.projectindigo.gui.ServerPanel;
-import co.zmc.projectindigo.gui.components.ServerInfo;
+import co.zmc.projectindigo.gui.page.ServerPage;
 import co.zmc.projectindigo.utils.DirectoryLocations;
 import co.zmc.projectindigo.utils.FileUtils;
 
@@ -57,13 +56,13 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
     private String            _status;
     private int               _percentComplete;
     private List<Server>      _servers          = new ArrayList<Server>();
-    private ServerPanel       _serverPanel;
+    private ServerPage        _serverPage;
     private int               numToLoad         = 0;
     private int               currentParseIndex = 0;
     private JSONObject        servers           = null;
 
-    public ServerManager(ServerPanel serverPanel) {
-        _serverPanel = serverPanel;
+    public ServerManager(ServerPage serverPage) {
+        _serverPage = serverPage;
     }
 
     @Override
@@ -74,10 +73,7 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
 
     @Override
     protected void done() {
-        if (numToLoad == 0) {
-            IndigoLauncher._launcher.launchLogin();
-            return;
-        }
+        
     }
 
     public String getStatus() {
@@ -134,12 +130,9 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
     public void addServer(Server server) {
         _servers.add(server);
         saveServers();
-        int yOffset = (_servers.size()) * (36 + 5);
-        ServerInfo info = new ServerInfo(_serverPanel, server);
-        info.setBounds(25, yOffset, 200, 26);
-        _serverPanel.add(info);
         if (_servers.size() == numToLoad) {
             IndigoLauncher._launcher.launchLogin();
+            _serverPage.reloadServers();
         } else {
             currentParseIndex++;
             parseNext();
@@ -151,6 +144,10 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
             if (s.getName().equalsIgnoreCase(name)) { return s; }
         }
         return null;
+    }
+
+    public List<Server> getServers() {
+        return _servers;
     }
 
     public void saveServers() {
