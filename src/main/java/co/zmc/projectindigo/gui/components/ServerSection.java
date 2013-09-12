@@ -83,10 +83,10 @@ public class ServerSection extends JLayeredPane {
         _serverBox = new RoundedBox(MainPanel.BORDER_COLOUR);
         add(_serverBox);
         _addBtn = new Button(this, "Add Server");
-        _addBtn.setEnabled(false);
         _addBtn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
-                String ip = JOptionPane.showInputDialog(_mainPanel, "Please enter the server IP");
+                /*
+            	String ip = JOptionPane.showInputDialog(_mainPanel, "Please enter the server IP");
                 if (ip != null && !ip.contains(" ")) {
                     int port = 25565;
                     try {
@@ -104,6 +104,8 @@ public class ServerSection extends JLayeredPane {
                     JOptionPane.showMessageDialog(getParent(), "You need to include a valid IP Address", "Invalid IP Address",
                             JOptionPane.WARNING_MESSAGE);
                 }
+                */
+            	JOptionPane.showMessageDialog(getParent(), "Adding additional servers is disabled at this time.", "Feature disabled", JOptionPane.INFORMATION_MESSAGE);
             }
         });
 
