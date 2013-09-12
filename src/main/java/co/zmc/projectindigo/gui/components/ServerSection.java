@@ -83,6 +83,7 @@ public class ServerSection extends JLayeredPane {
         _serverBox = new RoundedBox(MainPanel.BORDER_COLOUR);
         add(_serverBox);
         _addBtn = new Button(this, "Add Server");
+        _addBtn.setEnabled(false);
         _addBtn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
                 String ip = JOptionPane.showInputDialog(_mainPanel, "Please enter the server IP");
@@ -155,7 +156,7 @@ public class ServerSection extends JLayeredPane {
             _progressBar.updateProgress(0);
         }
         _progressBar.setEnabled(!state);
-        _addBtn.setEnabled(state);
+//        _addBtn.setEnabled(state);
     }
 
     public void stateChanged(final String status, final float progress) {

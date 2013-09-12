@@ -108,6 +108,7 @@ public class LoginSection implements ActionListener {
         _remember.setForeground(Color.WHITE);
         _remember.setHorizontalTextPosition(SwingConstants.RIGHT);
         _remember.setIconTextGap(10);
+        _remember.setEnabled(false);
         _mainPanel.add(_remember, 0);
 
         _progressBox = new RoundedBox(MainPanel.BORDER_COLOUR);
@@ -150,7 +151,7 @@ public class LoginSection implements ActionListener {
         _username.setEnabled(state);
         _password.setEnabled(state);
         _loginBtn.setEnabled(state);
-        _remember.setEnabled(state);
+//        _remember.setEnabled(state);
         if (state) {
             _progressBar.updateProgress(0);
             _password.setText("");

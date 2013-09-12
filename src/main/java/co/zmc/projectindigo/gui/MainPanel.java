@@ -37,6 +37,8 @@ import co.zmc.projectindigo.gui.components.Image;
 import co.zmc.projectindigo.gui.components.LoginSection;
 import co.zmc.projectindigo.gui.components.ServerSection;
 import co.zmc.projectindigo.managers.ServerManager;
+import co.zmc.projectindigo.utils.Utils;
+import co.zmc.projectindigo.utils.Utils.OS;
 
 @SuppressWarnings("serial")
 public class MainPanel extends JPanel {
@@ -57,6 +59,9 @@ public class MainPanel extends JPanel {
         _launcher = launcher;
         setLayout(null);
         setOpaque(false);
+        if (Utils.getCurrentOS() == OS.MACOSX) {
+            height -= 20;
+        }
         setFont(IndigoLauncher.getMinecraftFont(14));
         Dimension dim = new Dimension(width, height);
         setSize(dim);
@@ -96,4 +101,5 @@ public class MainPanel extends JPanel {
     public LoginSection getLoginSection() {
         return _loginSection;
     }
+
 }
