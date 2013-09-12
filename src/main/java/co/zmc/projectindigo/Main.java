@@ -62,7 +62,6 @@ public class Main {
 			Process process = builder.start();
 			InputStreamLogger.start(process.getInputStream());
 	        process.waitFor();
-	        System.out.println("AutoUpdater finished with " + process.exitValue());
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
