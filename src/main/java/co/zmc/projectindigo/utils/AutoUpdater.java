@@ -50,8 +50,10 @@ public class AutoUpdater {
     	if (shouldUpdate()) {
         	System.out.println("Update detected. Attempting to download.");
         	downloadNew();
+        	System.exit(1);
         } else {
         	System.out.println("No update detected. Moving on.");
+        	System.exit(0);
         }
     }
 
