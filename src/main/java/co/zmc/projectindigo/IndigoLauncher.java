@@ -28,19 +28,14 @@ package co.zmc.projectindigo;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 
 import javax.swing.JFrame;
-import javax.swing.Timer;
 import javax.swing.WindowConstants;
 
 import co.zmc.projectindigo.data.LoginResponse;
 import co.zmc.projectindigo.data.Server;
-import co.zmc.projectindigo.gui.LoginPanel;
 import co.zmc.projectindigo.gui.MainPanel;
 import co.zmc.projectindigo.gui.components.ProgressSplashScreen;
 import co.zmc.projectindigo.mclaunch.MinecraftLauncher;
@@ -55,8 +50,7 @@ public class IndigoLauncher extends JFrame {
     public static Dimension      _serverPanelSize = new Dimension(900, 580);
     public Dimension             _loginPanelSize  = new Dimension(400, 200);
     private LoginResponse        _loginResponse;
-    public MainPanel             _serverPanel;
-    public LoginPanel            _loginPanel;
+    public MainPanel             _mainPanel;
     public ProgressSplashScreen  _splash;
 
     public IndigoLauncher(String defaultLogin) {
@@ -70,18 +64,19 @@ public class IndigoLauncher extends JFrame {
         setLookandFeel();
         _splash.updateProgress("Setting up base components", 50);
         initComponents(defaultLogin);
-        launchLogin();
+        _splash.updateProgress("Launching...", 100);
+
+        _mainPanel.setVisible(true);
+        setPreferredSize(_serverPanelSize);
+        setSize(_serverPanelSize);
+        setLocationRelativeTo(null);
+
+        _splash.dispose();
+        setVisible(true);
     }
 
     public String getUsername() {
         return _loginResponse.getUsername();
-    }
-
-    public void launchLogin() {
-        _splash.updateProgress("Launching login...", 100);
-        launchLoginFrame();
-        _splash.dispose();
-        setVisible(true);
     }
 
     private void setLookandFeel() {
@@ -94,13 +89,10 @@ public class IndigoLauncher extends JFrame {
     }
 
     private void initComponents(String defaultLogin) {
-        _loginPanel = new LoginPanel(_launcher, _loginPanelSize.width, _loginPanelSize.height, defaultLogin);
-        _loginPanel.setVisible(true);
-        add(_loginPanel);
 
-        _serverPanel = new MainPanel(_launcher, _serverPanelSize.width, _serverPanelSize.height);
-        _serverPanel.setVisible(false);
-        add(_serverPanel);
+        _mainPanel = new MainPanel(_launcher, _serverPanelSize.width, _serverPanelSize.height);
+        _mainPanel.setVisible(true);
+        add(_mainPanel);
     }
 
     private static void cleanup() {
@@ -145,71 +137,6 @@ public class IndigoLauncher extends JFrame {
 
     public void refresh() {
         repaint();
-    }
-
-    public void launchLoginFrame() {
-        setSize(_loginPanelSize);
-        setPreferredSize(_loginPanelSize);
-        setLocationRelativeTo(null);
-
-        _loginPanel.setVisible(true);
-        _serverPanel.setVisible(false);
-    }
-
-    private long startTime = 0;
-
-    public void launchServerFrame() {
-        _serverPanel.setVisible(true);
-        _loginPanel.setVisible(false);
-
-        final int playTime = 400;
-        double xDist = _serverPanelSize.width - _loginPanelSize.width;
-        double yDist = _serverPanelSize.height - _loginPanelSize.height;
-        final double xAccel = 2 * xDist * Math.pow(playTime, -2);
-        final double yAccel = 2 * yDist * Math.pow(playTime, -2);
-
-        Timer timer = new Timer(10, new ActionListener() {
-            double xVelocity = 0;
-            double yVelocity = 0;
-            double xSize     = _launcher.getSize().width;
-            double ySize     = _launcher.getSize().height;
-            double xLocation = _launcher.getLocation().x;
-            double yLocation = _launcher.getLocation().y;
-            long   lastTime  = 0;
-
-            public void actionPerformed(ActionEvent e) {
-                if (lastTime == 0) {
-                    lastTime = System.currentTimeMillis();
-                }
-
-                long deltaTime = System.currentTimeMillis() - lastTime;
-                lastTime = System.currentTimeMillis();
-
-                xVelocity += xAccel * deltaTime;
-                yVelocity += yAccel * deltaTime;
-
-                xSize += xVelocity * deltaTime;
-                ySize += yVelocity * deltaTime;
-
-                xLocation -= (xVelocity * deltaTime) / 2;
-                yLocation -= (yVelocity * deltaTime) / 2;
-
-                _launcher.setSize((int) xSize, (int) ySize);
-                _launcher.setLocation((int) xLocation, (int) yLocation);
-
-                if (System.currentTimeMillis() - startTime > playTime) {
-                    Dimension screenRes = Toolkit.getDefaultToolkit().getScreenSize();
-                    _launcher.setSize(_serverPanelSize);
-                    _launcher.setLocation((screenRes.width - _launcher.getWidth()) / 2, (screenRes.height - _launcher.getHeight()) / 2);
-                    ((Timer) e.getSource()).stop();
-                }
-            }
-        });
-        startTime = System.currentTimeMillis();
-        timer.start();
-
-        setLocationRelativeTo(null);
-
     }
 
     public LoginResponse getLoginResponse() {

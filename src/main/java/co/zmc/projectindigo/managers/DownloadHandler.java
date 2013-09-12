@@ -94,9 +94,9 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
     @Override
     protected void done() {
         IndigoLauncher._launcher._splash.updateProgress("Download complete", 100);
-        if (_server != null) {
-            IndigoLauncher._launcher._serverPanel.getMainPage().getServerManager().addServer(_server);
-        }
+        // if (_server != null) {
+        // IndigoLauncher._launcher._serverPanel.getMainPage().getServerManager().addServer(_server);
+        // }
     }
 
     protected boolean loadJarURLs() {

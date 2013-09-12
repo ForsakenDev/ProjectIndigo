@@ -46,17 +46,17 @@ import co.zmc.projectindigo.exceptions.MCNetworkException;
 import co.zmc.projectindigo.exceptions.MinecraftUserNotPremiumException;
 import co.zmc.projectindigo.exceptions.OutdatedMCLauncherException;
 import co.zmc.projectindigo.exceptions.PermissionDeniedException;
-import co.zmc.projectindigo.gui.LoginPanel;
+import co.zmc.projectindigo.gui.page.AccountPage;
 
 public class LoginHandler extends SwingWorker<String, Void> {
 
-    private LoginPanel          _loginFrame;
+    private AccountPage         _accountPage;
     private String              _username;
     private String              _password;
     private static final Logger logger = Logger.getLogger("launcher");
 
-    public LoginHandler(LoginPanel loginFrame, String username, String password) {
-        _loginFrame = loginFrame;
+    public LoginHandler(AccountPage accountPage, String username, String password) {
+        _accountPage = accountPage;
         _username = username;
         _password = password;
     }
@@ -64,29 +64,29 @@ public class LoginHandler extends SwingWorker<String, Void> {
     @Override
     protected String doInBackground() {
         try {
-            _loginFrame.stateChanged("Logging in as " + _username + "...", 33);
+            _accountPage.stateChanged("Logging in as " + _username + "...", 33);
             String result = doLogin();
-            _loginFrame.stateChanged("Reading response...", 99);
+            _accountPage.stateChanged("Reading response...", 99);
             LoginResponse response = new LoginResponse(result);
-            _loginFrame.stateChanged("Logged in and lauching...", 100);
+            _accountPage.stateChanged("Logged in and lauching...", 100);
             logger.log(Level.INFO, "Login successful, Starting minecraft..");
-            _loginFrame.getUserManager().saveUsername(_username, response.getUsername(), _password);
-            _loginFrame.setResponse(response);
-            _loginFrame.onEvent(LoginEvents.SAVE_USER_LAUNCH);
+            _accountPage.getUserManager().saveUsername(_username, response.getUsername(), _password);
+            _accountPage.setResponse(response);
+            _accountPage.onEvent(LoginEvents.SAVE_USER_LAUNCH);
         } catch (AccountMigratedException e) {
-            _loginFrame.onEvent(LoginEvents.ACCOUNT_MIGRATED);
+            _accountPage.onEvent(LoginEvents.ACCOUNT_MIGRATED);
         } catch (BadLoginException e) {
-            _loginFrame.onEvent(LoginEvents.BAD_LOGIN);
+            _accountPage.onEvent(LoginEvents.BAD_LOGIN);
         } catch (MinecraftUserNotPremiumException e) {
-            _loginFrame.onEvent(LoginEvents.USER_NOT_PREMIUM);
+            _accountPage.onEvent(LoginEvents.USER_NOT_PREMIUM);
         } catch (PermissionDeniedException e) {
-            _loginFrame.onEvent(LoginEvents.PERMISSION_DENIED);
+            _accountPage.onEvent(LoginEvents.PERMISSION_DENIED);
             this.cancel(true);
         } catch (MCNetworkException e) {
-            _loginFrame.onEvent(LoginEvents.NETWORK_DOWN);
+            _accountPage.onEvent(LoginEvents.NETWORK_DOWN);
             this.cancel(true);
         } catch (OutdatedMCLauncherException e) {
-            JOptionPane.showMessageDialog(_loginFrame.getParent(), "Incompatible login version. Contact " + IndigoLauncher.TITLE
+            JOptionPane.showMessageDialog(_accountPage.getParent(), "Incompatible login version. Contact " + IndigoLauncher.TITLE
                     + " about updating the launcher!");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -103,7 +103,7 @@ public class LoginHandler extends SwingWorker<String, Void> {
         try {
             result = getString(new URL("https://login.minecraft.net/?user=" + URLEncoder.encode(_username, "UTF-8") + "&password="
                     + URLEncoder.encode(_password, "UTF-8") + "&version=13"));
-            _loginFrame.stateChanged("Sending username and password...", 66);
+            _accountPage.stateChanged("Sending username and password...", 66);
         } catch (MalformedURLException e) {
         } catch (IOException e) {
             throw new MCNetworkException();

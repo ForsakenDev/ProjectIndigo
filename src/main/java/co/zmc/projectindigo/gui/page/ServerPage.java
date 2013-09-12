@@ -70,7 +70,6 @@ import co.zmc.projectindigo.managers.ServerManager;
 public class ServerPage extends BasePage {
     protected TextBox           _serverIP;
     protected TransparentButton _launchBtn;
-    protected ProgressBar       _progressBar;
     protected ServerManager     _serverManager;
 
     public ServerPage(MainPanel panel) {

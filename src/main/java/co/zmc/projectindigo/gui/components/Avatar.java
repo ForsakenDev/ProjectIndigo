@@ -39,7 +39,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
 import co.zmc.projectindigo.IndigoLauncher;
-import co.zmc.projectindigo.gui.LoginPanel;
+import co.zmc.projectindigo.gui.page.AccountPage;
 import co.zmc.projectindigo.utils.DirectoryLocations;
 import co.zmc.projectindigo.utils.ResourceUtils;
 
@@ -47,20 +47,20 @@ import co.zmc.projectindigo.utils.ResourceUtils;
 public class Avatar extends JLabel implements MouseListener {
     private String       _username;
     private String       _accountKey;
-    private final JLabel label;
-    private LoginPanel   _loginFrame;
+    private final JLabel _label;
+    private AccountPage  _accountPage;
 
-    public Avatar(LoginPanel loginFrame, String username, String accountKey) {
-        this(loginFrame, username, accountKey, 150);
+    public Avatar(AccountPage accountPage, String username, String accountKey) {
+        this(accountPage, username, accountKey, 150);
     }
 
-    public Avatar(LoginPanel loginFrame, String username, String accountKey, int width) {
-        this.label = new JLabel(username);
+    public Avatar(AccountPage accountPage, String username, String accountKey, int width) {
+        _label = new JLabel(username);
         _username = username;
         _accountKey = accountKey;
-        _loginFrame = loginFrame;
-        loginFrame.add(this, 0);
-        loginFrame.add(this.label, 0);
+        _accountPage = accountPage;
+        accountPage.add(this, 0);
+        accountPage.add(_label, 0);
         setBorder(null);
         setFocusable(false);
         addMouseListener(this);
@@ -68,16 +68,16 @@ public class Avatar extends JLabel implements MouseListener {
         setSize(dim);
         setPreferredSize(dim);
         dim = new Dimension(getLabelWidth(), 24);
-        label.setSize(dim);
-        label.setPreferredSize(dim);
+        _label.setSize(dim);
+        _label.setPreferredSize(dim);
         setVerticalAlignment(0);
         setHorizontalAlignment(0);
         setVerticalAlignment(1);
         setHorizontalAlignment(2);
         setIcon(new ImageIcon(getImage().getScaledInstance(width, width, 4)));
-        label.setForeground(Color.WHITE);
-        label.setFont(IndigoLauncher.getMinecraftFont(14));
-        label.setVisible(false);
+        _label.setForeground(Color.WHITE);
+        _label.setFont(IndigoLauncher.getMinecraftFont(14));
+        _label.setVisible(false);
         setBounds(0, 0, width, width);
     }
 
@@ -93,20 +93,20 @@ public class Avatar extends JLabel implements MouseListener {
         w = h;
         super.setBounds(x, y, w, h);
         setIcon(new ImageIcon(getImage().getScaledInstance(w, h, 4)));
-        label.setBounds(x + (w / 2) - (getLabelWidth() / 2), y + h + 5, getLabelWidth(), fontSize);
+        _label.setBounds(x + (w / 2) - (getLabelWidth() / 2), y + h + 5, getLabelWidth(), fontSize);
     }
 
     private int getFontSize(int width) {
         for (int i = 15; i > 1; i--) {
-            this.label.setFont(IndigoLauncher.getMinecraftFont(i));
+            _label.setFont(IndigoLauncher.getMinecraftFont(i));
             if (getLabelWidth() <= width) { return i - (i % 2); }
         }
         return 2;
     }
 
     private int getLabelWidth() {
-        FontRenderContext frc = new FontRenderContext(label.getFont().getTransform(), true, true);
-        return (int) (label.getFont().getStringBounds(label.getText(), frc).getWidth()) + ((1 * label.getText().length()) / 2);
+        FontRenderContext frc = new FontRenderContext(_label.getFont().getTransform(), true, true);
+        return (int) (_label.getFont().getStringBounds(_label.getText(), frc).getWidth()) + ((1 * _label.getText().length()) / 2);
     }
 
     public String getAccountKey() {
@@ -132,19 +132,19 @@ public class Avatar extends JLabel implements MouseListener {
 
     public void mouseEntered(MouseEvent e) {
         if (super.isEnabled()) {
-            this.label.setVisible(true);
+            _label.setVisible(true);
         }
     }
 
     public void mouseExited(MouseEvent e) {
         if (super.isEnabled()) {
-            this.label.setVisible(false);
+            _label.setVisible(false);
         }
     }
 
     public void mousePressed(MouseEvent e) {
         if (super.isEnabled()) {
-            _loginFrame.tryLogin(getAccountKey());
+            _accountPage.tryLogin(getAccountKey());
         }
     }
 

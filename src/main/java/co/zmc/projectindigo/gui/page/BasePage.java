@@ -28,16 +28,19 @@ package co.zmc.projectindigo.gui.page;
 import java.awt.Dimension;
 
 import javax.swing.JLayeredPane;
+import javax.swing.SwingUtilities;
 
 import co.zmc.projectindigo.gui.MainPanel;
 import co.zmc.projectindigo.gui.components.Image;
+import co.zmc.projectindigo.gui.components.ProgressBar;
 
 @SuppressWarnings("serial")
 public abstract class BasePage extends JLayeredPane {
 
-    protected MainPanel _mainPanel;
-    protected Image     backgroundImage;
-    protected Image     _icon;
+    protected MainPanel   _mainPanel;
+    protected Image       backgroundImage;
+    protected Image       _icon;
+    protected ProgressBar _progressBar;
 
     public BasePage(MainPanel mainPanel, boolean defaultPage) {
         _mainPanel = mainPanel;
@@ -51,6 +54,7 @@ public abstract class BasePage extends JLayeredPane {
         setIcons();
         setupBackgroundImage();
         addComponents(mainPanel);
+        _progressBar = new ProgressBar(0.9F);
     }
 
     public abstract void setIcons();
@@ -62,4 +66,22 @@ public abstract class BasePage extends JLayeredPane {
     public abstract void addComponents(MainPanel mainPanel);
 
     public abstract void setupBackgroundImage();
+
+    public void stateChanged(final String status, final float progress) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+
+                if (!_progressBar.isVisible()) {
+                    _progressBar.setVisible(true);
+                }
+                int intProgress = Math.round(progress);
+                _progressBar.setValue(intProgress);
+                String text = status;
+                if (text.length() > 60) {
+                    text = text.substring(0, 60) + "...";
+                }
+                _progressBar.setString(intProgress + "% " + text);
+            }
+        });
+    }
 }

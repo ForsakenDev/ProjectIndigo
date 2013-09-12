@@ -131,7 +131,6 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
         _servers.add(server);
         saveServers();
         if (_servers.size() == numToLoad) {
-            IndigoLauncher._launcher.launchLogin();
             _serverPage.reloadServers();
         } else {
             currentParseIndex++;
