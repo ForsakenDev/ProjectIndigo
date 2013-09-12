@@ -88,12 +88,13 @@ public class MinecraftLauncher {
                 + (Utils.getCurrentOS() == Utils.OS.WINDOWS ? "w" : "");
         arguments.add(path);
 
-        setMemory(arguments, rmax);
+        setMemory(arguments, "2048");
 
         arguments.add("-XX:+UseConcMarkSweepGC");
         arguments.add("-XX:+CMSIncrementalMode");
         arguments.add("-XX:+AggressiveOpts");
         arguments.add("-XX:+CMSClassUnloadingEnabled");
+        arguments.add("-noverify");
         if (maxPermSize.equalsIgnoreCase("")) {
             arguments.add("-XX:PermSize=128m");
         } else {

@@ -37,7 +37,6 @@ import javax.swing.WindowConstants;
 import co.zmc.projectindigo.data.LoginResponse;
 import co.zmc.projectindigo.data.Server;
 import co.zmc.projectindigo.gui.MainPanel;
-import co.zmc.projectindigo.gui.components.ProgressSplashScreen;
 import co.zmc.projectindigo.utils.DirectoryLocations;
 import co.zmc.projectindigo.utils.FileUtils;
 import co.zmc.projectindigo.utils.ResourceUtils;
@@ -49,18 +48,11 @@ public class IndigoLauncher extends JFrame {
     public static Dimension      _serverPanelSize = new Dimension(900, 580);
     public Dimension             _loginPanelSize  = new Dimension(400, 200);
     public MainPanel             _mainPanel;
-    public ProgressSplashScreen  _splash;
 
     public IndigoLauncher(String defaultLogin) {
         _launcher = this;
-        _splash = new ProgressSplashScreen("Loading assets...", 0);
-        _splash.setVisible(true);
-        _splash.updateProgress("Cleaning directories...", 25);
         cleanup();
-        _splash.updateProgress("Directories cleaned...", 50);
-        _splash.updateProgress("Setting system values...", 75);
         setLookandFeel();
-        _splash.updateProgress("Launching...", 100);
         launchMainPanel(defaultLogin);
     }
 
@@ -71,7 +63,6 @@ public class IndigoLauncher extends JFrame {
         setSize(_serverPanelSize);
         setLocationRelativeTo(null);
         setUndecorated(true);
-        _splash.dispose();
         setVisible(true);
     }
 

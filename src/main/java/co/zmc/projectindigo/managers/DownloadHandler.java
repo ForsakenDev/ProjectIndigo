@@ -121,6 +121,7 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
                 }
                 IndigoLauncher._launcher.setVisible(false);
                 IndigoLauncher._launcher.dispose();
+                System.exit(0);
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
