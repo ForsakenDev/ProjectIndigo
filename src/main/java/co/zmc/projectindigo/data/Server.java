@@ -57,9 +57,9 @@ public class Server {
         _version = (String) server.get("version");
         _mcVersion = (String) server.get("mc_version");
 
-        _baseDir = new File(String.format(DirectoryLocations.SERVER_DIR_LOCATION, getFullIp()));
-        _minecraftDir = new File(String.format(DirectoryLocations.SERVER_MINECRAFT_DIR_LOCATION, getFullIp()));
-        _binDir = new File(String.format(DirectoryLocations.SERVER_MINECRAFT_BIN_DIR_LOCATION, getFullIp()));
+        _baseDir = new File(String.format(DirectoryLocations.SERVER_DIR_LOCATION, getFullIp().replaceAll(":", "_")));
+        _minecraftDir = new File(String.format(DirectoryLocations.SERVER_MINECRAFT_DIR_LOCATION, getFullIp().replaceAll(":", "_")));
+        _binDir = new File(String.format(DirectoryLocations.SERVER_MINECRAFT_BIN_DIR_LOCATION, getFullIp().replaceAll(":", "_")));
         if (!isDownloaded()) {
             mkdir();
         }
