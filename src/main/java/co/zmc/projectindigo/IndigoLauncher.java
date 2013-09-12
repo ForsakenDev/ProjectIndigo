@@ -76,7 +76,7 @@ public class IndigoLauncher extends JFrame {
     }
 
     private void initComponents(String defaultLogin) {
-        _mainPanel = new MainPanel(_launcher, _serverPanelSize.width, _serverPanelSize.height);
+        _mainPanel = new MainPanel(_launcher, _serverPanelSize.width, _serverPanelSize.height - 25);
         _mainPanel.setVisible(true);
         add(_mainPanel);
     }
