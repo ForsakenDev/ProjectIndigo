@@ -32,6 +32,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 import javax.swing.UIManager;
@@ -71,7 +73,7 @@ public class MinecraftFrame extends JFrame {
                             Thread.sleep(30000L);
                         } catch (InterruptedException localInterruptedException) {
                         }
-                        System.out.println("FORCING EXIT!");
+                        Logger.getLogger("launcher").log(Level.SEVERE, "FORCING EXIT!");
                         System.exit(0);
                     }
                 }.start();

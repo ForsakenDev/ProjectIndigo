@@ -34,6 +34,8 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import co.zmc.projectindigo.IndigoLauncher;
 import co.zmc.projectindigo.Main;
@@ -41,6 +43,7 @@ import co.zmc.projectindigo.data.Server;
 import co.zmc.projectindigo.utils.Utils;
 
 public class MinecraftLauncher {
+    private static Logger logger = Logger.getLogger("launcher");
 
     public static Process launchMinecraft(Server server, String username, String sessionId, String forgename, String rmax, String maxPermSize)
             throws IOException {
@@ -67,7 +70,7 @@ public class MinecraftLauncher {
                 }
             }
         } else {
-            System.out.println("Not loading any instMods (minecraft jar mods), as the directory does not exist.");
+            logger.log(Level.INFO, "Not loading any instMods (minecraft jar mods), as the directory does not exist.");
         }
 
         cpb.append(Utils.getJavaDelimiter());
@@ -113,8 +116,6 @@ public class MinecraftLauncher {
             command += " " + arg;
         }
 
-        System.out.println(command);
-
         ProcessBuilder processBuilder = new ProcessBuilder(arguments);
         processBuilder.redirectErrorStream(true);
         return processBuilder.start();
@@ -126,20 +127,20 @@ public class MinecraftLauncher {
             int min = 256;
             if (rmax != null && Integer.parseInt(rmax) > 0) {
                 arguments.add("-Xms" + min + "M");
-                System.out.println("Setting MinMemory to " + min);
+                logger.log(Level.INFO, "Setting MinMemory to " + min);
                 arguments.add("-Xmx" + rmax + "M");
-                System.out.println("Setting MaxMemory to " + rmax);
+                logger.log(Level.INFO, "Setting MaxMemory to " + rmax);
                 memorySet = true;
             }
         } catch (Exception e) {
-            System.out.println("Error parsing memory settings: ");
+            logger.log(Level.INFO, "Error parsing memory settings: ");
             e.printStackTrace();
         }
         if (!memorySet) {
             arguments.add("-Xms" + 256 + "M");
-            System.out.println("Defaulting MinMemory to " + 256);
+            logger.log(Level.INFO, "Defaulting MinMemory to " + 256);
             arguments.add("-Xmx" + 1024 + "M");
-            System.out.println("Defaulting MaxMemory to " + 1024);
+            logger.log(Level.INFO, "Defaulting MaxMemory to " + 1024);
         }
     }
 
@@ -150,7 +151,7 @@ public class MinecraftLauncher {
         }
         String basepath = args[0], forgename = args[1], username = args[2], sessionId = args[3], ip = args[4], port = args[5], title = args[6];
         try {
-            System.out.println("Loading jars...");
+            logger.log(Level.INFO, "Loading jars...");
             String[] jarFiles = new String[] { "minecraft.jar", "lwjgl.jar", "lwjgl_util.jar", "jinput.jar" };
             ArrayList<File> classPathFiles = new ArrayList<File>();
             File tempDir = new File(new File(basepath).getParentFile(), "instMods/");
@@ -176,18 +177,17 @@ public class MinecraftLauncher {
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 }
-                System.out.println("Added URL to classpath: " + urls[i].toString());
+                logger.log(Level.INFO, "Added URL to classpath: " + urls[i].toString());
             }
 
-            System.out.println("Loading natives...");
+            logger.log(Level.INFO, "Loading natives...");
             String nativesDir = new File(new File(basepath, "bin"), "natives").toString();
-            System.out.println("Natives loaded...");
             System.setProperty("org.lwjgl.librarypath", nativesDir);
             System.setProperty("net.java.games.input.librarypath", nativesDir);
             System.setProperty("minecraft.applet.TargetDirectory", basepath);
 
             URLClassLoader cl = new URLClassLoader(urls, MinecraftLauncher.class.getClassLoader());
-            System.out.println("Loading minecraft class");
+            logger.log(Level.INFO, "Loading minecraft class");
 
             // PolicyManager policy = new PolicyManager();
             // policy.copySecurityPolicy();
@@ -224,11 +224,11 @@ public class MinecraftLauncher {
                 MinecraftFrame mcWindow = new MinecraftFrame(title);
                 mcWindow.start(mcappl, basepath, username, sessionId, ip, port);
             } catch (InstantiationException e) {
-                System.out.println("Applet wrapper failed! Falling back to compatibility mode.");
+                logger.log(Level.INFO, "Applet wrapper failed! Falling back to compatibility mode.");
                 e.printStackTrace();
             }
         } catch (Throwable t) {
-            System.out.println("Unhandled error launching minecraft");
+            logger.log(Level.INFO, "Unhandled error launching minecraft");
             t.printStackTrace();
         }
     }

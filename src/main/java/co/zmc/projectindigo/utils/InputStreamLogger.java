@@ -28,6 +28,8 @@ package co.zmc.projectindigo.utils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class InputStreamLogger extends Thread {
     private final InputStream is;
@@ -50,13 +52,12 @@ public class InputStreamLogger extends Thread {
                     logBuffer = logBuffer.substring(0, nullIndex);
                 }
                 while ((newLineIndex = logBuffer.indexOf("\n")) != -1) {
-                    System.out.println(logBuffer.substring(0, newLineIndex));
                     logBuffer = logBuffer.substring(newLineIndex + 1);
                 }
                 Arrays.fill(buffer, (byte) 0);
             }
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            Logger.getLogger("launcher").log(Level.SEVERE, e.getMessage());
             e.printStackTrace();
         }
     }

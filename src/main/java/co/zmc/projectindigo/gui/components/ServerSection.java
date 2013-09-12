@@ -141,7 +141,6 @@ public class ServerSection extends JLayeredPane {
 
     public synchronized void addServer(final Server server) {
         try {
-            System.out.println("Adding " + server.getName());
             ServerInfo info = new ServerInfo(this, server);
             info.setBounds(MainPanel.PADDING, MainPanel.PADDING + (_servers.size() * 32 + MainPanel.PADDING), getWidth() - (MainPanel.PADDING * 2),
                     24);

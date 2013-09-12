@@ -132,7 +132,6 @@ public class IndigoLauncher extends JFrame {
     }
 
     public void launchMinecraft(Server server, LoginResponse response) throws IOException {
-        System.out.println("Launching");
         server.download(response);
     }
 

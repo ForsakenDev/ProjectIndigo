@@ -30,6 +30,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import co.zmc.projectindigo.IndigoLauncher;
 import co.zmc.projectindigo.utils.DirectoryLocations;
@@ -39,15 +41,15 @@ public class PolicyManager {
 
     private ArrayList<String> additionalPerms = new ArrayList<String>();
     private String            policyLocation  = "";
+    private Logger            logger          = Logger.getLogger("launcher");
 
     public boolean copySecurityPolicy() {
         InputStream policy = IndigoLauncher.class.getResourceAsStream("/co/zmc/projectindigo/resources/security/security.policy");
         File newPolicyFile = new File(DirectoryLocations.DATA_DIR_LOCATION + "security.policy");
 
         policyLocation = newPolicyFile.getAbsolutePath();
-        System.out.println("Copying over new security policy.");
+        logger.log(Level.INFO, "Copying over new security policy.");
         FileUtils.writeStreamToFile(policy, new File(policyLocation));
-        System.out.println("Success.");
         return true;
     }
 
@@ -60,7 +62,7 @@ public class PolicyManager {
             FileWriter out = new FileWriter(location, true);
             out.write("\n//AUTO-GENERATED PERMS BEGIN\n");
             for (String perm : additionalPerms) {
-                System.out.println("Writing additional perm " + perm.replaceAll("\n", ""));
+                logger.log(Level.INFO, "Writing additional perm " + perm.replaceAll("\n", ""));
                 out.write(perm);
             }
             out.flush();

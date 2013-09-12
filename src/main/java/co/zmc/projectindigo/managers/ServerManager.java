@@ -36,6 +36,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
@@ -58,6 +60,7 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
     private int               numToLoad         = 0;
     private int               currentParseIndex = 0;
     private JSONObject        servers           = null;
+    private final Logger      logger            = Logger.getLogger("launcher");
 
     public ServerManager(ServerSection serverSection) {
         _serverSection = serverSection;
@@ -174,12 +177,12 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
         try {
             String channel = "projectindigo";
             String msg = "request_modpack_url";
-            System.out.println("Connecting to server " + server.getFullIp());
+            logger.log(Level.INFO, "Connecting to server " + server.getFullIp());
             s.connect(new InetSocketAddress(server.getIp(), server.getPort()));
             DataOutputStream out = new DataOutputStream(s.getOutputStream());
             DataInputStream in = new DataInputStream(s.getInputStream());
 
-            System.out.println("Requesting server information");
+            logger.log(Level.INFO, "Requesting server information");
             out.writeByte(0xFA);
             out.writeShort(channel.length());
             out.writeChars(channel);
@@ -213,7 +216,7 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
             e.printStackTrace();
         }
         if (!serverURL.isEmpty()) {
-            System.out.println("Reading server information");
+            logger.log(Level.INFO, "Reading server information");
             try {
                 Server newServer = parseServer(serverURL, server.getPort());
                 if (!server.getVersion().equals(newServer.getVersion())) {
@@ -235,12 +238,12 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
         try {
             String channel = "projectindigo";
             String msg = "request_modpack_url";
-            System.out.println("Connecting to server " + ip + ":" + port);
+            logger.log(Level.INFO, "Connecting to server " + ip + ":" + port);
             s.connect(new InetSocketAddress(ip, port));
             DataOutputStream out = new DataOutputStream(s.getOutputStream());
             DataInputStream in = new DataInputStream(s.getInputStream());
 
-            System.out.println("Requesting server information");
+            logger.log(Level.INFO, "Requesting server information");
             out.writeByte(0xFA);
             out.writeShort(channel.length());
             out.writeChars(channel);
@@ -274,7 +277,7 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
             e.printStackTrace();
         }
         if (!serverURL.isEmpty()) {
-            System.out.println("Reading server information");
+            logger.log(Level.INFO, "Reading server information");
             try {
                 Server server = parseServer(serverURL, port);
                 if (server != null) {

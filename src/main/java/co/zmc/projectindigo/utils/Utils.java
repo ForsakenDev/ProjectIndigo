@@ -40,6 +40,8 @@ import java.security.CodeSource;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
@@ -52,6 +54,8 @@ public class Utils {
         WINDOWS, UNIX, MACOSX, OTHER,
     }
 
+    private static Logger logger = Logger.getLogger("launcher");
+
     public static String getDefInstallPath() {
         try {
             CodeSource codeSource = Utils.class.getProtectionDomain().getCodeSource();
@@ -59,9 +63,9 @@ public class Utils {
             jarFile = new File(codeSource.getLocation().toURI().getPath());
             return jarFile.getParentFile().getPath();
         } catch (URISyntaxException e) {
-            System.out.println(e.getMessage());
+            logger.log(Level.WARNING, e.getMessage());
         }
-        System.out.println("Failed to get path for current directory - falling back to user's home directory.");
+        logger.log(Level.WARNING, "Failed to get path for current directory - falling back to user's home directory.");
         return System.getProperty("user.dir") + "//" + getTitle() + "_install";
     }
 
@@ -133,14 +137,14 @@ public class Utils {
             output.close();
 
             if (!inputFile.delete()) {
-                System.out.println("Failed to delete Minecraft.jar.");
+                logger.log(Level.SEVERE, "Failed to delete Minecraft.jar.");
                 return;
             }
             outputTmpFile.renameTo(inputFile);
         } catch (FileNotFoundException e) {
-            System.out.println(e.getMessage());
+            logger.log(Level.WARNING, e.getMessage());
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            logger.log(Level.WARNING, e.getMessage());
         }
     }
 

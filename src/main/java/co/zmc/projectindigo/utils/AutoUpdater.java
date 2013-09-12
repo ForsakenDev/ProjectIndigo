@@ -26,7 +26,6 @@
 package co.zmc.projectindigo.utils;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,7 +33,10 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import javax.swing.JOptionPane;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -45,14 +47,14 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public class AutoUpdater {
+    private static Logger logger = Logger.getLogger("launcher");
 
     public static void main(String[] args) {
-    	if (shouldUpdate()) {
-        	System.out.println("Update detected. Attempting to download.");
-        	downloadNew();
-        	System.out.println("Download done.");
-        } else {
-        	System.out.println("No update detected. Moving on.");
+        if (shouldUpdate()) {
+            logger.log(Level.INFO, "Update detected. Attempting to download.");
+            JOptionPane.showMessageDialog(null, "An update to the launcher was found! Attempting to download");
+            downloadNew();
+            logger.log(Level.INFO, "Download done.");
         }
     }
 
@@ -64,17 +66,18 @@ public class AutoUpdater {
 
             Document doc = parseXML(connection.getInputStream());
             NodeList descNodes = doc.getElementsByTagName("project");
-            
+
             String version = (String) ((Element) descNodes.item(0)).getElementsByTagName("version").item(0).getChildNodes().item(0).getNodeValue();
-            
+
             InputStream pomStream = AutoUpdater.class.getClassLoader().getResourceAsStream("META-INF/maven/co.zmc/projectindigo/pom.xml");
             doc = parseXML(pomStream);
             descNodes = doc.getElementsByTagName("project");
 
-            String clientVersion = (String) ((Element) descNodes.item(0)).getElementsByTagName("version").item(0).getChildNodes().item(0).getNodeValue();
-            
+            String clientVersion = (String) ((Element) descNodes.item(0)).getElementsByTagName("version").item(0).getChildNodes().item(0)
+                    .getNodeValue();
+
             return (!version.equals(clientVersion));
-            
+
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -94,32 +97,32 @@ public class AutoUpdater {
         objDocumentBuilder = objDocumentBuilderFactory.newDocumentBuilder();
         return (Document) objDocumentBuilder.parse(stream);
     }
-    
+
     private static void downloadNew() {
-    	try {
-			URL url = new URL("http://zephyrunleashed.com/indigo/latest.jar");
-			URLConnection connection = url.openConnection();
-			String jarLocation = AutoUpdater.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-			File jarFile = new File(jarLocation);
-			
-			if (jarFile.isDirectory()) {
-				System.out.println("Not being run from jar file. Not downloading update.");
-			} else {
-				InputStream input = connection.getInputStream();
-		        OutputStream output = new FileOutputStream(jarFile);
-		        
-		        byte[] buffer = new byte[1024];
-		        int read;
-		        while ((read = input.read(buffer)) > 0) {
-		            output.write(buffer, 0, read);
-		        }
-		        output.close();
-		        input.close();
-			}
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+        try {
+            URL url = new URL("http://zephyrunleashed.com/indigo/latest.jar");
+            URLConnection connection = url.openConnection();
+            String jarLocation = AutoUpdater.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+            File jarFile = new File(jarLocation);
+
+            if (jarFile.isDirectory()) {
+                logger.log(Level.INFO, "Not being run from jar file. Not downloading update.");
+            } else {
+                InputStream input = connection.getInputStream();
+                OutputStream output = new FileOutputStream(jarFile);
+
+                byte[] buffer = new byte[1024];
+                int read;
+                while ((read = input.read(buffer)) > 0) {
+                    output.write(buffer, 0, read);
+                }
+                output.close();
+                input.close();
+            }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

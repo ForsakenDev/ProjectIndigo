@@ -74,13 +74,11 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
     protected Boolean doInBackground() {
         _serverSection.setFormsEnabled(false);
         if (_server.shouldDownload()) { return load(); }
-        System.out.println("ret true1");
 
         return true;
     }
 
     protected void done() {
-        System.out.println("Launching");
         launch();
     }
 
@@ -100,7 +98,6 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
             logger.log(Level.SEVERE, "Extraction Failed");
             return false;
         }
-        System.out.println("ret true2");
 
         return true;
     }
@@ -273,14 +270,14 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
             output.close();
 
             if (!inputFile.delete()) {
-                System.out.println("Failed to delete Minecraft.jar.");
+                logger.log(Level.SEVERE, "Failed to delete Minecraft.jar.");
                 return false;
             }
             outputTmpFile.renameTo(inputFile);
         } catch (FileNotFoundException e) {
-            System.out.println(e.getMessage());
+            logger.log(Level.SEVERE, e.getMessage());
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            logger.log(Level.SEVERE, e.getMessage());
         }
         return true;
     }
