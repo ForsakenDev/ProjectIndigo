@@ -26,15 +26,14 @@
 package co.zmc.projectindigo.security;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 
 import co.zmc.projectindigo.IndigoLauncher;
 import co.zmc.projectindigo.utils.DirectoryLocations;
+import co.zmc.projectindigo.utils.FileUtils;
 
 public class PolicyManager {
 
@@ -47,18 +46,7 @@ public class PolicyManager {
 
         policyLocation = newPolicyFile.getAbsolutePath();
         System.out.println("Copying over new security policy.");
-        try {
-            OutputStream newOut = new FileOutputStream(newPolicyFile);
-            byte[] buffer = new byte[1024];
-            int read;
-            while ((read = policy.read(buffer)) > 0) {
-                newOut.write(buffer, 0, read);
-            }
-            newOut.close();
-            policy.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        FileUtils.writeStreamToFile(policy, new File(policyLocation));
         System.out.println("Success.");
         return true;
     }
