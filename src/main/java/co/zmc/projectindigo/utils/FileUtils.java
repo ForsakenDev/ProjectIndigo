@@ -27,8 +27,12 @@ package co.zmc.projectindigo.utils;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 public class FileUtils {
 
@@ -48,5 +52,24 @@ public class FileUtils {
                 e.printStackTrace();
             }
         }
+    }
+    
+    public static void writeStreamToFile(InputStream stream, File file) {
+    	try {
+			OutputStream out = new FileOutputStream(file);
+	        
+	        byte[] buffer = new byte[1024];
+	        int read;
+	        while ((read = stream.read(buffer)) > 0) {
+	            out.write(buffer, 0, read);
+	        }
+	        out.close();
+	        stream.close();
+			
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
     }
 }

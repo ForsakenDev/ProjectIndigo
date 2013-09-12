@@ -50,10 +50,9 @@ public class AutoUpdater {
     	if (shouldUpdate()) {
         	System.out.println("Update detected. Attempting to download.");
         	downloadNew();
-        	System.exit(1);
+        	System.out.println("Download done.");
         } else {
         	System.out.println("No update detected. Moving on.");
-        	System.exit(0);
         }
     }
 
@@ -68,8 +67,8 @@ public class AutoUpdater {
             
             String version = (String) ((Element) descNodes.item(0)).getElementsByTagName("version").item(0).getChildNodes().item(0).getNodeValue();
             
-            File file = new File("pom.xml");
-            doc = parseXML(new FileInputStream(file));
+            InputStream pomStream = AutoUpdater.class.getClassLoader().getResourceAsStream("META-INF/maven/co.zmc/projectindigo/pom.xml");
+            doc = parseXML(pomStream);
             descNodes = doc.getElementsByTagName("project");
 
             String clientVersion = (String) ((Element) descNodes.item(0)).getElementsByTagName("version").item(0).getChildNodes().item(0).getNodeValue();
