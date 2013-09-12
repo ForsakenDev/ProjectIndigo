@@ -26,10 +26,11 @@
 package co.zmc.projectindigo.gui.components;
 
 import java.awt.Color;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.font.FontRenderContext;
 
 import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
 
 import co.zmc.projectindigo.IndigoLauncher;
 import co.zmc.projectindigo.data.Server;
@@ -43,17 +44,16 @@ public class ServerInfo extends JLabel {
     private boolean    _active = false;
     private RoundedBox _serverBox;
 
-    public ServerInfo(JLayeredPane pane, Server server) {
+    public ServerInfo(final ServerSection serverSection, final Server server) {
         _server = server;
         _ip = new JLabel(_server.getFullIp());
         _users = new JLabel(_server.getPlayers() + "/" + _server.getMaxPlayers());
         setText(server.getName());
-        _serverBox = new RoundedBox(MainPanel.HIGHLIGHT_COLOUR);
-        _serverBox.setVisible(_active);
-        pane.add(_serverBox);
-        pane.add(this, 0);
-        pane.add(_ip, 0);
-        pane.add(_users, 0);
+        _serverBox = new RoundedBox(new Color(0, 0, 0, 0));
+        serverSection.add(_serverBox);
+        serverSection.add(this, 0);
+        serverSection.add(_ip, 0);
+        serverSection.add(_users, 0);
 
         setForeground(Color.WHITE);
         setFont(IndigoLauncher.getMinecraftFont(20));
@@ -63,6 +63,27 @@ public class ServerInfo extends JLabel {
 
         _users.setForeground(Color.WHITE);
         _users.setFont(IndigoLauncher.getMinecraftFont(20));
+
+        _serverBox.addMouseListener(new MouseListener() {
+
+            public void mouseClicked(MouseEvent event) {
+                serverSection._selectedServer = server.getFullIp();
+                setActive(true);
+            }
+
+            public void mouseEntered(MouseEvent event) {
+            }
+
+            public void mouseExited(MouseEvent event) {
+            }
+
+            public void mousePressed(MouseEvent event) {
+            }
+
+            public void mouseReleased(MouseEvent event) {
+            }
+
+        });
     }
 
     public void setBounds(int x, int y, int w, int h) {
@@ -78,10 +99,17 @@ public class ServerInfo extends JLabel {
         return (int) (_users.getFont().getStringBounds(_users.getText(), frc).getWidth());
     }
 
+    public boolean isActive() {
+        return _active;
+    }
+
     public void setActive(boolean active) {
-        System.out.println("Active");
         _active = active;
-        _serverBox.setVisible(active);
+        if (active) {
+            _serverBox.setBackground(MainPanel.HIGHLIGHT_COLOUR);
+        } else {
+            _serverBox.setBackground(new Color(0, 0, 0, 0));
+        }
 
     }
 }

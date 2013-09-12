@@ -111,12 +111,14 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
     }
 
     private void parseNext() {
-        try {
-            parseServer((JSONObject) servers.get(servers.keySet().toArray()[currentParseIndex]));
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
+        if (currentParseIndex < numToLoad) {
+            try {
+                parseServer((JSONObject) servers.get(servers.keySet().toArray()[currentParseIndex]));
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         }
     }
 

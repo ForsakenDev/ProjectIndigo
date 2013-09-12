@@ -3,8 +3,6 @@ package co.zmc.projectindigo.gui.components;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -123,26 +121,7 @@ public class ServerSection extends JLayeredPane {
             info.setBounds(MainPanel.PADDING, MainPanel.PADDING + (_servers.size() * 32 + MainPanel.PADDING), getWidth() - (MainPanel.PADDING * 2),
                     24);
             _servers.put(server.getFullIp(), info);
-            info.addMouseListener(new MouseListener() {
 
-                public void mouseClicked(MouseEvent event) {
-                    _selectedServer = server.getFullIp();
-                    getServerInfo(_selectedServer).setActive(true);
-                }
-
-                public void mouseEntered(MouseEvent event) {
-                }
-
-                public void mouseExited(MouseEvent event) {
-                }
-
-                public void mousePressed(MouseEvent event) {
-                }
-
-                public void mouseReleased(MouseEvent event) {
-                }
-
-            });
         } catch (Exception e) {
         }
     }
