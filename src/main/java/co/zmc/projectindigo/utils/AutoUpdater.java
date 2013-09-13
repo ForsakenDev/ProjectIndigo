@@ -75,12 +75,15 @@
  */
 package co.zmc.projectindigo.utils;
 
+import java.awt.Desktop;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.logging.Level;
@@ -101,11 +104,10 @@ public class AutoUpdater {
 
     public static void main(String[] args) {
         if (shouldUpdate()) {
-            logger.log(Level.INFO, "Update detected. Attempting to download.");
-            JOptionPane.showMessageDialog(null, "An update to the launcher was found! Attempting to download");
             downloadNew();
             logger.log(Level.INFO, "Download done.");
         }
+        System.exit(0);
     }
 
     public static boolean shouldUpdate() {
@@ -121,13 +123,13 @@ public class AutoUpdater {
 
             InputStream pomStream = AutoUpdater.class.getClassLoader().getResourceAsStream("META-INF/maven/co.zmc/projectindigo/pom.xml");
             if (pomStream != null) {
-	            doc = parseXML(pomStream);
-	            descNodes = doc.getElementsByTagName("project");
-	
-	            String clientVersion = (String) ((Element) descNodes.item(0)).getElementsByTagName("version").item(0).getChildNodes().item(0)
-	                    .getNodeValue();
-	
-	            return (!version.equals(clientVersion));
+                doc = parseXML(pomStream);
+                descNodes = doc.getElementsByTagName("project");
+
+                String clientVersion = (String) ((Element) descNodes.item(0)).getElementsByTagName("version").item(0).getChildNodes().item(0)
+                        .getNodeValue();
+
+                return (!version.equals(clientVersion));
             }
 
         } catch (MalformedURLException e) {
@@ -160,6 +162,21 @@ public class AutoUpdater {
             if (jarFile.isDirectory()) {
                 logger.log(Level.INFO, "Not being run from jar file. Not downloading update.");
             } else {
+                if (jarLocation.contains(".app") || jarLocation.contains(".exe")) {
+                    logger.log(Level.INFO, "Update detected. Redirecting");
+                    JOptionPane.showMessageDialog(null, "An update to the launcher was found! You need to download it to use this launcher");
+                    if (Desktop.isDesktopSupported()) {
+                        try {
+                            Desktop.getDesktop().browse(new URI("http://zephyrunleashed.com/indigolauncher"));
+                        } catch (URISyntaxException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    System.exit(1);
+                } else {
+                    logger.log(Level.INFO, "Update detected. Attempting to download.");
+                    JOptionPane.showMessageDialog(null, "An update to the launcher was found! Attempting to download");
+                }
                 InputStream input = connection.getInputStream();
                 OutputStream output = new FileOutputStream(jarFile);
 
