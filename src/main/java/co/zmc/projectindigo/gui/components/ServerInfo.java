@@ -97,7 +97,8 @@ public class ServerInfo extends JLabel {
     public ServerInfo(final ServerSection serverSection, final Server server) {
         _server = server;
         _ip = new JLabel(_server.getFullIp());
-        _users = new JLabel(_server.getPlayers() + "/" + _server.getMaxPlayers());
+        String msg = _server.getPlayers() + "/" + _server.getMaxPlayers();
+        _users = new JLabel("");
         setText(server.getName());
         _serverBox = new RoundedBox(new Color(0, 0, 0, 0));
         serverSection.add(_serverBox);
