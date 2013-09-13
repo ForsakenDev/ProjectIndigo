@@ -1,93 +1,18 @@
-/*
- * This file is part of Project Indigo.
- *
- * Copyright (c) 2013 ZephyrUnleashed LLC <http://www.zephyrunleashed.com/>
- * Project Indigo is licensed under the ZephyrUnleashed License Version 1.
- *
- * Project Indigo is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * In addition, 180 days after any changes are published, you can use the
- * software, incorporating those changes, under the terms of the MIT license,
- * as described in the ZephyrUnleashed License Version 1.
- *
- * Project Indigo is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License,
- * the MIT license and the ZephyrUnleashed License Version 1 along with this program.
- * If not, see <http://www.gnu.org/licenses/> for the GNU Lesser General Public
- * License.
- */
-/*
- * This file is part of Indigo Launcher.
- *
- * Copyright (c) 2013 ZephyrUnleashed LLC <http://www.zephyrunleashed.com/>
- * Indigo Launcher is licensed under the ZephyrUnleashed License Version 1.
- *
- * Indigo Launcher is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * In addition, 180 days after any changes are published, you can use the
- * software, incorporating those changes, under the terms of the MIT license,
- * as described in the ZephyrUnleashed License Version 1.
- *
- * Indigo Launcher is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License,
- * the MIT license and the ZephyrUnleashed License Version 1 along with this program.
- * If not, see <http://www.gnu.org/licenses/> for the GNU Lesser General Public
- * License.
- */
-/*
- * This file is part of ProjectIndigo.
- *
- * Copyright (c) 2013 ZephyrUnleashed LLC <http://www.zephyrunleashed.com/>
- * ProjectIndigo is licensed under the ZephyrUnleashed License Version 1.
- *
- * ProjectIndigo is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * In addition, 180 days after any changes are published, you can use the
- * software, incorporating those changes, under the terms of the MIT license,
- * as described in the ZephyrUnleashed License Version 1.
- *
- * ProjectIndigo is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License,
- * the MIT license and the ZephyrUnleashed License Version 1 along with this program.
- * If not, see <http://www.gnu.org/licenses/> for the GNU Lesser General Public
- * License.
- */
 package co.zmc.projectindigo.utils;
 
-import java.awt.Desktop;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import javax.swing.JOptionPane;
 import javax.xml.parsers.DocumentBuilder;
@@ -99,15 +24,40 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import co.zmc.projectindigo.IndigoLauncher;
+import co.zmc.projectindigo.Main;
+import co.zmc.projectindigo.utils.Utils.OS;
+
 public class AutoUpdater {
     private static Logger logger = Logger.getLogger("launcher");
 
     public static void main(String[] args) {
         if (shouldUpdate()) {
-            downloadNew();
-            logger.log(Level.INFO, "Download done.");
+            if (downloadNew()) {
+                logger.log(Level.INFO, "Download done.");
+                relaunch();
+                System.exit(0);
+                return;
+            }
         }
-        System.exit(0);
+        if (args.length == 1) {
+            new IndigoLauncher(args[0]);
+        } else {
+            new IndigoLauncher("");
+        }
+
+    }
+
+    private static void relaunch() {
+        String javaDir = System.getProperty("java.home") + "/bin/java";
+        String classpath = System.getProperty("java.class.path");
+        String className = Main.class.getCanonicalName();
+
+        try {
+            new ProcessBuilder(javaDir, "-cp", classpath, className).start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static boolean shouldUpdate() {
@@ -152,46 +102,90 @@ public class AutoUpdater {
         return (Document) objDocumentBuilder.parse(stream);
     }
 
-    private static void downloadNew() {
+    private static boolean downloadNew() {
         try {
-            URL url = new URL("http://zephyrunleashed.com/indigo/latest.jar");
-            URLConnection connection = url.openConnection();
             String jarLocation = AutoUpdater.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-            File jarFile = new File(jarLocation);
-
-            if (jarFile.isDirectory()) {
-                logger.log(Level.INFO, "Not being run from jar file. Not downloading update.");
-            } else {
-                if (jarLocation.contains(".app") || jarLocation.contains(".exe")) {
-                    logger.log(Level.INFO, "Update detected. Redirecting");
-                    JOptionPane.showMessageDialog(null, "An update to the launcher was found! You need to download it to use this launcher");
-                    if (Desktop.isDesktopSupported()) {
-                        try {
-                            Desktop.getDesktop().browse(new URI("http://zephyrunleashed.com/indigolauncher"));
-                        } catch (URISyntaxException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    System.exit(1);
-                } else {
-                    logger.log(Level.INFO, "Update detected. Attempting to download.");
-                    JOptionPane.showMessageDialog(null, "An update to the launcher was found! Attempting to download");
-                }
-                InputStream input = connection.getInputStream();
-                OutputStream output = new FileOutputStream(jarFile);
-
-                byte[] buffer = new byte[1024];
-                int read;
-                while ((read = input.read(buffer)) > 0) {
-                    output.write(buffer, 0, read);
-                }
-                output.close();
-                input.close();
+            URL url = new URL("http://zephyrunleashed.com/indigo/jar/ProjectIndigo.jar");
+            if (Utils.getCurrentOS() == OS.WINDOWS && jarLocation.contains(".exe")) {
+                url = new URL("http://zephyrunleashed.com/indigo/exe/ProjectIndigo.zip");
+                jarLocation = jarLocation.substring(0, jarLocation.indexOf(".exe") + 4);
+            } else if (Utils.getCurrentOS() == OS.MACOSX && jarLocation.contains(".app")) {
+                url = new URL("http://zephyrunleashed.com/indigo/app/ProjectIndigo.zip");
+                jarLocation = jarLocation.substring(0, jarLocation.indexOf(".app") + 4);
             }
+
+            URLConnection connection = url.openConnection();
+            File file = new File(jarLocation);
+            FileUtils.deleteDirectory(file);
+
+            if (Utils.getCurrentOS() == OS.WINDOWS && jarLocation.contains(".exe")) {
+                file = new File(jarLocation.replaceAll(".exe", ".zip"));
+            } else if (Utils.getCurrentOS() == OS.MACOSX && jarLocation.contains(".app")) {
+                file = new File(jarLocation.replaceAll(".app", ".zip"));
+            }
+
+            logger.log(Level.INFO, "Update detected. Attempting to download.");
+            JOptionPane.showMessageDialog(null, "An update to the launcher was found! Attempting to download");
+            InputStream input = connection.getInputStream();
+            saveStreamToFileAndUnZip(input, file);
+            input.close();
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+        return true;
+    }
+
+    public static void saveStreamToFileAndUnZip(InputStream input, File file) throws IOException {
+        OutputStream output = new FileOutputStream(file);
+        byte[] buffer = new byte[1024];
+        int read;
+        while ((read = input.read(buffer)) > 0) {
+            output.write(buffer, 0, read);
+        }
+        output.close();
+        if (file.getAbsolutePath().contains(".zip")) {
+            File parentDir = file.getParentFile();
+            ZipInputStream zipIn = null;
+            try {
+                input = new FileInputStream(file);
+                zipIn = new ZipInputStream(input);
+                ZipEntry currentEntry = zipIn.getNextEntry();
+                while (currentEntry != null) {
+                    if (currentEntry.getName().contains("META-INF") || currentEntry.getName().contains("__MACOSX")
+                            || currentEntry.getName().contains(".DS_Store")) {
+                        currentEntry = zipIn.getNextEntry();
+                        continue;
+                    }
+                    if (currentEntry.isDirectory()) {
+                        File tmp = new File(parentDir, currentEntry.getName());
+                        if (!tmp.exists()) {
+                            tmp.mkdir();
+                        }
+                        currentEntry = zipIn.getNextEntry();
+                        continue;
+                    }
+                    FileOutputStream outStream = new FileOutputStream(new File(parentDir, currentEntry.getName()));
+                    int readLen;
+                    buffer = new byte[1024];
+                    while ((readLen = zipIn.read(buffer, 0, buffer.length)) > 0) {
+                        outStream.write(buffer, 0, readLen);
+                    }
+                    outStream.close();
+                    currentEntry = zipIn.getNextEntry();
+                }
+            } catch (IOException e) {
+                logger.log(Level.SEVERE, e.getMessage());
+            } finally {
+                try {
+                    zipIn.close();
+                    input.close();
+                } catch (IOException e) {
+                    logger.log(Level.SEVERE, e.getMessage(), e);
+                }
+            }
+            file.delete();
         }
     }
 }

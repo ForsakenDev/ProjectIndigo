@@ -5,7 +5,7 @@
     <key>CFBundleDevelopmentRegion</key> <string>en</string>
     <key>CFBundleName</key> <string>${bundleName}</string>
     <key>CFBundleVersion</key> <string>${version}</string>
-    <key>CFBundleShortVersionString</key> <string>${bundleName} ${version}</string>
+    <key>CFBundleShortVersionString</key> <string>${version}</string>
     <key>CFBundleExecutable</key> <string>JavaApplicationStub</string>
     <key>CFBundlePackageType</key> <string>APPL</string>
     <key>CFBundleSignature</key> <string>????</string>
@@ -25,7 +25,7 @@
     <key>Java</key>
     <dict>
       <key>MainClass</key> <string>${mainClass}</string>
-      <key>ClassPath</key> <string>$APP_PACKAGE/Contents/Resources/Java/projectindigo-${version}.jar:</string>
+      <key>ClassPath</key> <string>$APP_PACKAGE/Contents/Resources/Java/projectindigo.jar:</string>
       <key>Properties</key>
       <dict>
         <key>sun.java2d.noddraw</key> <string>true</string>

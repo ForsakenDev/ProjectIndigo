@@ -7,7 +7,6 @@ import org.json.simple.JSONObject;
 import co.zmc.projectindigo.gui.components.ServerSection;
 import co.zmc.projectindigo.managers.DownloadHandler;
 import co.zmc.projectindigo.utils.DirectoryLocations;
-import co.zmc.projectindigo.utils.FileUtils;
 
 public class Server {
     private ServerSection _serverSection;
@@ -82,7 +81,6 @@ public class Server {
     }
 
     public void download(LoginResponse response) {
-        FileUtils.deleteDirectory(getBaseDir());
         new DownloadHandler(this, _serverSection, response).execute();
     }
 

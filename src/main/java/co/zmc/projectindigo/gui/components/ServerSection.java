@@ -1,88 +1,11 @@
-/*
- * This file is part of Project Indigo.
- *
- * Copyright (c) 2013 ZephyrUnleashed LLC <http://www.zephyrunleashed.com/>
- * Project Indigo is licensed under the ZephyrUnleashed License Version 1.
- *
- * Project Indigo is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * In addition, 180 days after any changes are published, you can use the
- * software, incorporating those changes, under the terms of the MIT license,
- * as described in the ZephyrUnleashed License Version 1.
- *
- * Project Indigo is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License,
- * the MIT license and the ZephyrUnleashed License Version 1 along with this program.
- * If not, see <http://www.gnu.org/licenses/> for the GNU Lesser General Public
- * License.
- */
-/*
- * This file is part of Indigo Launcher.
- *
- * Copyright (c) 2013 ZephyrUnleashed LLC <http://www.zephyrunleashed.com/>
- * Indigo Launcher is licensed under the ZephyrUnleashed License Version 1.
- *
- * Indigo Launcher is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * In addition, 180 days after any changes are published, you can use the
- * software, incorporating those changes, under the terms of the MIT license,
- * as described in the ZephyrUnleashed License Version 1.
- *
- * Indigo Launcher is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License,
- * the MIT license and the ZephyrUnleashed License Version 1 along with this program.
- * If not, see <http://www.gnu.org/licenses/> for the GNU Lesser General Public
- * License.
- */
-/*
- * This file is part of ProjectIndigo.
- *
- * Copyright (c) 2013 ZephyrUnleashed LLC <http://www.zephyrunleashed.com/>
- * ProjectIndigo is licensed under the ZephyrUnleashed License Version 1.
- *
- * ProjectIndigo is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * In addition, 180 days after any changes are published, you can use the
- * software, incorporating those changes, under the terms of the MIT license,
- * as described in the ZephyrUnleashed License Version 1.
- *
- * ProjectIndigo is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License,
- * the MIT license and the ZephyrUnleashed License Version 1 along with this program.
- * If not, see <http://www.gnu.org/licenses/> for the GNU Lesser General Public
- * License.
- */
 package co.zmc.projectindigo.gui.components;
 
+import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.JLayeredPane;
-import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import co.zmc.projectindigo.IndigoLauncher;
@@ -100,7 +23,7 @@ public class ServerSection extends JLayeredPane {
     private Dimension               _baseSize;
     private Map<String, ServerInfo> _servers        = new HashMap<String, ServerInfo>();
     private ProgressBar             _progressBar;
-    private Button                  _addBtn;
+    private Label                   _addBtn;
     public String                   _selectedServer = "";
 
     public ServerSection(MainPanel mainPanel) {
@@ -132,32 +55,32 @@ public class ServerSection extends JLayeredPane {
     public void setupLook() {
         _serverBox = new RoundedBox(MainPanel.BORDER_COLOUR);
         add(_serverBox);
-        _addBtn = new Button(this, "Add Server");
-        _addBtn.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent event) {
-                /*
-            	String ip = JOptionPane.showInputDialog(_mainPanel, "Please enter the server IP");
-                if (ip != null && !ip.contains(" ")) {
-                    int port = 25565;
-                    try {
-                        if (ip.contains(":")) {
-                            int index = ip.indexOf(":");
-                            port = Integer.parseInt(ip.substring(index + 1));
-                            ip = ip.substring(0, index);
-                        }
-                        _serverManager.loadServer(ip, port);
-                    } catch (NumberFormatException e1) {
-                        JOptionPane.showMessageDialog(getParent(), "You need to include a valid port number", "Invalid Port",
-                                JOptionPane.WARNING_MESSAGE);
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(getParent(), "You need to include a valid IP Address", "Invalid IP Address",
-                            JOptionPane.WARNING_MESSAGE);
-                }
-                */
-            	JOptionPane.showMessageDialog(getParent(), "Adding additional servers is disabled at this time.", "Feature disabled", JOptionPane.INFORMATION_MESSAGE);
-            }
-        });
+        _addBtn = new Label("Select the server you wish to join");
+        _addBtn.setForeground(Color.WHITE);
+        add(_addBtn, 0);
+        // _addBtn.addActionListener(new ActionListener() {
+        // public void actionPerformed(ActionEvent event) {
+        // /*
+        // * String ip = JOptionPane.showInputDialog(_mainPanel,
+        // * "Please enter the server IP"); if (ip != null &&
+        // * !ip.contains(" ")) { int port = 25565; try { if
+        // * (ip.contains(":")) { int index = ip.indexOf(":"); port =
+        // * Integer.parseInt(ip.substring(index + 1)); ip =
+        // * ip.substring(0, index); } _serverManager.loadServer(ip,
+        // * port); } catch (NumberFormatException e1) {
+        // * JOptionPane.showMessageDialog(getParent(),
+        // * "You need to include a valid port number", "Invalid Port",
+        // * JOptionPane.WARNING_MESSAGE); } } else {
+        // * JOptionPane.showMessageDialog(getParent(),
+        // * "You need to include a valid IP Address",
+        // * "Invalid IP Address", JOptionPane.WARNING_MESSAGE); }
+        // */
+        // JOptionPane.showMessageDialog(getParent(),
+        // "Adding additional servers is disabled at this time.",
+        // "Feature disabled",
+        // JOptionPane.INFORMATION_MESSAGE);
+        // }
+        // });
 
         _progressBar = new ProgressBar(0.75F);
         _progressBar.setFont(IndigoLauncher.getMinecraftFont(10));
@@ -208,7 +131,7 @@ public class ServerSection extends JLayeredPane {
             _progressBar.updateProgress(0);
         }
         _progressBar.setEnabled(!state);
-//        _addBtn.setEnabled(state);
+        // _addBtn.setEnabled(state);
     }
 
     public void stateChanged(final String status, final float progress) {
