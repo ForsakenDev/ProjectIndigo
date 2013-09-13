@@ -168,7 +168,6 @@ public class MinecraftLauncher {
         for (String arg : arguments) {
             command += " " + arg;
         }
-        JOptionPane.showMessageDialog(null, command);
 
         ProcessBuilder processBuilder = new ProcessBuilder(arguments);
         processBuilder.redirectErrorStream(true);
