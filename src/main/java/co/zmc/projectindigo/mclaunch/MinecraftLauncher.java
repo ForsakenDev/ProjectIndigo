@@ -87,6 +87,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.JOptionPane;
+
 import co.zmc.projectindigo.IndigoLauncher;
 import co.zmc.projectindigo.Main;
 import co.zmc.projectindigo.data.Server;
@@ -166,7 +168,7 @@ public class MinecraftLauncher {
         for (String arg : arguments) {
             command += " " + arg;
         }
-        System.out.println("COMMAND: " + command);
+        JOptionPane.showMessageDialog(null, command);
 
         ProcessBuilder processBuilder = new ProcessBuilder(arguments);
         processBuilder.redirectErrorStream(true);
