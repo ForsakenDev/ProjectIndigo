@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>co.zmc</groupId>
 	<artifactId>projectindigo</artifactId>
-	<version>1.0.</version>
+	<version>1.0.0</version>
 	<name>Project Indigo</name>
 	<inceptionYear>2013</inceptionYear>
 
@@ -210,6 +210,62 @@
 
 	<!-- Build profiles -->
 	<profiles>
+
+		<!-- Profiles -->
+		<!-- Windows -->
+		<profile>
+			<id>package-win</id>
+			<activation>
+				<os>
+					<family>windows</family>
+				</os>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.akathist.maven.plugins.launch4j</groupId>
+						<artifactId>launch4j-maven-plugin</artifactId>
+						<version>1.5.2</version>
+						<executions>
+							<execution>
+								<configuration>
+									<headerType>gui</headerType>
+									<stayAlive>false</stayAlive>
+									<jar>${project.build.directory}/${project.artifactId}-${project.version}.jar</jar>
+									<outfile>${project.build.directory}/${project.artifactId}-${project.version}.exe</outfile>
+									<classPath>
+										<mainClass>${mainClass}</mainClass>
+										<addDependencies>false</addDependencies>
+										<preCp>anything</preCp>
+									</classPath>
+									<jre>
+										<minVersion>1.6.0</minVersion>
+									</jre>
+									<icon>${basedir}/res/build/exe/icon.ico</icon>
+									<versionInfo>
+										<fileVersion>2.0.0.${buildNumber}</fileVersion>
+										<txtFileVersion>2.0.0.${buildNumber}</txtFileVersion>
+										<productVersion>2.0.0.${buildNumber}</productVersion>
+										<txtProductVersion>2.0.0.${buildNumber}</txtProductVersion>
+										<fileDescription>${project.name}</fileDescription>
+										<productName>${project.name}</productName>
+										<copyright>${project.organization.name},
+											${project.organization.url}</copyright>
+										<internalName>${project.artifactId}</internalName>
+										<originalFilename>${project.artifactId}.exe</originalFilename>
+									</versionInfo>
+								</configuration>
+								<goals>
+									<goal>launch4j</goal>
+								</goals>
+								<phase>package</phase>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
 		<!-- Package for Mac -->
 		<profile>
 			<id>package-mac</id>
