@@ -42,7 +42,7 @@ public class IndigoLauncher extends JFrame {
     }
 
     private void setLookandFeel() {
-        setTitle(IndigoLauncher.TITLE);
+        setTitle(IndigoLauncher.TITLE + " - IMO TEST");
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setResizable(false);
         setSize(_loginPanelSize);

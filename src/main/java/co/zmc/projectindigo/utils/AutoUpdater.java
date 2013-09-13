@@ -1,5 +1,6 @@
 package co.zmc.projectindigo.utils;
 
+import java.awt.Desktop;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -7,6 +8,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.logging.Level;
@@ -113,15 +116,14 @@ public class AutoUpdater {
                 url = new URL("http://zephyrunleashed.com/indigo/app/ProjectIndigo.zip");
                 jarLocation = jarLocation.substring(0, jarLocation.indexOf(".app") + 4);
             }
-
             URLConnection connection = url.openConnection();
             File file = new File(jarLocation);
             FileUtils.deleteDirectory(file);
 
             if (Utils.getCurrentOS() == OS.WINDOWS && jarLocation.contains(".exe")) {
-                file = new File(jarLocation.replaceAll(".exe", ".zip"));
+                file = new File(jarLocation.replaceAll(".exe", ".zip").replaceAll("%20", " "));
             } else if (Utils.getCurrentOS() == OS.MACOSX && jarLocation.contains(".app")) {
-                file = new File(jarLocation.replaceAll(".app", ".zip"));
+                file = new File(jarLocation.replaceAll(".app", ".zip").replaceAll("%20", " "));
             }
 
             logger.log(Level.INFO, "Update detected. Attempting to download.");
@@ -135,6 +137,18 @@ public class AutoUpdater {
             e.printStackTrace();
         }
         return true;
+    }
+
+    public static void goToPage() throws IOException {
+        JOptionPane.showMessageDialog(null, "An update to the launcher was found! You need to download it to use this launcher");
+        if (Desktop.isDesktopSupported()) {
+            try {
+                Desktop.getDesktop().browse(new URI("http://zephyrunleashed.com/indigolauncher"));
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+            }
+        }
+        System.exit(0);
     }
 
     public static void saveStreamToFileAndUnZip(InputStream input, File file) throws IOException {
