@@ -111,7 +111,7 @@ public class MinecraftFrame extends JFrame {
             }
         }
 
-//         setIconImage(Toolkit.getDefaultToolkit().createImage(imagePath));
+        // setIconImage(Toolkit.getDefaultToolkit().createImage(imagePath));
         super.setVisible(true);
         setResizable(true);
         addWindowListener(new WindowAdapter() {
@@ -146,8 +146,8 @@ public class MinecraftFrame extends JFrame {
         appletWrap.addParameter("username", user);
         appletWrap.addParameter("sessionid", session);
         appletWrap.addParameter("stand-alone", "true");
-        appletWrap.addParameter("server", ip);
-        appletWrap.addParameter("port", port);
+        // appletWrap.addParameter("server", ip);
+        // appletWrap.addParameter("port", port);
         mcApplet.setStub(appletWrap);
         add(appletWrap);
 
