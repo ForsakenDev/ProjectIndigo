@@ -96,8 +96,8 @@ public class MinecraftFrame extends JFrame {
         appletWrap.addParameter("username", user);
         appletWrap.addParameter("sessionid", session);
         appletWrap.addParameter("stand-alone", "true");
-        // appletWrap.addParameter("server", ip);
-        // appletWrap.addParameter("port", port);
+        appletWrap.addParameter("server", ip);
+        appletWrap.addParameter("port", port);
         mcApplet.setStub(appletWrap);
         add(appletWrap);
 

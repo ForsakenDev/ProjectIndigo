@@ -67,7 +67,7 @@ public class IndigoLauncher extends JFrame {
     }
 
     private void setLookandFeel() {
-        setTitle(IndigoLauncher.TITLE);
+        setTitle(IndigoLauncher.TITLE + " - ALPHA VERSION");
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setResizable(false);
         setSize(_loginPanelSize);
