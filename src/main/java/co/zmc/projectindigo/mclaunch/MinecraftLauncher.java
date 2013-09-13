@@ -138,7 +138,7 @@ public class MinecraftLauncher {
                 + (Utils.getCurrentOS() == Utils.OS.WINDOWS ? "w" : "");
         arguments.add(path);
 
-        setMemory(arguments, "2048");
+        setMemory(arguments, "1024");
 
         arguments.add("-XX:+UseConcMarkSweepGC");
         arguments.add("-XX:+CMSIncrementalMode");
@@ -166,6 +166,7 @@ public class MinecraftLauncher {
         for (String arg : arguments) {
             command += " " + arg;
         }
+        System.out.println("COMMAND: " + command);
 
         ProcessBuilder processBuilder = new ProcessBuilder(arguments);
         processBuilder.redirectErrorStream(true);
