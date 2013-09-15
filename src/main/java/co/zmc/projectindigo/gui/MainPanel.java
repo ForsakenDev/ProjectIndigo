@@ -96,13 +96,9 @@ public class MainPanel extends JPanel {
                     lastTime = System.currentTimeMillis();
                 }
                 long deltaTime = lastTime - System.currentTimeMillis();
-                if ((pageTo > _currentPage && _currentPage != -1)) {
-                    velocity += accel * deltaTime;
-                    location += velocity * deltaTime;
-                } else {
-                    velocity -= accel * deltaTime;
-                    location -= velocity * deltaTime;
-                }
+                velocity += accel * deltaTime;
+                location += velocity * deltaTime;
+                
                 lastTime = System.currentTimeMillis();
 
                 _panels.get(pageTo).setLocation((int) location, 0);
