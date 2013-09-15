@@ -22,7 +22,9 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import co.zmc.projectindigo.data.Server;
-import co.zmc.projectindigo.gui.components.ServerSection;
+import co.zmc.projectindigo.gui.MainPanel;
+import co.zmc.projectindigo.gui.ProgressPanel;
+import co.zmc.projectindigo.gui.ServerPanel;
 import co.zmc.projectindigo.utils.DirectoryLocations;
 import co.zmc.projectindigo.utils.FileUtils;
 
@@ -31,14 +33,14 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
     private String            _status;
     private int               _percentComplete;
     private List<Server>      _servers          = new ArrayList<Server>();
-    private ServerSection     _serverSection;
+    private MainPanel         _mainPanel;
     private int               numToLoad         = 0;
     private int               currentParseIndex = 0;
     private JSONObject        servers           = null;
     private final Logger      logger            = Logger.getLogger("launcher");
 
-    public ServerManager(ServerSection serverSection) {
-        _serverSection = serverSection;
+    public ServerManager(MainPanel mainPanel) {
+        _mainPanel = mainPanel;
     }
 
     @Override
@@ -91,7 +93,7 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
             _servers.remove(index);
         }
         _servers.add(server);
-        _serverSection.addServer(server);
+        ((ServerPanel) _mainPanel.getPanel(1)).addServer(server);
     }
 
     public Server parseServer(JSONObject sData) throws NumberFormatException, ParseException {
@@ -100,7 +102,7 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
 
     public Server parseServer(String json, int port) throws ParseException {
         JSONObject sData = (JSONObject) new JSONParser().parse(json);
-        return new Server(_serverSection, sData, port);
+        return new Server(_mainPanel, sData, port);
     }
 
     private Server parseNext() {
@@ -134,7 +136,7 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
             if (i > 0) {
                 str += ", \n";
             }
-            str += "  \"" + (i + 1) + "\": " + s.toString();
+            str += "  \"e" + (i + 1) + "\": " + s.toString();
         }
         str += "\n}";
         FileUtils.writeStringToFile(str, _saveFile);
@@ -147,18 +149,22 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
             String channel = "projectindigo";
             String msg = "request_modpack_url";
             logger.log(Level.INFO, "Connecting to server " + server.getFullIp());
+            ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Connecting to " + server.getFullIp(), 0);
             s.connect(new InetSocketAddress(server.getIp(), server.getPort()));
             DataOutputStream out = new DataOutputStream(s.getOutputStream());
             DataInputStream in = new DataInputStream(s.getInputStream());
 
             logger.log(Level.INFO, "Requesting server information");
+            ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Requesting server update", 40);
+
             out.writeByte(0xFA);
             out.writeShort(channel.length());
             out.writeChars(channel);
             out.writeShort(msg.length());
             out.write(msg.getBytes());
+            int packetId = Integer.valueOf(in.read());
+            if (packetId == 0xFA) {
 
-            if (Integer.valueOf(in.read()) == 0xFA) {
                 String readStr = "";
                 int len = in.readShort();
                 for (int i = 0; i < len; i++) {
@@ -186,6 +192,8 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
         }
         if (!serverURL.isEmpty()) {
             logger.log(Level.INFO, "Reading server information");
+            ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Reading server information", 80);
+
             try {
                 Server newServer = parseServer(serverURL, server.getPort());
                 if (!server.getVersion().trim().equals(newServer.getVersion().trim())) {
@@ -208,11 +216,15 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
             String channel = "projectindigo";
             String msg = "request_modpack_url";
             logger.log(Level.INFO, "Connecting to server " + ip + ":" + port);
+            ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Connecting to " + ip + ":" + port, 20);
+
             s.connect(new InetSocketAddress(ip, port));
             DataOutputStream out = new DataOutputStream(s.getOutputStream());
             DataInputStream in = new DataInputStream(s.getInputStream());
 
             logger.log(Level.INFO, "Requesting server information");
+            ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Requesting server information", 40);
+
             out.writeByte(0xFA);
             out.writeShort(channel.length());
             out.writeChars(channel);
@@ -246,6 +258,8 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
             e.printStackTrace();
         }
         if (!serverURL.isEmpty()) {
+            ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Reading server information", 80);
+
             logger.log(Level.INFO, "Reading server information");
             try {
                 Server server = parseServer(serverURL, port);

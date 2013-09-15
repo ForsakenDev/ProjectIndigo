@@ -24,14 +24,17 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
 
 import co.zmc.projectindigo.data.UserPassword;
-import co.zmc.projectindigo.gui.components.LoginSection;
+import co.zmc.projectindigo.gui.MainPanel;
+import co.zmc.projectindigo.gui.ProgressPanel;
 import co.zmc.projectindigo.utils.DirectoryLocations;
 
 public class UserManager {
     protected Map<String, UserPassword> usernames = new LinkedHashMap<String, UserPassword>();
 
-    public UserManager(LoginSection section) {
-        readSavedUsernames(section);
+    public UserManager(MainPanel mainPanel) {
+        readSavedUsernames(mainPanel);
+        ((ProgressPanel) mainPanel.getPanel(-1)).stateChanged("Finished Loading Users", 100);
+        mainPanel.switchPage(0);
     }
 
     public final List<String> getSavedUsernames() {
@@ -88,12 +91,11 @@ public class UserManager {
         }
     }
 
-    private void readSavedUsernames(LoginSection section) {
-        section.setFormsEnabled(false);
+    private void readSavedUsernames(MainPanel mainPanel) {
         try {
             File lastLogin = new File(DirectoryLocations.DATA_DIR_LOCATION, "lastlogin");
             if (!lastLogin.exists()) { return; }
-            section.stateChanged("Loading stored users...", 80);
+            ((ProgressPanel) mainPanel.getPanel(-1)).stateChanged("Loading stored users...", 80);
             Cipher cipher = getCipher(2, "passwordfile");
             DataInputStream dis;
             if (cipher != null) dis = new DataInputStream(new CipherInputStream(new FileInputStream(lastLogin), cipher));
@@ -105,7 +107,7 @@ public class UserManager {
                 while (true) {
                     String key = dis.readUTF();
                     String user = dis.readUTF();
-                    section.stateChanged("Loading " + user + "...", 80 + extra);
+                    ((ProgressPanel) mainPanel.getPanel(-1)).stateChanged("Loading " + user + "...", 80 + extra);
                     extra += 5;
                     boolean isHash = dis.readBoolean();
                     if (isHash) {
@@ -121,11 +123,7 @@ public class UserManager {
                 dis.close();
             }
         } catch (Exception e) {
-            e.printStackTrace();
         }
-        section.stateChanged("Finished Loading Users", 100);
-        section.setFormsEnabled(true);
-
     }
 
     public final void writeUsernameList() {

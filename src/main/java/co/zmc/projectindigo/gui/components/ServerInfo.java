@@ -12,6 +12,7 @@ import javax.swing.JLabel;
 import co.zmc.projectindigo.IndigoLauncher;
 import co.zmc.projectindigo.data.Server;
 import co.zmc.projectindigo.gui.MainPanel;
+import co.zmc.projectindigo.gui.ServerPanel;
 
 @SuppressWarnings("serial")
 public class ServerInfo extends JLabel {
@@ -21,7 +22,7 @@ public class ServerInfo extends JLabel {
     private boolean    _active = false;
     private RoundedBox _serverBox;
 
-    public ServerInfo(final ServerSection serverSection, final Server server) {
+    public ServerInfo(final ServerPanel serverPanel, final Server server) {
         _server = server;
         _ip = new JLabel(_server.getFullIp());
         _users = new JLabel("Edit");
@@ -50,10 +51,10 @@ public class ServerInfo extends JLabel {
         });
         setText(server.getName());
         _serverBox = new RoundedBox(new Color(0, 0, 0, 0));
-        serverSection.add(_serverBox);
-        serverSection.add(this, 0);
-        serverSection.add(_ip, 0);
-        serverSection.add(_users, 0);
+        serverPanel.add(_serverBox);
+        serverPanel.add(this, 0);
+        serverPanel.add(_ip, 0);
+        serverPanel.add(_users, 0);
 
         setForeground(Color.WHITE);
         setFont(IndigoLauncher.getMinecraftFont(20));
@@ -67,7 +68,7 @@ public class ServerInfo extends JLabel {
         _serverBox.addMouseListener(new MouseListener() {
 
             public void mouseClicked(MouseEvent event) {
-                serverSection._selectedServer = server.getFullIp();
+                serverPanel.launchServer(server.getFullIp());
                 setActive(true);
             }
 

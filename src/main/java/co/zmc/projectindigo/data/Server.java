@@ -4,26 +4,27 @@ import java.io.File;
 
 import org.json.simple.JSONObject;
 
-import co.zmc.projectindigo.gui.components.ServerSection;
+import co.zmc.projectindigo.gui.MainPanel;
+import co.zmc.projectindigo.gui.ServerPanel;
 import co.zmc.projectindigo.managers.DownloadHandler;
 import co.zmc.projectindigo.utils.DirectoryLocations;
 
 public class Server {
-    private ServerSection _serverSection;
-    private String        _name;
-    private String        _ip;
-    private int           _port;
-    private String        _logo;
-    private String        _downloadURL;
-    private String        _version;
-    private String        _mcVersion;
+    private MainPanel _mainPanel;
+    private String    _name;
+    private String    _ip;
+    private int       _port;
+    private String    _logo;
+    private String    _downloadURL;
+    private String    _version;
+    private String    _mcVersion;
 
-    private File          _baseDir;
-    private File          _minecraftDir;
-    private File          _binDir;
+    private File      _baseDir;
+    private File      _minecraftDir;
+    private File      _binDir;
 
-    public Server(ServerSection section, JSONObject server, int port) {
-        _serverSection = section;
+    public Server(MainPanel section, JSONObject server, int port) {
+        _mainPanel = section;
         _name = (String) server.get("name");
         _ip = (String) server.get("ip");
         _port = port;
@@ -63,7 +64,7 @@ public class Server {
     }
 
     public boolean shouldDownload() {
-        Server shouldUpdate = _serverSection.getServerManager().shouldUpdate(this);
+        Server shouldUpdate = ((ServerPanel) _mainPanel.getPanel(1)).getServerManager().shouldUpdate(this);
         if (shouldUpdate != null) {
             _baseDir = shouldUpdate._baseDir;
             _minecraftDir = shouldUpdate._minecraftDir;
@@ -75,13 +76,13 @@ public class Server {
             _downloadURL = shouldUpdate._downloadURL;
             _version = shouldUpdate._version;
             _mcVersion = shouldUpdate._mcVersion;
-            _serverSection.getServerManager().saveServers();
+            ((ServerPanel) _mainPanel.getPanel(1)).getServerManager().saveServers();
         }
         return !(getMinecraftDir().exists() && getBaseDir().exists() && getBinDir().exists()) || shouldUpdate != null;
     }
 
     public void download(LoginResponse response) {
-        new DownloadHandler(this, _serverSection, response).execute();
+        new DownloadHandler(this, _mainPanel, response).execute();
     }
 
     public String getName() {

@@ -35,7 +35,6 @@ public class MinecraftFrame extends JFrame {
             }
         }
 
-        // setIconImage(Toolkit.getDefaultToolkit().createImage(imagePath));
         super.setVisible(true);
         setResizable(true);
         addWindowListener(new WindowAdapter() {

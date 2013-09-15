@@ -23,7 +23,9 @@ import javax.swing.SwingWorker;
 import co.zmc.projectindigo.IndigoLauncher;
 import co.zmc.projectindigo.data.LoginResponse;
 import co.zmc.projectindigo.data.Server;
-import co.zmc.projectindigo.gui.components.ServerSection;
+import co.zmc.projectindigo.gui.MainPanel;
+import co.zmc.projectindigo.gui.ProgressPanel;
+import co.zmc.projectindigo.gui.ServerPanel;
 import co.zmc.projectindigo.mclaunch.MinecraftLauncher;
 import co.zmc.projectindigo.utils.FileUtils;
 import co.zmc.projectindigo.utils.InputStreamLogger;
@@ -31,7 +33,7 @@ import co.zmc.projectindigo.utils.Utils;
 
 public class DownloadHandler extends SwingWorker<Boolean, Void> {
     protected String        _status;
-    protected ServerSection _serverSection;
+    protected MainPanel     _mainPanel;
     protected LoginResponse _response;
     protected Server        _server;
     protected URL[]         _jarURLs;
@@ -39,9 +41,9 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
     protected double        totalDownloadSize   = 0;
     protected double        totalDownloadedSize = 0;
 
-    public DownloadHandler(Server server, ServerSection section, LoginResponse response) {
+    public DownloadHandler(Server server, MainPanel section, LoginResponse response) {
         _server = server;
-        _serverSection = section;
+        _mainPanel = section;
         _response = response;
         _status = "";
     }
@@ -49,10 +51,11 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
     @Override
     protected Boolean doInBackground() {
         if (_server.shouldDownload()) {
-            _serverSection.setFormsEnabled(false);
             FileUtils.deleteDirectory(_server.getBaseDir());
-            return load();
+            if (!load()) { return false; }
         }
+        ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Download complete. Launching Game...", 100);
+
         return true;
     }
 
@@ -63,14 +66,14 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
     public boolean load() {
         _server.getBinDir().mkdirs();
 
-        _serverSection.stateChanged("Installing " + _server.getName() + "...", 0);
+        ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Installing " + _server.getName() + "...", 0);
         if (!loadJarURLs()) { return false; }
         logger.log(Level.INFO, "Downloading Jars");
         if (!downloadJars()) {
             logger.log(Level.SEVERE, "Download Failed");
             return false;
         }
-        _serverSection.stateChanged("Extracting files...", 0);
+        ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Extracting files...", 0);
         logger.log(Level.INFO, "Extracting Files");
         if (!(extractFiles() && removeMetaInf())) {
             logger.log(Level.SEVERE, "Extraction Failed");
@@ -82,10 +85,8 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
 
     public void launch() {
         logger.log(Level.INFO, "Download complete");
-        _serverSection.stateChanged("Download complete", 100);
-        _serverSection.setFormsEnabled(true);
         if (_server != null) {
-            _serverSection.addServer(_server);
+            ((ServerPanel) _mainPanel.getPanel(1)).addServer(_server);
             Process pro;
             try {
                 pro = MinecraftLauncher.launchMinecraft(_server, _response.getUsername(), _response.getSessionId(), "MinecraftForge.zip", "1024",
@@ -196,7 +197,7 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
             } else if (prog < 0) {
                 prog = 0;
             }
-            _serverSection.stateChanged("Downloading " + jarFileName + "...", prog);
+            ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Downloading " + jarFileName + "...", prog);
         }
         dlStream.close();
         outStream.close();
@@ -207,7 +208,7 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
     protected boolean removeMetaInf() {
         double totalExtractSize = 0;
         double totalExtractedSize = 0;
-        _serverSection.stateChanged("Removing META-INF...", 0);
+        ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Removing META-INF...", 0);
         File outputTmpFile = new File(_server.getBinDir(), "minecraft.jar.tmp");
         File inputFile = new File(_server.getBinDir(), "minecraft.jar");
         try {
@@ -240,7 +241,7 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
                     } else if (prog < 0) {
                         prog = 0;
                     }
-                    _serverSection.stateChanged("Removing META-INF...", prog);
+                    ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Removing META-INF...", prog);
                 }
                 output.closeEntry();
             }
@@ -315,7 +316,7 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
                         } else if (prog < 0) {
                             prog = 0;
                         }
-                        _serverSection.stateChanged("Extracting " + file[0].getName() + "...", prog);
+                        ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Extracting " + file[0].getName() + "...", prog);
                     }
                     outStream.close();
                     currentEntry = zipIn.getNextEntry();
