@@ -19,32 +19,13 @@ import co.zmc.projectindigo.IndigoLauncher;
 
 public class ResourceUtils {
 
-    private static final String BASE_PATH           = "/co/zmc/projectindigo/resources";
-    private static final URL    SPLASH_SCREEN       = ResourceUtils.class.getResource(BASE_PATH + "/images/splash_screen.png");
-    private static final URL    BASE_CHAR           = ResourceUtils.class.getResource(BASE_PATH + "/images/char.png");
-    private static final URL    BG                  = ResourceUtils.class.getResource(BASE_PATH + "/images/bg.jpg");
-    private static final URL    MAIN_BG             = ResourceUtils.class.getResource(BASE_PATH + "/images/main_bg.jpg");
-    private static final URL    ICON_ACCOUNT        = ResourceUtils.class.getResource(BASE_PATH + "/images/icons/account.png");
-    private static final URL    ICON_ACCOUNT_HOVER  = ResourceUtils.class.getResource(BASE_PATH + "/images/icons/account_hover.png");
-    private static final URL    ICON_HOME           = ResourceUtils.class.getResource(BASE_PATH + "/images/icons/home.png");
-    private static final URL    ICON_HOME_HOVER     = ResourceUtils.class.getResource(BASE_PATH + "/images/icons/home_hover.png");
-    private static final URL    ICON_CLOUD          = ResourceUtils.class.getResource(BASE_PATH + "/images/icons/cloud.png");
-    private static final URL    ICON_CLOUD_HOVER    = ResourceUtils.class.getResource(BASE_PATH + "/images/icons/cloud_hover.png");
-    private static final URL    ICON_SERVERS        = ResourceUtils.class.getResource(BASE_PATH + "/images/icons/list.png");
-    private static final URL    ICON_SERVERS_HOVER  = ResourceUtils.class.getResource(BASE_PATH + "/images/icons/list_hover.png");
-    private static final URL    ICON_SETTINGS       = ResourceUtils.class.getResource(BASE_PATH + "/images/icons/settings.png");
-    private static final URL    ICON_SETTINGS_HOVER = ResourceUtils.class.getResource(BASE_PATH + "/images/icons/settings_hover.png");
-    private static final URL    SIDE_BAR_BG         = ResourceUtils.class.getResource(BASE_PATH + "/images/side_bar_bg.png");
-    private static final URL    SELECTOR            = ResourceUtils.class.getResource(BASE_PATH + "/images/selector.png");
-    private static final URL    SERVER_DEFAULT      = ResourceUtils.class.getResource(BASE_PATH + "/images/servers/default.png");
-    private static final URL    SERVER_OVERLAY      = ResourceUtils.class.getResource(BASE_PATH + "/images/servers/overlay.png");
-    private static final URL    SERVER_INFO         = ResourceUtils.class.getResource(BASE_PATH + "/images/servers/info.png");
-    private static final URL    SERVER_INFO_HOVER   = ResourceUtils.class.getResource(BASE_PATH + "/images/servers/info_hover.png");
-    private static final URL    SERVER_EDIT         = ResourceUtils.class.getResource(BASE_PATH + "/images/servers/edit.png");
-    private static final URL    SERVER_EDIT_HOVER   = ResourceUtils.class.getResource(BASE_PATH + "/images/servers/edit_hover.png");
-    private static final URL    ADD_SERVER          = ResourceUtils.class.getResource(BASE_PATH + "/images/add.png");
-    private static final URL    HEADER              = ResourceUtils.class.getResource(BASE_PATH + "/images/header.png");
-    private static final URL    LOGO                = ResourceUtils.class.getResource(BASE_PATH + "/build/exe/icon.ico");
+    private static final String BASE_PATH     = "/co/zmc/projectindigo/resources";
+    private static final URL    SPLASH_SCREEN = ResourceUtils.class.getResource(BASE_PATH + "/images/splash_screen.png");
+    private static final URL    BASE_CHAR     = ResourceUtils.class.getResource(BASE_PATH + "/images/char.png");
+    private static final URL    BG            = ResourceUtils.class.getResource(BASE_PATH + "/images/bg.jpg");
+    private static final URL    HEADER        = ResourceUtils.class.getResource(BASE_PATH + "/images/header.png");
+    private static final URL    SETTINGS      = ResourceUtils.class.getResource(BASE_PATH + "/images/settings.png");
+    private static final URL    FOLDER        = ResourceUtils.class.getResource(BASE_PATH + "/images/folder.png");
 
     public static URL getResource(String name) {
         if (name.equalsIgnoreCase("splash_screen")) {
@@ -53,48 +34,10 @@ public class ResourceUtils {
             return BASE_CHAR;
         } else if (name.equalsIgnoreCase("bg")) {
             return BG;
-        } else if (name.equalsIgnoreCase("main_bg")) {
-            return MAIN_BG;
-        } else if (name.equalsIgnoreCase("account")) {
-            return ICON_ACCOUNT;
-        } else if (name.equalsIgnoreCase("account_hover")) {
-            return ICON_ACCOUNT_HOVER;
-        } else if (name.equalsIgnoreCase("home")) {
-            return ICON_HOME;
-        } else if (name.equalsIgnoreCase("home_hover")) {
-            return ICON_HOME_HOVER;
-        } else if (name.equalsIgnoreCase("cloud")) {
-            return ICON_CLOUD;
-        } else if (name.equalsIgnoreCase("cloud_hover")) {
-            return ICON_CLOUD_HOVER;
-        } else if (name.equalsIgnoreCase("servers")) {
-            return ICON_SERVERS;
-        } else if (name.equalsIgnoreCase("servers_hover")) {
-            return ICON_SERVERS_HOVER;
         } else if (name.equalsIgnoreCase("settings")) {
-            return ICON_SETTINGS;
-        } else if (name.equalsIgnoreCase("settings_hover")) {
-            return ICON_SETTINGS_HOVER;
-        } else if (name.equalsIgnoreCase("side_bar_bg")) {
-            return SIDE_BAR_BG;
-        } else if (name.equalsIgnoreCase("selector")) {
-            return SELECTOR;
-        } else if (name.equalsIgnoreCase("server_default")) {
-            return SERVER_DEFAULT;
-        } else if (name.equalsIgnoreCase("overlay")) {
-            return SERVER_OVERLAY;
-        } else if (name.equalsIgnoreCase("server_info")) {
-            return SERVER_INFO;
-        } else if (name.equalsIgnoreCase("server_info_hover")) {
-            return SERVER_INFO_HOVER;
-        } else if (name.equalsIgnoreCase("server_edit")) {
-            return SERVER_EDIT;
-        } else if (name.equalsIgnoreCase("server_edit_hover")) {
-            return SERVER_EDIT_HOVER;
-        } else if (name.equalsIgnoreCase("add")) {
-            return ADD_SERVER;
-        } else if (name.equalsIgnoreCase("logo")) {
-            return LOGO;
+            return SETTINGS;
+        } else if (name.equalsIgnoreCase("folder")) {
+            return FOLDER;
         } else if (name.equalsIgnoreCase("header")) { return HEADER; }
         return null;
     }

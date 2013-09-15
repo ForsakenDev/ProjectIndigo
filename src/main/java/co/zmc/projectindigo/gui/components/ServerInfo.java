@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.font.FontRenderContext;
 import java.io.IOException;
 
 import javax.swing.JLabel;
@@ -17,16 +16,20 @@ import co.zmc.projectindigo.gui.ServerPanel;
 @SuppressWarnings("serial")
 public class ServerInfo extends JLabel {
     private JLabel     _ip;
-    private JLabel     _users;
     private Server     _server;
     private boolean    _active = false;
     private RoundedBox _serverBox;
+    private Image      _settings;
+    private Image      _folder;
 
     public ServerInfo(final ServerPanel serverPanel, final Server server) {
         _server = server;
         _ip = new JLabel(_server.getFullIp());
-        _users = new JLabel("Edit");
-        _users.addMouseListener(new MouseListener() {
+
+        _settings = new Image("settings");
+        _settings.setVisible(false);
+        _folder = new Image("folder");
+        _folder.addMouseListener(new MouseListener() {
 
             public void mouseClicked(MouseEvent event) {
             }
@@ -54,16 +57,14 @@ public class ServerInfo extends JLabel {
         serverPanel.add(_serverBox);
         serverPanel.add(this, 0);
         serverPanel.add(_ip, 0);
-        serverPanel.add(_users, 0);
+        serverPanel.add(_settings, 0);
+        serverPanel.add(_folder, 0);
 
         setForeground(Color.WHITE);
         setFont(IndigoLauncher.getMinecraftFont(20));
 
         _ip.setForeground(Color.GRAY);
         _ip.setFont(IndigoLauncher.getMinecraftFont(12));
-
-        _users.setForeground(Color.WHITE);
-        _users.setFont(IndigoLauncher.getMinecraftFont(20));
 
         _serverBox.addMouseListener(new MouseListener() {
 
@@ -89,15 +90,13 @@ public class ServerInfo extends JLabel {
 
     public void setBounds(int x, int y, int w, int h) {
         _serverBox.setBounds(x - MainPanel.PADDING, y - MainPanel.PADDING, w + (MainPanel.PADDING * 2), h + 12 + 5 + (MainPanel.PADDING * 2));
-        w -= getUserWidth() + MainPanel.PADDING;
+        w -= MainPanel.PADDING;
         super.setBounds(x, y, w, h);
-        _users.setBounds(x + w + MainPanel.PADDING, y, getUserWidth(), h);
+        _settings.setBounds(w, ((h + 12 - _settings.getIcon().getIconHeight()) / 2) + y, _settings.getIcon().getIconWidth(), _settings.getIcon()
+                .getIconHeight());
+        _folder.setBounds(w + _folder.getIcon().getIconWidth() + MainPanel.PADDING, ((h + 12 - _folder.getIcon().getIconHeight()) / 2) + y, _folder
+                .getIcon().getIconWidth(), _folder.getIcon().getIconHeight());
         _ip.setBounds(x, y + h + 5, w, 12);
-    }
-
-    private int getUserWidth() {
-        FontRenderContext frc = new FontRenderContext(_users.getFont().getTransform(), true, true);
-        return (int) (_users.getFont().getStringBounds(_users.getText(), frc).getWidth());
     }
 
     public boolean isActive() {

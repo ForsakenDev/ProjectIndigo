@@ -25,7 +25,6 @@ public class ServerPanel extends BasePanel {
     public ServerPanel(MainPanel mainPanel) {
         super(mainPanel, 1);
         loadServerManager();
-
     }
 
     public void initComponents() {
@@ -55,8 +54,8 @@ public class ServerPanel extends BasePanel {
     public synchronized void addServer(final Server server) {
         try {
             ServerInfo info = new ServerInfo(this, server);
-            info.setBounds((getWidth() - ((getWidth() - 50) - (MainPanel.PADDING * 2))) / 2, ((getHeight() - (getHeight() - 50)) / 2)
-                    + (MainPanel.PADDING + (_servers.size() * 32 + MainPanel.PADDING)), (getWidth() - 50) - (MainPanel.PADDING * 2), 24);
+            info.setBounds((getWidth() - ((getWidth() - 50) - (50 * 2))) / 2, ((getHeight() - (getHeight() - 50)) / 2)
+                    + (MainPanel.PADDING + (_servers.size() * 32 + MainPanel.PADDING)), (getWidth() - 50) - (50 * 2), 24);
             _servers.put(server.getFullIp(), info);
 
         } catch (Exception e) {
