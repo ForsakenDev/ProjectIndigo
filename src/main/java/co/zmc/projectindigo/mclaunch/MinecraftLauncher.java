@@ -6,15 +6,20 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.security.Permission;
+import java.security.Policy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.JOptionPane;
+
 import co.zmc.projectindigo.IndigoLauncher;
 import co.zmc.projectindigo.Main;
 import co.zmc.projectindigo.data.Server;
+import co.zmc.projectindigo.security.PolicyManager;
 import co.zmc.projectindigo.utils.Utils;
 
 public class MinecraftLauncher {
@@ -89,7 +94,10 @@ public class MinecraftLauncher {
         arguments.add(IndigoLauncher.TITLE);
 
         ProcessBuilder processBuilder = new ProcessBuilder(arguments);
+        logger.log(Level.INFO, "Setting working dir to " + server.getBaseDir().getAbsolutePath() + "/minecraft");
+        processBuilder.directory(new File(server.getBaseDir().getAbsolutePath() + "/minecraft"));
         processBuilder.redirectErrorStream(true);
+        processBuilder.redirectOutput(new File(server.getBaseDir().getAbsolutePath() + "/LOG.TXT"));
         return processBuilder.start();
     }
 
@@ -161,34 +169,65 @@ public class MinecraftLauncher {
             URLClassLoader cl = new URLClassLoader(urls, MinecraftLauncher.class.getClassLoader());
             logger.log(Level.INFO, "Loading minecraft class");
 
-            // PolicyManager policy = new PolicyManager();
-            // policy.copySecurityPolicy();
-            // for (URL url : urls) {
-            // policy.addAdditionalPerm("permission java.lang.RuntimePermission \"loadLibrary."
-            // + url.toString().replaceAll("\\\\", "/") + "\"");
-            // }
-            //
-            // policy.addAdditionalPerm("permission java.io.FilePermission \""
-            // + new
-            // File(basepath).getParentFile().getAbsolutePath().replaceAll("\\\\",
-            // "/") + "/-\", \"read, write, delete\"");
-            // policy.addAdditionalPerm("permission java.io.FilePermission \"" +
-            // nativesDir.replaceAll("\\\\", "/") + "/-\", \"read\"");
-            // policy.addAdditionalPerm("permission java.io.FilePermission \"" +
-            // System.getProperty("java.io.tmpdir").replaceAll("\\\\", "/")
-            // + "-\", \"read, write, delete\"");
-            //
-            // policy.addAdditionalPerm("permission java.net.SocketPermission \""
-            // + ip + ":" + port + "\", \"accept, resolve, listen, connect\"");
-            //
-            // policy.writeAdditionalPerms(policy.getPolicyLocation());
-            //
-            // System.out.println("Setting security policy to " +
-            // policy.getPolicyLocation());
-            // System.setProperty("java.security.policy",
-            // policy.getPolicyLocation());
-            // Policy.getPolicy().refresh();
-            // System.setSecurityManager(new SecurityManager());
+            PolicyManager policy = new PolicyManager();
+            policy.copySecurityPolicy();
+            
+            policy.addAdditionalPerm("permission java.lang.RuntimePermission \"*\"");
+            
+            policy.addAdditionalPerm("permission java.io.FilePermission \"" + new File(basepath).getParentFile().getAbsolutePath().replaceAll("\\\\", "/") + "/-\", \"read, write, delete\"");
+            policy.addAdditionalPerm("permission java.io.FilePermission \"" + nativesDir.replaceAll("\\\\", "/") + "/-\", \"read\"");
+            policy.addAdditionalPerm("permission java.io.FilePermission \"" + System.getProperty("java.io.tmpdir").replaceAll("\\\\", "/") + "-\", \"read, write, delete\"");
+            policy.addAdditionalPerm("permission java.io.FilePermission \"" + System.getProperty("java.home").replaceAll("\\\\", "/") + "/-\", \"read\"");
+            policy.addAdditionalPerm("permission java.io.FilePermission \"" + System.getProperty("java.home").replaceAll("\\\\", "/").replaceAll(" ", "%20") + "/-\", \"read\"");
+            policy.addAdditionalPerm("permission java.io.FilePermission \"" + IndigoLauncher.class.getProtectionDomain().getCodeSource().getLocation().getPath().replaceAll("\\\\", "/") + "\", \"read\"");
+            
+            policy.writeAdditionalPerms(policy.getPolicyLocation());
+            
+            System.out.println("Setting security policy to " + policy.getPolicyLocation());
+            System.setProperty("java.security.policy", policy.getPolicyLocation());
+            Policy.getPolicy().refresh();
+            
+            final File[] files = new File(nativesDir).listFiles();
+            SecurityManager manager = new SecurityManager(){
+            	@Override
+            	public void checkPermission(Permission perm) {
+           			try {
+           				super.checkPermission(perm);
+           			} catch (SecurityException e) {
+	           			if ((perm.getName().toLowerCase().contains(".ttf") || perm.getName().toLowerCase().contains(".ttc")) && perm.getActions().equals("read")) {
+	           				return;
+	           			}
+           				
+           				if (perm.getName().contains("loadLibrary.")) {
+		            		System.out.println("LOADLIB: " + perm.getName());
+		            		
+	           				String libPath = perm.getName().replaceAll("loadLibrary.", "");
+		            		
+	           				File file = new File(libPath);
+		            		
+		            		System.out.println("Minecraft is attempting to load native : " + file.getAbsolutePath());
+		            		
+		            		for (File nv : files) {
+		            			if (file.getAbsolutePath().equals(nv.getAbsolutePath())) {
+		            				System.out.println("Native loading permitted.");
+		            				return;
+		            			}
+		            		}
+		            		
+		            		if (JOptionPane.showConfirmDialog(null, "This modpack wants to load an additional native:\n" + libPath + "\n WARNING: This can be used maliciously to access private resources, continue?") == JOptionPane.YES_OPTION) {
+		            			return;
+		            		}
+		            		
+		            		System.out.println("NOT ALLOWING UNKNOWN NATIVE");
+		            		throw new SecurityException("NOT ALLOWED TO LOAD UNKNOWN NATIVE");
+		            	}
+	           			throw e;
+           			}
+            	}
+            };
+            
+            
+            System.setSecurityManager(manager);
 
             try {
                 Class<?> MCAppletClass = cl.loadClass("net.minecraft.client.MinecraftApplet");
