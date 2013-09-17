@@ -123,7 +123,7 @@ public class MinecraftLauncher {
             logger.log(Level.INFO, "Defaulting MaxMemory to " + 1024);
         }
     }
-
+    
     public static void main(String[] args) {
         if (args.length < 6) {
             new Main();
@@ -177,6 +177,7 @@ public class MinecraftLauncher {
             policy.addAdditionalPerm("permission java.io.FilePermission \"" + new File(basepath).getParentFile().getAbsolutePath().replaceAll("\\\\", "/") + "/-\", \"read, write, delete\"");
             policy.addAdditionalPerm("permission java.io.FilePermission \"" + nativesDir.replaceAll("\\\\", "/") + "/-\", \"read\"");
             policy.addAdditionalPerm("permission java.io.FilePermission \"" + System.getProperty("java.io.tmpdir").replaceAll("\\\\", "/") + "-\", \"read, write, delete\"");
+            policy.addAdditionalPerm("permission java.io.FilePermission \"" + System.getProperty("java.io.tmpdir").replaceAll("\\\\", "/") + "\", \"read, write, delete\"");
             policy.addAdditionalPerm("permission java.io.FilePermission \"" + System.getProperty("java.home").replaceAll("\\\\", "/") + "/-\", \"read\"");
             policy.addAdditionalPerm("permission java.io.FilePermission \"" + System.getProperty("java.home").replaceAll("\\\\", "/").replaceAll(" ", "%20") + "/-\", \"read\"");
             policy.addAdditionalPerm("permission java.io.FilePermission \"" + IndigoLauncher.class.getProtectionDomain().getCodeSource().getLocation().getPath().replaceAll("\\\\", "/") + "\", \"read\"");
@@ -213,15 +214,38 @@ public class MinecraftLauncher {
 		            				return;
 		            			}
 		            		}
-		            		
-		            		if (JOptionPane.showConfirmDialog(null, "This modpack wants to load an additional native:\n" + libPath + "\n WARNING: This can be used maliciously to access private resources, continue?") == JOptionPane.YES_OPTION) {
-		            			return;
-		            		}
-		            		
-		            		System.out.println("NOT ALLOWING UNKNOWN NATIVE");
-		            		throw new SecurityException("NOT ALLOWED TO LOAD UNKNOWN NATIVE");
 		            	}
-	           			throw e;
+	            		
+           				/*
+           				final Permission fPerm = perm;
+           				
+	            		SwingWorker worker = new SwingWorker<Boolean, Void>() {
+        				    @Override
+        				    public Boolean doInBackground() {
+        				    	System.out.println("Asking user for perm " + fPerm.toString());
+        				        return (JOptionPane.showConfirmDialog(null, "A mod is trying to access something stoopid:\n" + fPerm.toString() + "\nDo you want to allow it?\nWarning this could allow the mod to access sensitive info.") == JOptionPane.YES_OPTION);
+        				    }
+        				};
+	            		
+	            		worker.execute();
+	            		
+	            		boolean allowed = false;
+	            		
+        				try {
+							System.out.println("Waiting for response...");
+        					allowed = (Boolean) worker.get();
+						} catch (InterruptedException e1) {
+							e1.printStackTrace();
+						} catch (ExecutionException e1) {
+							e1.printStackTrace();
+						}
+	            		
+        				if (!allowed) {
+	            			System.out.println("Not allowing permission.");
+	            			throw e;
+						}	 
+						*/           		
+           				
            			}
             	}
             };
