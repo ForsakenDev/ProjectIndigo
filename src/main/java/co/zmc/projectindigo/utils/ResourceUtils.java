@@ -45,7 +45,9 @@ public class ResourceUtils {
     public static InputStream getResourceAsStream(String name) {
         if (name.equalsIgnoreCase("minecraft_font")) {
             return getResourceAsStream(BASE_PATH + "/fonts/minecraft.ttf", "");
-        } else if (name.equalsIgnoreCase("defaultServers")) { return getResourceAsStream(BASE_PATH + "/data/servers", ""); }
+        } else if (name.equalsIgnoreCase("defaultServers")) {
+            return getResourceAsStream(BASE_PATH + "/data/servers", "");
+        } else if (name.equalsIgnoreCase("settings")) { return getResourceAsStream(BASE_PATH + "/data/settings", ""); }
         return null;
     }
 

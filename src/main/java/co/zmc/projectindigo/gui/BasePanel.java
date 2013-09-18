@@ -31,4 +31,8 @@ public abstract class BasePanel extends JLayeredPane {
     public MainPanel getMainPanel() {
         return _mainPanel;
     }
+
+    public void switchPage(int id) {
+        _mainPanel.switchPage(id);
+    }
 }

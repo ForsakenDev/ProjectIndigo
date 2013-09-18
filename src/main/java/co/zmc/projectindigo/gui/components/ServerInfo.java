@@ -69,7 +69,8 @@ public class ServerInfo extends JLabel {
         _serverBox.addMouseListener(new MouseListener() {
 
             public void mouseClicked(MouseEvent event) {
-                serverPanel.launchServer(server.getFullIp());
+                serverPanel._selectedServer = server.getFullIp();
+                serverPanel.switchPage(2);
                 setActive(true);
             }
 

@@ -26,28 +26,30 @@ import co.zmc.projectindigo.gui.MainPanel;
 import co.zmc.projectindigo.gui.ProgressPanel;
 import co.zmc.projectindigo.mclaunch.MinecraftLauncher;
 import co.zmc.projectindigo.utils.FileUtils;
+import co.zmc.projectindigo.utils.Settings;
 import co.zmc.projectindigo.utils.Utils;
 
 public class DownloadHandler extends SwingWorker<Boolean, Void> {
     protected String        _status;
     protected MainPanel     _mainPanel;
     protected LoginResponse _response;
+    protected Settings      _settings;
     protected Server        _server;
     protected URL[]         _jarURLs;
     protected double        totalDownloadSize   = 0;
     protected double        totalDownloadedSize = 0;
 
-    public DownloadHandler(Server server, MainPanel section, LoginResponse response) {
+    public DownloadHandler(Server server, MainPanel section, LoginResponse response, Settings settings) {
         _server = server;
         _mainPanel = section;
         _response = response;
+        _settings = settings;
         _status = "";
     }
 
     @Override
     protected Boolean doInBackground() {
         if (_server.shouldDownload()) {
-            // FileUtils.deleteDirectory(_server.getBaseDir());
             if (!load()) { return false; }
         }
         ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Download complete. Launching Game...", 100);
@@ -84,8 +86,7 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
         if (_server != null) {
             Process pro;
             try {
-                pro = MinecraftLauncher.launchMinecraft(_server, _response.getUsername(), _response.getSessionId(), "MinecraftForge.zip", "1024",
-                        "128M");
+                pro = MinecraftLauncher.launchMinecraft(_server, _response.getUsername(), _response.getSessionId(), "MinecraftForge.zip", _settings);
 
                 // InputStreamLogger.start(pro.getInputStream());
                 try {

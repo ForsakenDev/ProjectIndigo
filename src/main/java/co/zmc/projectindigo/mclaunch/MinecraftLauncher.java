@@ -21,11 +21,11 @@ import co.zmc.projectindigo.Main;
 import co.zmc.projectindigo.data.Server;
 import co.zmc.projectindigo.data.log.Logger;
 import co.zmc.projectindigo.security.PolicyManager;
+import co.zmc.projectindigo.utils.Settings;
 import co.zmc.projectindigo.utils.Utils;
 
 public class MinecraftLauncher {
-    public static Process launchMinecraft(Server server, String username, String sessionId, String forgename, String rmax, String maxPermSize)
-            throws IOException {
+    public static Process launchMinecraft(Server server, String username, String sessionId, String forgename, Settings settings) throws IOException {
         String[] jarFiles = new String[] { "minecraft.jar", "lwjgl.jar", "lwjgl_util.jar", "jinput.jar" };
         StringBuilder cpb = new StringBuilder("");
         File instModsDir = new File(server.getBaseDir(), "instMods/");
@@ -67,19 +67,20 @@ public class MinecraftLauncher {
                 + (Utils.getCurrentOS() == Utils.OS.WINDOWS ? "w" : "");
         arguments.add(path);
 
-        setMemory(arguments, "1024");
-
+        setMemory(arguments, settings.get(Settings.MAX_RAM));
         arguments.add("-XX:+UseConcMarkSweepGC");
         arguments.add("-XX:+CMSIncrementalMode");
         arguments.add("-XX:+AggressiveOpts");
         arguments.add("-XX:+CMSClassUnloadingEnabled");
+        arguments.add("-XX:PermSize=" + settings.get(Settings.MAX_PERM_SIZE) + "M");
         arguments.add("-noverify");
-        if (maxPermSize.equalsIgnoreCase("")) {
-            arguments.add("-XX:PermSize=128m");
-        } else {
-            arguments.add("-XX:PermSize=" + maxPermSize);
+        if (!settings.get(Settings.JAVA_PARAMS).isEmpty() && settings.get(Settings.JAVA_PARAMS).split(" ").length > 0) {
+            for (String s : settings.get(Settings.JAVA_PARAMS).split(" ")) {
+                if (!s.isEmpty()) {
+                    arguments.add(s);
+                }
+            }
         }
-
         arguments.add("-cp");
         arguments.add(System.getProperty("java.class.path") + cpb.toString().replaceAll(" ", "\\\\ "));
 
@@ -92,6 +93,10 @@ public class MinecraftLauncher {
         arguments.add(server.getPort() + "");
         arguments.add(IndigoLauncher.TITLE);
 
+        String cmd = "";
+        for (String s : arguments) {
+            cmd += " " + s;
+        }
         ProcessBuilder processBuilder = new ProcessBuilder(arguments);
         Logger.logInfo("Setting working dir to " + server.getBaseDir().getAbsolutePath() + "/minecraft");
         processBuilder.directory(new File(server.getBaseDir().getAbsolutePath() + "/minecraft"));
@@ -166,14 +171,14 @@ public class MinecraftLauncher {
             URLClassLoader cl = new URLClassLoader(urls, MinecraftLauncher.class.getClassLoader());
 
             Logger.logInfo("Loading security class");
-//            loadSecurityManager(basepath, nativesDir);
+            // loadSecurityManager(basepath, nativesDir);
 
             Logger.logInfo("Loading minecraft class");
 
             try {
                 Class<?> MCAppletClass = cl.loadClass("net.minecraft.client.MinecraftApplet");
                 Applet mcappl = (Applet) MCAppletClass.newInstance();
-                MinecraftFrame mcWindow = new MinecraftFrame(title);
+                MinecraftFrame mcWindow = new MinecraftFrame(title, new Settings());
                 mcWindow.start(mcappl, basepath, username, sessionId, ip, port);
             } catch (InstantiationException e) {
                 Logger.logError("Applet wrapper failed! Falling back to compatibility mode", e);

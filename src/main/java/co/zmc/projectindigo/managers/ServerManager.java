@@ -134,7 +134,7 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
             if (i > 0) {
                 str += ", \n";
             }
-            str += "  \"e" + (i + 1) + "\": " + s.toString();
+            str += "  \"" + (i + 1) + "\": " + s.toString();
         }
         str += "\n}";
         FileUtils.writeStringToFile(str, _saveFile);

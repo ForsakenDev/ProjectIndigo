@@ -15,6 +15,7 @@ import co.zmc.projectindigo.gui.MainPanel;
 import co.zmc.projectindigo.utils.DirectoryLocations;
 import co.zmc.projectindigo.utils.FileUtils;
 import co.zmc.projectindigo.utils.ResourceUtils;
+import co.zmc.projectindigo.utils.Settings;
 
 @SuppressWarnings("serial")
 public class IndigoLauncher extends JFrame {
@@ -57,7 +58,7 @@ public class IndigoLauncher extends JFrame {
         add(_mainPanel);
     }
 
-    private static void cleanup() {
+    public static void cleanup() {
         File file = new File(DirectoryLocations.BASE_DIR_LOCATION);
         if (!file.exists()) {
             file.mkdir();
@@ -66,6 +67,7 @@ public class IndigoLauncher extends JFrame {
         if (!file.exists()) {
             file.mkdir();
             FileUtils.writeStreamToFile(ResourceUtils.getResourceAsStream("defaultServers"), new File(file, "servers"));
+            FileUtils.writeStreamToFile(ResourceUtils.getResourceAsStream("settings"), new File(file, "settings"));
         }
         file = new File(DirectoryLocations.IMAGE_DIR_LOCATION);
         if (!file.exists()) {
@@ -83,6 +85,7 @@ public class IndigoLauncher extends JFrame {
         if (!file.exists()) {
             file.mkdir();
         }
+        DirectoryLocations.updateServerDir();
     }
 
     public static final Font getMinecraftFont(int size) {
@@ -102,8 +105,8 @@ public class IndigoLauncher extends JFrame {
         repaint();
     }
 
-    public void launchMinecraft(Server server, LoginResponse response) throws IOException {
-        server.download(response);
+    public void launchMinecraft(Server server, LoginResponse response, Settings settings) throws IOException {
+        server.download(response, settings);
     }
 
 }

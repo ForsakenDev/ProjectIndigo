@@ -10,8 +10,24 @@ public class DirectoryLocations {
     public static final String AVATAR_CACHE_DIR_LOCATION         = BASE_DIR_LOCATION + "images/avatars/";
     public static final String SERVER_CACHE_DIR_LOCATION         = BASE_DIR_LOCATION + "images/servers/";
     public static final String BACKGROUND_DIR_LOCATION           = IMAGE_DIR_LOCATION + "background/";
-    public static final String SERVERS_BASE_DIR_LOCATION         = BASE_DIR_LOCATION + "servers/";
-    public static final String SERVER_DIR_LOCATION               = SERVERS_BASE_DIR_LOCATION + "%s/";
-    public static final String SERVER_MINECRAFT_DIR_LOCATION     = SERVER_DIR_LOCATION + "minecraft/";
-    public static final String SERVER_MINECRAFT_BIN_DIR_LOCATION = SERVER_MINECRAFT_DIR_LOCATION + "bin/";
+    public static String       SERVERS_BASE_DIR_LOCATION         = BASE_DIR_LOCATION + "servers/";
+    public static String       SERVER_DIR_LOCATION               = SERVERS_BASE_DIR_LOCATION + "%s/";
+    public static String       SERVER_MINECRAFT_DIR_LOCATION     = SERVER_DIR_LOCATION + "minecraft/";
+    public static String       SERVER_MINECRAFT_BIN_DIR_LOCATION = SERVER_MINECRAFT_DIR_LOCATION + "bin/";
+
+    private static String getServersDir() {
+        Settings settings = new Settings();
+        String path = settings.get(Settings.INSTALL_PATH);
+        if (path.charAt(path.length() - 1) != '/') {
+            path += "/";
+        }
+        return path;
+    }
+
+    public static void updateServerDir() {
+        SERVERS_BASE_DIR_LOCATION = getServersDir();
+        SERVER_DIR_LOCATION = SERVERS_BASE_DIR_LOCATION + "%s/";
+        SERVER_MINECRAFT_DIR_LOCATION = SERVER_DIR_LOCATION + "minecraft/";
+        SERVER_MINECRAFT_BIN_DIR_LOCATION = SERVER_MINECRAFT_DIR_LOCATION + "bin/";
+    }
 }

@@ -8,6 +8,7 @@ import co.zmc.projectindigo.gui.MainPanel;
 import co.zmc.projectindigo.gui.ServerPanel;
 import co.zmc.projectindigo.managers.DownloadHandler;
 import co.zmc.projectindigo.utils.DirectoryLocations;
+import co.zmc.projectindigo.utils.Settings;
 
 public class Server {
     private MainPanel _mainPanel;
@@ -33,6 +34,10 @@ public class Server {
         _version = (String) server.get("version");
         _mcVersion = (String) server.get("mc_version");
 
+        updateDir();
+    }
+
+    public void updateDir() {
         _baseDir = new File(String.format(DirectoryLocations.SERVER_DIR_LOCATION, getFullIp().replaceAll(":", "_")));
         _minecraftDir = new File(String.format(DirectoryLocations.SERVER_MINECRAFT_DIR_LOCATION, getFullIp().replaceAll(":", "_")));
         _binDir = new File(String.format(DirectoryLocations.SERVER_MINECRAFT_BIN_DIR_LOCATION, getFullIp().replaceAll(":", "_")));
@@ -78,11 +83,11 @@ public class Server {
             _mcVersion = shouldUpdate._mcVersion;
             ((ServerPanel) _mainPanel.getPanel(1)).getServerManager().saveServers();
         }
-        return !(getMinecraftDir().exists() && getBaseDir().exists() && getBinDir().exists()) || shouldUpdate != null;
+        return !isDownloaded() || shouldUpdate != null;
     }
 
-    public void download(LoginResponse response) {
-        new DownloadHandler(this, _mainPanel, response).execute();
+    public void download(LoginResponse response, Settings settings) {
+        new DownloadHandler(this, _mainPanel, response, settings).execute();
     }
 
     public String getName() {

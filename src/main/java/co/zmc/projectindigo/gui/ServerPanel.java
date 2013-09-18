@@ -11,6 +11,7 @@ import co.zmc.projectindigo.gui.components.Label;
 import co.zmc.projectindigo.gui.components.RoundedBox;
 import co.zmc.projectindigo.gui.components.ServerInfo;
 import co.zmc.projectindigo.managers.ServerManager;
+import co.zmc.projectindigo.utils.Settings;
 
 @SuppressWarnings("serial")
 public class ServerPanel extends BasePanel {
@@ -62,10 +63,11 @@ public class ServerPanel extends BasePanel {
         }
     }
 
-    public void launchServer(String fullIp) {
-        _mainPanel.switchPage(-1);
+    public void launchServer(Settings settings) {
+        switchPage(-1);
         try {
-            IndigoLauncher._launcher.launchMinecraft(_serverManager.getServer(fullIp), ((LoginPanel) _mainPanel.getPanel(0)).getLoginResponse());
+            IndigoLauncher._launcher.launchMinecraft(_serverManager.getServer(_selectedServer),
+                    ((LoginPanel) _mainPanel.getPanel(0)).getLoginResponse(), settings);
         } catch (IOException e) {
             e.printStackTrace();
         }

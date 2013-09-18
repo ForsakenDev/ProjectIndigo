@@ -1,0 +1,9 @@
+{
+  "install_folder": "",
+  "maximum_ram": "1024",
+  "maximum_perm_size": "128",
+  "additional_java_params": "",
+  "minecraft_window_size": "1280,720",
+  "minecraft_window_position": "0,0",
+  "minecraft_window_maximized": "true", 
+}

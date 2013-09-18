@@ -111,7 +111,7 @@ public class LoginPanel extends BasePanel {
             default:
             case SAVE_USER_LAUNCH:
                 _userManager.writeUsernameList();
-                _mainPanel.switchPage(1);
+                switchPage(1);
                 return;
             case BAD_LOGIN:
                 JOptionPane.showMessageDialog(_mainPanel, "Invalid username/password combination." + "\n\n" + IndigoLauncher.TITLE
@@ -134,7 +134,7 @@ public class LoginPanel extends BasePanel {
                         "Permission Denied!", JOptionPane.WARNING_MESSAGE);
                 break;
         }
-        _mainPanel.switchPage(0);
+        switchPage(0);
     }
 
     public final void tryLogin(String user) {
