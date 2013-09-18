@@ -66,14 +66,15 @@ public class IndigoLauncher extends JFrame {
             File file = new File(s);
             if (file.exists()) {
                 continue;
-            }
-            if (s.charAt(s.length() - 1) == '/') {
-                file.mkdir();
             } else {
-                if (s.contains("servers")) {
-                    FileUtils.writeStreamToFile(ResourceUtils.getResourceAsStream("defaultServers"), new File(file, "servers"));
-                } else if (s.contains("settings")) {
-                    FileUtils.writeStreamToFile(ResourceUtils.getResourceAsStream("settings"), new File(file, "settings"));
+                if (s.charAt(s.length() - 1) == '/') {
+                    file.mkdir();
+                } else {
+                    if (s.contains("servers")) {
+                        FileUtils.writeStreamToFile(ResourceUtils.getResourceAsStream("defaultServers"), file);
+                    } else if (s.contains("settings")) {
+                        FileUtils.writeStreamToFile(ResourceUtils.getResourceAsStream("settings"), file);
+                    }
                 }
             }
         }
