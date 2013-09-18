@@ -14,7 +14,6 @@ import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
 import net.minecraft.Launcher;
-import co.zmc.projectindigo.data.log.Logger;
 import co.zmc.projectindigo.utils.Settings;
 
 @SuppressWarnings("serial")
@@ -45,20 +44,17 @@ public class MinecraftFrame extends JFrame {
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                new Thread() {
-                    public void run() {
-                        try {
-                            Thread.sleep(30000L);
-                        } catch (InterruptedException localInterruptedException) {
-                        }
-                        Logger.logError("FORCING EXIT!");
-                        System.exit(0);
-                    }
-                }.start();
                 if (appletWrap != null) {
                     appletWrap.stop();
                     appletWrap.destroy();
                 }
+                _settings.set(Settings.WINDOW_SIZE, getSize().width + "," + getSize().height);
+                _settings.set(Settings.WINDOW_POSITION, getX() + "," + getY());
+                Toolkit tk = Toolkit.getDefaultToolkit();
+                int xSize = ((int) tk.getScreenSize().getWidth());
+                int ySize = ((int) tk.getScreenSize().getHeight());
+                _settings.set(Settings.WINDOW_MAXIMIZED, (xSize == getSize().width && ySize == getSize().height) + "");
+                _settings.save();
                 System.exit(0);
             }
         });
@@ -93,38 +89,38 @@ public class MinecraftFrame extends JFrame {
 
     public void setSize(JFrame component) {
         try {
-            if (_settings.get(Settings.WINDOW_MAXIMIZED).equalsIgnoreCase("true")) {
+//            if (_settings.get(Settings.WINDOW_MAXIMIZED).equalsIgnoreCase("true")) {
                 Toolkit tk = Toolkit.getDefaultToolkit();
                 int xSize = ((int) tk.getScreenSize().getWidth());
                 int ySize = ((int) tk.getScreenSize().getHeight());
                 component.setSize(xSize, ySize);
-            } else {
-                Dimension dim = new Dimension(Integer.parseInt(_settings.get(Settings.WINDOW_SIZE.split(",")[0])), Integer.parseInt(_settings
-                        .get(Settings.WINDOW_SIZE.split(",")[1])));
-                component.setSize(dim);
-                component.setPreferredSize(dim);
-                component.setLocation(Integer.parseInt(_settings.get(Settings.WINDOW_POSITION.split(",")[0])),
-                        Integer.parseInt(_settings.get(Settings.WINDOW_POSITION.split(",")[1])));
-            }
+//            } else {
+//                Dimension dim = new Dimension(Integer.parseInt(_settings.get(Settings.WINDOW_SIZE.split(",")[0])), Integer.parseInt(_settings
+//                        .get(Settings.WINDOW_SIZE.split(",")[1])));
+//                component.setSize(dim);
+//                component.setPreferredSize(dim);
+//                component.setLocation(Integer.parseInt(_settings.get(Settings.WINDOW_POSITION.split(",")[0])),
+//                        Integer.parseInt(_settings.get(Settings.WINDOW_POSITION.split(",")[1])));
+//            }
         } catch (NumberFormatException e) {
         }
     }
 
     public void setSize(Applet component) {
         try {
-            if (_settings.get(Settings.WINDOW_MAXIMIZED).equalsIgnoreCase("true")) {
+//            if (_settings.get(Settings.WINDOW_MAXIMIZED).equalsIgnoreCase("true")) {
                 Toolkit tk = Toolkit.getDefaultToolkit();
                 int xSize = ((int) tk.getScreenSize().getWidth());
                 int ySize = ((int) tk.getScreenSize().getHeight());
                 component.setSize(xSize, ySize);
-            } else {
-                Dimension dim = new Dimension(Integer.parseInt(_settings.get(Settings.WINDOW_SIZE.split(",")[0])), Integer.parseInt(_settings
-                        .get(Settings.WINDOW_SIZE.split(",")[1])));
-                component.setSize(dim);
-                component.setPreferredSize(dim);
-                component.setLocation(Integer.parseInt(_settings.get(Settings.WINDOW_POSITION.split(",")[0])),
-                        Integer.parseInt(_settings.get(Settings.WINDOW_POSITION.split(",")[1])));
-            }
+//            } else {
+//                Dimension dim = new Dimension(Integer.parseInt(_settings.get(Settings.WINDOW_SIZE.split(",")[0])), Integer.parseInt(_settings
+//                        .get(Settings.WINDOW_SIZE.split(",")[1])));
+//                component.setSize(dim);
+//                component.setPreferredSize(dim);
+//                component.setLocation(Integer.parseInt(_settings.get(Settings.WINDOW_POSITION.split(",")[0])),
+//                        Integer.parseInt(_settings.get(Settings.WINDOW_POSITION.split(",")[1])));
+//            }
         } catch (NumberFormatException e) {
         }
     }

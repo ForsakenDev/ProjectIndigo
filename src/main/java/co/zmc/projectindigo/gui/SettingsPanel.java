@@ -30,22 +30,15 @@ public class SettingsPanel extends BasePanel {
         super(mainPanel, 2);
     }
 
-    public static final String INSTALL_PATH     = "install_folder";
-    public static final String MAX_RAM          = "maximum_ram";
-    public static final String JAVA_PARAMS      = "additional_java_params";
-    public static final String WINDOW_SIZE      = "minecraft_window_size";
-    public static final String WINDOW_POSITION  = "minecraft_window_position";
-    public static final String WINDOW_MAXIMIZED = "minecraft_window_maximized";
+    private Label   _installDirLbl;
+    private TextBox _installDirBox;
+    private Button  _installDirBtn;
+    private Label   _maxRamLbl;
+    private Label   _maxRamAmtLbl;
+    private JSlider _maxRamSlider;
 
-    private Label              _installDirLbl;
-    private TextBox            _installDirBox;
-    private Button             _installDirBtn;
-    private Label              _maxRamLbl;
-    private Label              _maxRamAmtLbl;
-    private JSlider            _maxRamSlider;
-
-    private Label              _javaParamsLbl;
-    private TextBox            _javaParamsBox;
+    private Label   _javaParamsLbl;
+    private TextBox _javaParamsBox;
 
     public void initComponents() {
         loadSettings();
@@ -61,15 +54,14 @@ public class SettingsPanel extends BasePanel {
             }
         });
 
+        _installDirLbl = new Label(this, "Install Location: ");
         _installDirBox = new TextBox(this, _settings.get(Settings.INSTALL_PATH));
         _installDirBox.setEnabled(false);
-        _installDirBox.setBounds(((getWidth() - (getWidth() - 300)) / 2) - (150 / 2), (50 / 2) + 40, (getWidth() - 300), 35);
-
         _installDirBtn = new Button(this, "...");
         _installDirBtn.addActionListener(new DirectorySelector(SettingsPanel.this));
-        _installDirBtn.setBounds(_installDirBox.getX() + _installDirBox.getWidth() + 50, _installDirBox.getY(), 100, _installDirBox.getHeight());
 
-        _installDirLbl = new Label(this, "Install Location: ");
+        _installDirBox.setBounds(((getWidth() - (getWidth() - 300)) / 2) - (150 / 2), (50 / 2) + 40, (getWidth() - 300), 35);
+        _installDirBtn.setBounds(_installDirBox.getX() + _installDirBox.getWidth() + 50, _installDirBox.getY(), 100, _installDirBox.getHeight());
         _installDirLbl.setBounds(_installDirBox.getX(), _installDirBox.getY() - 40, _installDirBox.getWidth(), _installDirBox.getHeight());
 
         _maxRamAmtLbl = new Label(this, _settings.get(Settings.MAX_RAM));
@@ -123,11 +115,11 @@ public class SettingsPanel extends BasePanel {
         _maxRamAmtLbl.setBounds(_maxRamSlider.getX() + _maxRamSlider.getWidth() + 50, _maxRamSlider.getY(), 100, _maxRamSlider.getHeight());
         _maxRamLbl.setBounds(_maxRamSlider.getX(), _maxRamSlider.getY() - 40, _maxRamSlider.getWidth(), _maxRamSlider.getHeight());;
 
+        _javaParamsLbl = new Label(this, "Additional Java Parameters: ");
         _javaParamsBox = new TextBox(this, "");
         _javaParamsBox.setText(_settings.get(Settings.JAVA_PARAMS));
-        _javaParamsBox.setBounds(((getWidth() - (getWidth() - 150)) / 2), _maxRamSlider.getY() + 50 + 40, (getWidth() - 150), 35);
 
-        _javaParamsLbl = new Label(this, "Additional Java Parameters: ");
+        _javaParamsBox.setBounds(((getWidth() - (getWidth() - 150)) / 2), _maxRamSlider.getY() + 50 + 40, (getWidth() - 150), 35);
         _javaParamsLbl.setBounds(_javaParamsBox.getX(), _javaParamsBox.getY() - 40, _javaParamsBox.getWidth(), _javaParamsBox.getHeight());
 
         add(_bg);
