@@ -72,8 +72,6 @@ public class MinecraftLauncher {
         arguments.add("-XX:+CMSIncrementalMode");
         arguments.add("-XX:+AggressiveOpts");
         arguments.add("-XX:+CMSClassUnloadingEnabled");
-        arguments.add("-XX:PermSize=" + settings.get(Settings.MAX_PERM_SIZE) + "M");
-        arguments.add("-noverify");
         if (!settings.get(Settings.JAVA_PARAMS).isEmpty() && settings.get(Settings.JAVA_PARAMS).split(" ").length > 0) {
             for (String s : settings.get(Settings.JAVA_PARAMS).split(" ")) {
                 if (!s.isEmpty()) {
@@ -81,6 +79,7 @@ public class MinecraftLauncher {
                 }
             }
         }
+        arguments.add("-noverify");
         arguments.add("-cp");
         arguments.add(System.getProperty("java.class.path") + cpb.toString().replaceAll(" ", "\\\\ "));
 

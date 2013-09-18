@@ -32,7 +32,6 @@ public class SettingsPanel extends BasePanel {
 
     public static final String INSTALL_PATH     = "install_folder";
     public static final String MAX_RAM          = "maximum_ram";
-    public static final String MAX_PERM_SIZE    = "maximum_perm_size";
     public static final String JAVA_PARAMS      = "additional_java_params";
     public static final String WINDOW_SIZE      = "minecraft_window_size";
     public static final String WINDOW_POSITION  = "minecraft_window_position";
@@ -44,6 +43,9 @@ public class SettingsPanel extends BasePanel {
     private Label              _maxRamLbl;
     private Label              _maxRamAmtLbl;
     private JSlider            _maxRamSlider;
+
+    private Label              _javaParamsLbl;
+    private TextBox            _javaParamsBox;
 
     public void initComponents() {
         loadSettings();
@@ -70,19 +72,7 @@ public class SettingsPanel extends BasePanel {
         _installDirLbl = new Label(this, "Install Location: ");
         _installDirLbl.setBounds(_installDirBox.getX(), _installDirBox.getY() - 40, _installDirBox.getWidth(), _installDirBox.getHeight());
 
-        _installDirBox = new TextBox(this, _settings.get(Settings.INSTALL_PATH));
-        _installDirBox.setEnabled(false);
-        _installDirBox.setBounds(((getWidth() - (getWidth() - 300)) / 2) - (150 / 2), (50 / 2) + 40, (getWidth() - 300), 35);
-
-        _installDirBtn = new Button(this, "...");
-        _installDirBtn.addActionListener(new DirectorySelector(SettingsPanel.this));
-        _installDirBtn.setBounds(_installDirBox.getX() + _installDirBox.getWidth() + 50, _installDirBox.getY(), 100, _installDirBox.getHeight());
-
-        _installDirLbl = new Label(this, "Install Location: ");
-        _installDirLbl.setBounds(_installDirBox.getX(), _installDirBox.getY() - 40, _installDirBox.getWidth(), _installDirBox.getHeight());
-
         _maxRamAmtLbl = new Label(this, _settings.get(Settings.MAX_RAM));
-
         long ram = 0;
         OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
         Method m;
@@ -133,6 +123,13 @@ public class SettingsPanel extends BasePanel {
         _maxRamAmtLbl.setBounds(_maxRamSlider.getX() + _maxRamSlider.getWidth() + 50, _maxRamSlider.getY(), 100, _maxRamSlider.getHeight());
         _maxRamLbl.setBounds(_maxRamSlider.getX(), _maxRamSlider.getY() - 40, _maxRamSlider.getWidth(), _maxRamSlider.getHeight());;
 
+        _javaParamsBox = new TextBox(this, "");
+        _javaParamsBox.setText(_settings.get(Settings.JAVA_PARAMS));
+        _javaParamsBox.setBounds(((getWidth() - (getWidth() - 150)) / 2), _maxRamSlider.getY() + 50 + 40, (getWidth() - 150), 35);
+
+        _javaParamsLbl = new Label(this, "Additional Java Parameters: ");
+        _javaParamsLbl.setBounds(_javaParamsBox.getX(), _javaParamsBox.getY() - 40, _javaParamsBox.getWidth(), _javaParamsBox.getHeight());
+
         add(_bg);
 
     }
@@ -157,7 +154,7 @@ public class SettingsPanel extends BasePanel {
     public void launch() {
         _settings.set(Settings.INSTALL_PATH, _installDirBox.getText());
         _settings.set(Settings.MAX_RAM, _maxRamSlider.getValue() + "");
-
+        _settings.set(Settings.JAVA_PARAMS, _javaParamsBox.getText());
         _settings.save();
         DirectoryLocations.updateServerDir();
         ((ServerPanel) _mainPanel.getPanel(1)).getServerManager().getServer(((ServerPanel) _mainPanel.getPanel(1))._selectedServer).updateDir();

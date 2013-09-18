@@ -11,7 +11,6 @@ import org.json.simple.parser.ParseException;
 public class Settings {
     public static final String INSTALL_PATH     = "install_folder";
     public static final String MAX_RAM          = "maximum_ram";
-    public static final String MAX_PERM_SIZE    = "maximum_perm_size";
     public static final String JAVA_PARAMS      = "additional_java_params";
     public static final String WINDOW_SIZE      = "minecraft_window_size";
     public static final String WINDOW_POSITION  = "minecraft_window_position";
