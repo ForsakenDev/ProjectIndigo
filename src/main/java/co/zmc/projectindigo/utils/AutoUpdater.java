@@ -36,7 +36,6 @@ public class AutoUpdater {
 
     public static void main(String[] args) {
         if (shouldUpdate()) {
-            FileUtils.deleteDirectory(new File(DirectoryLocations.BASE_DIR_LOCATION));
             if (downloadNew()) {
                 logger.log(Level.INFO, "Download done.");
                 relaunch();

@@ -51,38 +51,31 @@ public class IndigoLauncher extends JFrame {
     }
 
     private void initComponents(String defaultLogin) {
-
         _mainPanel = new MainPanel(_launcher, _serverPanelSize.width, _serverPanelSize.height);
         _mainPanel.setVisible(true);
         add(_mainPanel);
     }
 
     public static void cleanup() {
-        File file = new File(DirectoryLocations.BASE_DIR_LOCATION);
-        if (!file.exists()) {
-            file.mkdir();
-        }
-        file = new File(DirectoryLocations.DATA_DIR_LOCATION);
-        if (!file.exists()) {
-            file.mkdir();
-            FileUtils.writeStreamToFile(ResourceUtils.getResourceAsStream("defaultServers"), new File(file, "servers"));
-            FileUtils.writeStreamToFile(ResourceUtils.getResourceAsStream("settings"), new File(file, "settings"));
-        }
-        file = new File(DirectoryLocations.IMAGE_DIR_LOCATION);
-        if (!file.exists()) {
-            file.mkdir();
-        }
-        file = new File(DirectoryLocations.AVATAR_CACHE_DIR_LOCATION);
-        if (!file.exists()) {
-            file.mkdir();
-        }
-        file = new File(DirectoryLocations.SERVERS_BASE_DIR_LOCATION);
-        if (!file.exists()) {
-            file.mkdir();
-        }
-        file = new File(DirectoryLocations.LOG_DIR_LOCATION);
-        if (!file.exists()) {
-            file.mkdir();
+        String[] fileLocations = { DirectoryLocations.BASE_DIR_LOCATION, DirectoryLocations.DATA_DIR_LOCATION,
+                DirectoryLocations.DATA_DIR_LOCATION + "servers", DirectoryLocations.DATA_DIR_LOCATION + "settings",
+                DirectoryLocations.IMAGE_DIR_LOCATION, DirectoryLocations.AVATAR_CACHE_DIR_LOCATION, DirectoryLocations.SERVERS_BASE_DIR_LOCATION,
+                DirectoryLocations.LOG_DIR_LOCATION };
+
+        for (String s : fileLocations) {
+            File file = new File(s);
+            if (file.exists()) {
+                continue;
+            }
+            if (s.charAt(s.length() - 1) == '/') {
+                file.mkdir();
+            } else {
+                if (s.contains("servers")) {
+                    FileUtils.writeStreamToFile(ResourceUtils.getResourceAsStream("defaultServers"), new File(file, "servers"));
+                } else if (s.contains("settings")) {
+                    FileUtils.writeStreamToFile(ResourceUtils.getResourceAsStream("settings"), new File(file, "settings"));
+                }
+            }
         }
         DirectoryLocations.updateServerDir();
     }
