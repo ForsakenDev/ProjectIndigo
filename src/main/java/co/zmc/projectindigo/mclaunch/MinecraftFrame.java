@@ -6,14 +6,13 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
 import net.minecraft.Launcher;
+import co.zmc.projectindigo.data.log.Logger;
 
 @SuppressWarnings("serial")
 public class MinecraftFrame extends JFrame {
@@ -46,7 +45,7 @@ public class MinecraftFrame extends JFrame {
                             Thread.sleep(30000L);
                         } catch (InterruptedException localInterruptedException) {
                         }
-                        Logger.getLogger("launcher").log(Level.SEVERE, "FORCING EXIT!");
+                        Logger.logError("FORCING EXIT!");
                         System.exit(0);
                     }
                 }.start();

@@ -79,6 +79,10 @@ public class IndigoLauncher extends JFrame {
         if (!file.exists()) {
             file.mkdir();
         }
+        file = new File(DirectoryLocations.LOG_DIR_LOCATION);
+        if (!file.exists()) {
+            file.mkdir();
+        }
     }
 
     public static final Font getMinecraftFont(int size) {

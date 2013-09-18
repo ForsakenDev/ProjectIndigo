@@ -35,6 +35,8 @@ public class MainPanel extends JPanel {
     private int                       _targetX;
     private int                       _currentPage     = -1;
     private long                      _startTime;
+    private int                       _width;
+    private int                       _height;
 
     public MainPanel(IndigoLauncher launcher, int width, int height) {
         _launcher = launcher;
@@ -45,6 +47,8 @@ public class MainPanel extends JPanel {
         } else if (Utils.getCurrentOS() == OS.WINDOWS) {
             height -= 25;
         }
+        _width = width;
+        _height = height;
         setFont(IndigoLauncher.getMinecraftFont(14));
         Dimension dim = new Dimension(width, height);
         setSize(dim);
@@ -96,25 +100,29 @@ public class MainPanel extends JPanel {
                     lastTime = System.currentTimeMillis();
                 }
                 long deltaTime = lastTime - System.currentTimeMillis();
-                velocity += accel * deltaTime;
-                location += velocity * deltaTime;
-                
-                lastTime = System.currentTimeMillis();
+                velocity += (accel * (double) deltaTime);
+                location += (velocity * (double) deltaTime);
 
+                lastTime = System.currentTimeMillis();
+                if (!_panels.get(pageTo).isVisible()) {
+                    _panels.get(pageTo).setVisible(true);
+                }
                 _panels.get(pageTo).setLocation((int) location, 0);
                 if (pageTo == -1 || (pageTo > _currentPage && _currentPage != -1)) {
-                    _panels.get(_currentPage).setLocation(((int) location) - getWidth(), 0);
+                    _panels.get(_currentPage).setLocation((int) (Math.round(location) - _width), 0);
                 } else {
-                    _panels.get(_currentPage).setLocation(getWidth() + ((int) location), 0);
+                    _panels.get(_currentPage).setLocation(getWidth() + (int) Math.round(location), 0);
                 }
                 if (System.currentTimeMillis() - _startTime > PLAY_TIME) {
                     _panels.get(pageTo).setLocation(_targetX, 0);
 
                     if (pageTo == -1 || (pageTo > _currentPage && _currentPage != -1)) {
-                        _panels.get(_currentPage).setLocation(0 - getWidth(), 0);
+                        _panels.get(_currentPage).setLocation(0 - _width, 0);
                     } else {
-                        _panels.get(_currentPage).setLocation(getWidth(), 0);
+                        _panels.get(_currentPage).setLocation(_width, 0);
                     }
+                    _panels.get(_currentPage).setVisible(false);
+
                     _currentPage = pageTo;
                     currentTimer.stop();
                     currentTimer = null;

@@ -24,6 +24,7 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
 
 import co.zmc.projectindigo.data.UserPassword;
+import co.zmc.projectindigo.data.log.Logger;
 import co.zmc.projectindigo.gui.MainPanel;
 import co.zmc.projectindigo.gui.ProgressPanel;
 import co.zmc.projectindigo.utils.DirectoryLocations;
@@ -151,7 +152,7 @@ public class UserManager {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.logError(e.getMessage(), e);
         } finally {
             if (dos != null) {
                 try {

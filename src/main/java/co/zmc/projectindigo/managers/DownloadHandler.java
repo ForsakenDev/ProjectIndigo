@@ -13,8 +13,6 @@ import java.net.URLConnection;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -23,6 +21,7 @@ import javax.swing.SwingWorker;
 import co.zmc.projectindigo.IndigoLauncher;
 import co.zmc.projectindigo.data.LoginResponse;
 import co.zmc.projectindigo.data.Server;
+import co.zmc.projectindigo.data.log.Logger;
 import co.zmc.projectindigo.gui.MainPanel;
 import co.zmc.projectindigo.gui.ProgressPanel;
 import co.zmc.projectindigo.gui.ServerPanel;
@@ -37,7 +36,6 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
     protected LoginResponse _response;
     protected Server        _server;
     protected URL[]         _jarURLs;
-    private final Logger    logger              = Logger.getLogger("launcher");
     protected double        totalDownloadSize   = 0;
     protected double        totalDownloadedSize = 0;
 
@@ -68,15 +66,15 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
 
         ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Installing " + _server.getName() + "...", 0);
         if (!loadJarURLs()) { return false; }
-        logger.log(Level.INFO, "Downloading Jars");
+        Logger.logInfo("Downloading Jars");
         if (!downloadJars()) {
-            logger.log(Level.SEVERE, "Download Failed");
+            Logger.logInfo("Download Failed");
             return false;
         }
         ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Extracting files...", 0);
-        logger.log(Level.INFO, "Extracting Files");
+        Logger.logInfo("Extracting Files");
         if (!(extractFiles() && removeMetaInf())) {
-            logger.log(Level.SEVERE, "Extraction Failed");
+            Logger.logInfo("Extraction Failed");
             return false;
         }
 
@@ -84,7 +82,7 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
     }
 
     public void launch() {
-        logger.log(Level.INFO, "Download complete");
+        Logger.logInfo("Download complete");
         if (_server != null) {
             ((ServerPanel) _mainPanel.getPanel(1)).addServer(_server);
             Process pro;
@@ -100,7 +98,7 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
                 }
                 IndigoLauncher._launcher.setVisible(false);
                 IndigoLauncher._launcher.dispose();
-                System.exit(0);
+
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
@@ -108,7 +106,7 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
     }
 
     protected boolean loadJarURLs() {
-        logger.log(Level.INFO, "Loading Jar URLs");
+        Logger.logInfo("Loading Jar URLs");
         String[] jarList = { "lwjgl.jar", "lwjgl_util.jar", "jinput.jar" };
         _jarURLs = new URL[jarList.length + 3];
         try {
@@ -131,7 +129,7 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
                     return false;
             }
         } catch (MalformedURLException e) {
-            logger.log(Level.SEVERE, e.getMessage());
+            Logger.logError(e.getMessage(), e);
             return false;
         }
         return true;
@@ -144,7 +142,7 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
                 fileSizes[i] = _jarURLs[i].openConnection().getContentLength();
                 totalDownloadSize += fileSizes[i];
             } catch (IOException e) {
-                logger.log(Level.SEVERE, e.getMessage());
+                Logger.logError(e.getMessage(), e);
                 return false;
             }
         }
@@ -156,14 +154,14 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
             while (!downloadSuccess && (attempt < attempts)) {
                 try {
                     if (lastfile == i) {
-                        logger.log(Level.INFO, "Connecting.. Try " + attempt + " of " + attempts + " for: " + _jarURLs[i].toURI());
+                        Logger.logInfo("Connecting.. Try " + attempt + " of " + attempts + " for: " + _jarURLs[i].toURI());
                     }
                     lastfile = i;
                     attempt++;
                     downloadSuccess = downloadFile(_jarURLs[i], (i == 0 ? _server.getBaseDir() : _server.getBinDir()), fileSizes[i]);
                 } catch (Exception e) {
                     downloadSuccess = false;
-                    logger.log(Level.WARNING, "Connection failed, trying again");
+                    Logger.logInfo("Connection failed, trying again");
                 }
             }
             if (!downloadSuccess) { return false; }
@@ -216,7 +214,7 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
             totalExtractSize += input.available();
             input.close();
         } catch (IOException e) {
-            logger.log(Level.SEVERE, e.getMessage());
+            Logger.logError(e.getMessage(), e);
             return false;
         }
 
@@ -250,14 +248,14 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
             output.close();
 
             if (!inputFile.delete()) {
-                logger.log(Level.SEVERE, "Failed to delete Minecraft.jar.");
+                Logger.logError("Failed to delete Minecraft.jar");
                 return false;
             }
             outputTmpFile.renameTo(inputFile);
         } catch (FileNotFoundException e) {
-            logger.log(Level.SEVERE, e.getMessage());
+            Logger.logError(e.getMessage(), e);
         } catch (IOException e) {
-            logger.log(Level.SEVERE, e.getMessage());
+            Logger.logError(e.getMessage(), e);
         }
         return true;
     }
@@ -275,7 +273,7 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
                 totalExtractSize += fileSizes[i];
                 input.close();
             } catch (IOException e) {
-                logger.log(Level.SEVERE, e.getMessage());
+                Logger.logError(e.getMessage(), e);
                 return false;
             }
         }
@@ -322,14 +320,14 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
                     currentEntry = zipIn.getNextEntry();
                 }
             } catch (IOException e) {
-                logger.log(Level.SEVERE, e.getMessage());
+                Logger.logError(e.getMessage(), e);
                 return false;
             } finally {
                 try {
                     zipIn.close();
                     input.close();
                 } catch (IOException e) {
-                    logger.log(Level.SEVERE, e.getMessage(), e);
+                    Logger.logError(e.getMessage(), e);
                 }
             }
             file[0].delete();

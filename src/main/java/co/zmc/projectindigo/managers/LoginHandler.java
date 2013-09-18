@@ -6,8 +6,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
@@ -15,6 +13,7 @@ import javax.swing.SwingWorker;
 import co.zmc.projectindigo.IndigoLauncher;
 import co.zmc.projectindigo.data.LoginEvents;
 import co.zmc.projectindigo.data.LoginResponse;
+import co.zmc.projectindigo.data.log.Logger;
 import co.zmc.projectindigo.exceptions.AccountMigratedException;
 import co.zmc.projectindigo.exceptions.BadLoginException;
 import co.zmc.projectindigo.exceptions.MCNetworkException;
@@ -27,10 +26,9 @@ import co.zmc.projectindigo.gui.ProgressPanel;
 
 public class LoginHandler extends SwingWorker<String, Void> {
 
-    private MainPanel           _mainPanel;
-    private String              _username;
-    private String              _password;
-    private static final Logger logger = Logger.getLogger("launcher");
+    private MainPanel _mainPanel;
+    private String    _username;
+    private String    _password;
 
     public LoginHandler(MainPanel mainPanel, String username, String password) {
         _mainPanel = mainPanel;
@@ -47,7 +45,7 @@ public class LoginHandler extends SwingWorker<String, Void> {
             ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Reading response...", 99);
             LoginResponse response = new LoginResponse(result);
             ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Logged in...", 100);
-            logger.log(Level.INFO, "Login successful, Starting minecraft..");
+            Logger.logInfo("Login successful, Starting minecraft..");
             ((LoginPanel) _mainPanel.getPanel(0)).getUserManager().saveUsername(_username, response.getUsername(), _password);
             ((LoginPanel) _mainPanel.getPanel(0)).setResponse(response);
             ((LoginPanel) _mainPanel.getPanel(0)).onEvent(LoginEvents.SAVE_USER_LAUNCH);
@@ -66,10 +64,10 @@ public class LoginHandler extends SwingWorker<String, Void> {
         } catch (OutdatedMCLauncherException e) {
             JOptionPane.showMessageDialog(null, "Incompatible login version. Contact " + IndigoLauncher.TITLE + " about updating the launcher!");
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            Logger.logError(e.getMessage(), e);
             this.cancel(true);
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.logError(e.getMessage(), e);
         }
         return "";
     }
@@ -96,7 +94,7 @@ public class LoginHandler extends SwingWorker<String, Void> {
             } else if (result.toLowerCase().contains("migrated")) {
                 throw new AccountMigratedException();
             } else {
-                System.err.print("Unknown login result: " + result);
+                Logger.logError("Unknown login result: " + result);
             }
             throw new MCNetworkException();
         }

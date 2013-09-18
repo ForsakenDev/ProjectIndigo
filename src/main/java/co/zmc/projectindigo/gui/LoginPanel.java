@@ -10,6 +10,7 @@ import javax.swing.JOptionPane;
 import co.zmc.projectindigo.IndigoLauncher;
 import co.zmc.projectindigo.data.LoginEvents;
 import co.zmc.projectindigo.data.LoginResponse;
+import co.zmc.projectindigo.data.log.Logger;
 import co.zmc.projectindigo.gui.components.Box;
 import co.zmc.projectindigo.gui.components.Button;
 import co.zmc.projectindigo.gui.components.CheckBox;

@@ -11,8 +11,6 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
@@ -22,6 +20,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import co.zmc.projectindigo.data.Server;
+import co.zmc.projectindigo.data.log.Logger;
 import co.zmc.projectindigo.gui.MainPanel;
 import co.zmc.projectindigo.gui.ProgressPanel;
 import co.zmc.projectindigo.gui.ServerPanel;
@@ -37,7 +36,6 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
     private int               numToLoad         = 0;
     private int               currentParseIndex = 0;
     private JSONObject        servers           = null;
-    private final Logger      logger            = Logger.getLogger("launcher");
 
     public ServerManager(MainPanel mainPanel) {
         _mainPanel = mainPanel;
@@ -64,11 +62,11 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
             }
             servers = (JSONObject) new JSONParser().parse(new Scanner(_saveFile, "UTF-8").useDelimiter("\\A").next());
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            Logger.logError(e.getMessage(), e);
         } catch (ParseException e) {
-            e.printStackTrace();
+            Logger.logError(e.getMessage(), e);
         } catch (IOException e) {
-            e.printStackTrace();
+            Logger.logError(e.getMessage(), e);
         }
         numToLoad = servers.size();
         while (currentParseIndex < numToLoad) {
@@ -110,9 +108,9 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
             try {
                 return parseServer((JSONObject) servers.get(servers.keySet().toArray()[currentParseIndex]));
             } catch (NumberFormatException e) {
-                e.printStackTrace();
+                Logger.logError(e.getMessage(), e);
             } catch (ParseException e) {
-                e.printStackTrace();
+                Logger.logError(e.getMessage(), e);
             }
         }
         return null;
@@ -148,13 +146,12 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
         try {
             String channel = "projectindigo";
             String msg = "request_modpack_url";
-            logger.log(Level.INFO, "Connecting to server " + server.getFullIp());
+            Logger.logInfo("Connecting to server " + server.getFullIp());
             ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Connecting to " + server.getFullIp(), 0);
             s.connect(new InetSocketAddress(server.getIp(), server.getPort()));
             DataOutputStream out = new DataOutputStream(s.getOutputStream());
             DataInputStream in = new DataInputStream(s.getInputStream());
-
-            logger.log(Level.INFO, "Requesting server information");
+            Logger.logInfo("Requesting server information");
             ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Requesting server update", 40);
 
             out.writeByte(0xFA);
@@ -162,8 +159,7 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
             out.writeChars(channel);
             out.writeShort(msg.length());
             out.write(msg.getBytes());
-            int packetId = Integer.valueOf(in.read());
-            if (packetId == 0xFA) {
+            if (Integer.valueOf(in.read()) == 0xFA) {
 
                 String readStr = "";
                 int len = in.readShort();
@@ -188,10 +184,10 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
                     JOptionPane.WARNING_MESSAGE);
             return null;
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.logError(e.getMessage(), e);
         }
         if (!serverURL.isEmpty()) {
-            logger.log(Level.INFO, "Reading server information");
+            Logger.logInfo("Reading server information");
             ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Reading server information", 80);
 
             try {
@@ -202,7 +198,7 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
                     return null;
                 }
             } catch (ParseException e) {
-                e.printStackTrace();
+                Logger.logError(e.getMessage(), e);
             }
 
         }
@@ -215,14 +211,14 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
         try {
             String channel = "projectindigo";
             String msg = "request_modpack_url";
-            logger.log(Level.INFO, "Connecting to server " + ip + ":" + port);
+            Logger.logInfo("Connecting to server " + ip + ":" + port);
             ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Connecting to " + ip + ":" + port, 20);
 
             s.connect(new InetSocketAddress(ip, port));
             DataOutputStream out = new DataOutputStream(s.getOutputStream());
             DataInputStream in = new DataInputStream(s.getInputStream());
 
-            logger.log(Level.INFO, "Requesting server information");
+            Logger.logInfo("Requesting server information");
             ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Requesting server information", 40);
 
             out.writeByte(0xFA);
@@ -255,12 +251,12 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
                     JOptionPane.WARNING_MESSAGE);
             return;
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.logError(e.getMessage(), e);
         }
         if (!serverURL.isEmpty()) {
             ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Reading server information", 80);
 
-            logger.log(Level.INFO, "Reading server information");
+            Logger.logInfo("Reading server information");
             try {
                 Server server = parseServer(serverURL, port);
                 if (server != null) {
@@ -268,9 +264,8 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
                 }
                 saveServers();
             } catch (ParseException e) {
-                e.printStackTrace();
+                Logger.logError(e.getMessage(), e);
             }
-
         }
     }
 }

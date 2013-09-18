@@ -11,20 +11,17 @@ import java.security.Policy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 
 import co.zmc.projectindigo.IndigoLauncher;
 import co.zmc.projectindigo.Main;
 import co.zmc.projectindigo.data.Server;
+import co.zmc.projectindigo.data.log.Logger;
 import co.zmc.projectindigo.security.PolicyManager;
 import co.zmc.projectindigo.utils.Utils;
 
 public class MinecraftLauncher {
-    private static Logger logger = Logger.getLogger("launcher");
-
     public static Process launchMinecraft(Server server, String username, String sessionId, String forgename, String rmax, String maxPermSize)
             throws IOException {
         String[] jarFiles = new String[] { "minecraft.jar", "lwjgl.jar", "lwjgl_util.jar", "jinput.jar" };
@@ -50,7 +47,7 @@ public class MinecraftLauncher {
                 }
             }
         } else {
-            logger.log(Level.INFO, "Not loading any instMods (minecraft jar mods), as the directory does not exist.");
+            Logger.logInfo("Not loading any instMods (minecraft jar mods), as the directory does not exist.");
         }
 
         cpb.append(Utils.getJavaDelimiter());
@@ -94,10 +91,10 @@ public class MinecraftLauncher {
         arguments.add(IndigoLauncher.TITLE);
 
         ProcessBuilder processBuilder = new ProcessBuilder(arguments);
-        logger.log(Level.INFO, "Setting working dir to " + server.getBaseDir().getAbsolutePath() + "/minecraft");
+        Logger.logInfo("Setting working dir to " + server.getBaseDir().getAbsolutePath() + "/minecraft");
         processBuilder.directory(new File(server.getBaseDir().getAbsolutePath() + "/minecraft"));
         processBuilder.redirectErrorStream(true);
-        processBuilder.redirectOutput(new File(server.getBaseDir().getAbsolutePath() + "/LOG.TXT"));
+
         return processBuilder.start();
     }
 
@@ -107,20 +104,19 @@ public class MinecraftLauncher {
             int min = 256;
             if (rmax != null && Integer.parseInt(rmax) > 0) {
                 arguments.add("-Xms" + min + "M");
-                logger.log(Level.INFO, "Setting MinMemory to " + min);
+                Logger.logInfo("Setting MinMemory to " + min);
                 arguments.add("-Xmx" + rmax + "M");
-                logger.log(Level.INFO, "Setting MaxMemory to " + rmax);
+                Logger.logInfo("Setting MaxMemory to " + rmax);
                 memorySet = true;
             }
         } catch (Exception e) {
-            logger.log(Level.INFO, "Error parsing memory settings: ");
-            e.printStackTrace();
+            Logger.logError("Error parsing memory settings", e);
         }
         if (!memorySet) {
             arguments.add("-Xms" + 256 + "M");
-            logger.log(Level.INFO, "Defaulting MinMemory to " + 256);
+            Logger.logInfo("Defaulting MinMemory to " + 256);
             arguments.add("-Xmx" + 1024 + "M");
-            logger.log(Level.INFO, "Defaulting MaxMemory to " + 1024);
+            Logger.logInfo("Defaulting MaxMemory to " + 1024);
         }
     }
 
@@ -131,7 +127,7 @@ public class MinecraftLauncher {
         }
         String basepath = args[0], forgename = args[1], username = args[2], sessionId = args[3], ip = args[4], port = args[5], title = args[6];
         try {
-            logger.log(Level.INFO, "Loading jars...");
+            Logger.logInfo("Loading jars...");
             String[] jarFiles = new String[] { "minecraft.jar", "lwjgl.jar", "lwjgl_util.jar", "jinput.jar" };
             ArrayList<File> classPathFiles = new ArrayList<File>();
             File tempDir = new File(new File(basepath).getParentFile(), "instMods/");
@@ -157,77 +153,79 @@ public class MinecraftLauncher {
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 }
-                logger.log(Level.INFO, "Added URL to classpath: " + urls[i].toString());
+                Logger.logInfo("Added URL to classpath: " + urls[i].toString());
             }
 
-            logger.log(Level.INFO, "Loading natives...");
+            Logger.logInfo("Loading natives...");
             String nativesDir = new File(new File(basepath, "bin"), "natives").toString();
             System.setProperty("org.lwjgl.librarypath", nativesDir);
             System.setProperty("net.java.games.input.librarypath", nativesDir);
             System.setProperty("minecraft.applet.TargetDirectory", basepath);
 
             URLClassLoader cl = new URLClassLoader(urls, MinecraftLauncher.class.getClassLoader());
-            logger.log(Level.INFO, "Loading minecraft class");
+            Logger.logInfo("Loading minecraft class");
 
-            PolicyManager policy = new PolicyManager();
-            policy.copySecurityPolicy();
-            
-            policy.addAdditionalPerm("permission java.lang.RuntimePermission \"*\"");
-            
-            policy.addAdditionalPerm("permission java.io.FilePermission \"" + new File(basepath).getParentFile().getAbsolutePath().replaceAll("\\\\", "/") + "/-\", \"read, write, delete\"");
-            policy.addAdditionalPerm("permission java.io.FilePermission \"" + nativesDir.replaceAll("\\\\", "/") + "/-\", \"read\"");
-            policy.addAdditionalPerm("permission java.io.FilePermission \"" + System.getProperty("java.io.tmpdir").replaceAll("\\\\", "/") + "-\", \"read, write, delete\"");
-            policy.addAdditionalPerm("permission java.io.FilePermission \"" + System.getProperty("java.home").replaceAll("\\\\", "/") + "/-\", \"read\"");
-            policy.addAdditionalPerm("permission java.io.FilePermission \"" + System.getProperty("java.home").replaceAll("\\\\", "/").replaceAll(" ", "%20") + "/-\", \"read\"");
-            policy.addAdditionalPerm("permission java.io.FilePermission \"" + IndigoLauncher.class.getProtectionDomain().getCodeSource().getLocation().getPath().replaceAll("\\\\", "/") + "\", \"read\"");
-            
-            policy.writeAdditionalPerms(policy.getPolicyLocation());
-            
-            System.out.println("Setting security policy to " + policy.getPolicyLocation());
-            System.setProperty("java.security.policy", policy.getPolicyLocation());
-            Policy.getPolicy().refresh();
-            
-            final File[] files = new File(nativesDir).listFiles();
-            SecurityManager manager = new SecurityManager(){
-            	@Override
-            	public void checkPermission(Permission perm) {
-           			try {
-           				super.checkPermission(perm);
-           			} catch (SecurityException e) {
-	           			if ((perm.getName().toLowerCase().contains(".ttf") || perm.getName().toLowerCase().contains(".ttc")) && perm.getActions().equals("read")) {
-	           				return;
-	           			}
-           				
-           				if (perm.getName().contains("loadLibrary.")) {
-		            		System.out.println("LOADLIB: " + perm.getName());
-		            		
-	           				String libPath = perm.getName().replaceAll("loadLibrary.", "");
-		            		
-	           				File file = new File(libPath);
-		            		
-		            		System.out.println("Minecraft is attempting to load native : " + file.getAbsolutePath());
-		            		
-		            		for (File nv : files) {
-		            			if (file.getAbsolutePath().equals(nv.getAbsolutePath())) {
-		            				System.out.println("Native loading permitted.");
-		            				return;
-		            			}
-		            		}
-		            		
-		            		if (JOptionPane.showConfirmDialog(null, "This modpack wants to load an additional native:\n" + libPath + "\n WARNING: This can be used maliciously to access private resources, continue?") == JOptionPane.YES_OPTION) {
-		            			return;
-		            		}
-		            		
-		            		System.out.println("NOT ALLOWING UNKNOWN NATIVE");
-		            		throw new SecurityException("NOT ALLOWED TO LOAD UNKNOWN NATIVE");
-		            	}
-	           			throw e;
-           			}
-            	}
-            };
-            
-            
-            System.setSecurityManager(manager);
+//            PolicyManager policy = new PolicyManager();
+//            policy.copySecurityPolicy();
+//
+//            policy.addAdditionalPerm("permission java.lang.RuntimePermission \"*\"");
+//
+//            policy.addAdditionalPerm("permission java.io.FilePermission \""
+//                    + new File(basepath).getParentFile().getAbsolutePath().replaceAll("\\\\", "/") + "/-\", \"read, write, delete\"");
+//            policy.addAdditionalPerm("permission java.io.FilePermission \"" + nativesDir.replaceAll("\\\\", "/") + "/-\", \"read\"");
+//            policy.addAdditionalPerm("permission java.io.FilePermission \"" + System.getProperty("java.io.tmpdir").replaceAll("\\\\", "/")
+//                    + "-\", \"read, write, delete\"");
+//            policy.addAdditionalPerm("permission java.io.FilePermission \"" + System.getProperty("java.home").replaceAll("\\\\", "/")
+//                    + "/-\", \"read\"");
+//            policy.addAdditionalPerm("permission java.io.FilePermission \""
+//                    + System.getProperty("java.home").replaceAll("\\\\", "/").replaceAll(" ", "%20") + "/-\", \"read\"");
+//            policy.addAdditionalPerm("permission java.io.FilePermission \""
+//                    + IndigoLauncher.class.getProtectionDomain().getCodeSource().getLocation().getPath().replaceAll("\\\\", "/") + "\", \"read\"");
+//
+//            policy.writeAdditionalPerms(policy.getPolicyLocation());
+//
+//            System.out.println("Setting security policy to " + policy.getPolicyLocation());
+//            System.setProperty("java.security.policy", policy.getPolicyLocation());
+//            Policy.getPolicy().refresh();
+//
+//            final File[] files = new File(nativesDir).listFiles();
+//            SecurityManager manager = new SecurityManager() {
+//                @Override
+//                public void checkPermission(Permission perm) {
+//                    try {
+//                        super.checkPermission(perm);
+//                    } catch (SecurityException e) {
+//                        if ((perm.getName().toLowerCase().contains(".ttf") || perm.getName().toLowerCase().contains(".ttc"))
+//                                && perm.getActions().equals("read")) { return; }
+//
+//                        if (perm.getName().contains("loadLibrary.")) {
+//                            System.out.println("LOADLIB: " + perm.getName());
+//
+//                            String libPath = perm.getName().replaceAll("loadLibrary.", "");
+//
+//                            File file = new File(libPath);
+//
+//                            System.out.println("Minecraft is attempting to load native : " + file.getAbsolutePath());
+//
+//                            for (File nv : files) {
+//                                if (file.getAbsolutePath().equals(nv.getAbsolutePath())) {
+//                                    System.out.println("Native loading permitted.");
+//                                    return;
+//                                }
+//                            }
+//
+//                            if (JOptionPane.showConfirmDialog(null, "This modpack wants to load an additional native:\n" + libPath
+//                                    + "\n WARNING: This can be used maliciously to access private resources, continue?") == JOptionPane.YES_OPTION) { return; }
+//
+//                            System.out.println("NOT ALLOWING UNKNOWN NATIVE");
+//                            throw new SecurityException("NOT ALLOWED TO LOAD UNKNOWN NATIVE");
+//                        }
+//                        throw e;
+//                    }
+//                }
+//            };
+//
+//            System.setSecurityManager(manager);
 
             try {
                 Class<?> MCAppletClass = cl.loadClass("net.minecraft.client.MinecraftApplet");
@@ -235,12 +233,13 @@ public class MinecraftLauncher {
                 MinecraftFrame mcWindow = new MinecraftFrame(title);
                 mcWindow.start(mcappl, basepath, username, sessionId, ip, port);
             } catch (InstantiationException e) {
-                logger.log(Level.INFO, "Applet wrapper failed! Falling back to compatibility mode.");
-                e.printStackTrace();
+                Logger.logError("Applet wrapper failed! Falling back to compatibility mode", e);
+
             }
         } catch (Throwable t) {
-            logger.log(Level.INFO, "Unhandled error launching minecraft");
-            t.printStackTrace();
+            JOptionPane.showMessageDialog(null, "tmp: " + t.getMessage());
+
+            Logger.logError("Unknown error during launch", t);
         }
     }
 }
