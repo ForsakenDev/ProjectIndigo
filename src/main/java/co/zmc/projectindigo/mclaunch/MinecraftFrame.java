@@ -2,6 +2,7 @@ package co.zmc.projectindigo.mclaunch;
 
 import java.applet.Applet;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -39,7 +40,7 @@ public class MinecraftFrame extends JFrame {
 
         super.setVisible(true);
         setResizable(true);
-        setSize(this);
+        setSize(getDimension());
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -59,9 +60,18 @@ public class MinecraftFrame extends JFrame {
         });
     }
 
+    public Dimension getDimension() {
+        Toolkit tk = Toolkit.getDefaultToolkit();
+        int xSize = ((int) tk.getScreenSize().getWidth());
+        int ySize = ((int) tk.getScreenSize().getHeight());
+        return new Dimension(854, 480);
+    }
+
     public void start(Applet mcApplet, String basePath, String user, String session, String ip, String port) {
         getContentPane().setBackground(Color.black);
-        setSize(this);
+
+        setSize(getDimension());
+        setPreferredSize(getDimension());
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -79,56 +89,18 @@ public class MinecraftFrame extends JFrame {
         appletWrap.addParameter("port", port);
         mcApplet.setStub(appletWrap);
         add(appletWrap);
-        setSize(appletWrap);
+        appletWrap.setSize(getWidth(), getHeight());
         appletWrap.init();
         appletWrap.start();
-        setSize(this);
+        setSize(getDimension());
+        setPreferredSize(getDimension());
+        pack();
+        validate();
         setVisible(true);
     }
 
-    public void setSize(JFrame component) {
-        try {
-            // if
-            // (_settings.get(Settings.WINDOW_MAXIMIZED).equalsIgnoreCase("true"))
-            // {
-            Toolkit tk = Toolkit.getDefaultToolkit();
-            int xSize = ((int) tk.getScreenSize().getWidth());
-            int ySize = ((int) tk.getScreenSize().getHeight());
-            component.setSize(xSize, ySize);
-            // } else {
-            // Dimension dim = new
-            // Dimension(Integer.parseInt(_settings.get(Settings.WINDOW_SIZE.split(",")[0])),
-            // Integer.parseInt(_settings
-            // .get(Settings.WINDOW_SIZE.split(",")[1])));
-            // component.setSize(dim);
-            // component.setPreferredSize(dim);
-            // component.setLocation(Integer.parseInt(_settings.get(Settings.WINDOW_POSITION.split(",")[0])),
-            // Integer.parseInt(_settings.get(Settings.WINDOW_POSITION.split(",")[1])));
-            // }
-        } catch (NumberFormatException e) {
-        }
-    }
-
     public void setSize(Applet component) {
-        try {
-            // if
-            // (_settings.get(Settings.WINDOW_MAXIMIZED).equalsIgnoreCase("true"))
-            // {
-            Toolkit tk = Toolkit.getDefaultToolkit();
-            int xSize = ((int) tk.getScreenSize().getWidth());
-            int ySize = ((int) tk.getScreenSize().getHeight());
-            component.setSize(xSize, ySize);
-            // } else {
-            // Dimension dim = new
-            // Dimension(Integer.parseInt(_settings.get(Settings.WINDOW_SIZE.split(",")[0])),
-            // Integer.parseInt(_settings
-            // .get(Settings.WINDOW_SIZE.split(",")[1])));
-            // component.setSize(dim);
-            // component.setPreferredSize(dim);
-            // component.setLocation(Integer.parseInt(_settings.get(Settings.WINDOW_POSITION.split(",")[0])),
-            // Integer.parseInt(_settings.get(Settings.WINDOW_POSITION.split(",")[1])));
-            // }
-        } catch (NumberFormatException e) {
-        }
+        setSize(getSize());
+        setPreferredSize(getSize());
     }
 }

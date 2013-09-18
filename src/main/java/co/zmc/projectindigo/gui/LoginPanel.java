@@ -42,12 +42,14 @@ public class LoginPanel extends BasePanel {
 
     public void loadUserManager() {
         _userManager = new UserManager(_mainPanel);
-        _username.setText(getUserManager().getSavedAccounts().get(0));
-        _password.setText(getUserManager().getSavedPassword(getUserManager().getSavedAccounts().get(0)));
+        if (getUserManager().getSavedAccounts().size() > 0) {
+            _username.setText(getUserManager().getSavedAccounts().get(0));
+            _password.setText(getUserManager().getSavedPassword(getUserManager().getSavedAccounts().get(0)));
+            _rememberMe.setSelected(true);
+        }
     }
 
     public void initComponents() {
-
         _loginBg = new Box(MainPanel.BORDER_COLOUR);
         _loginBg.setBounds((getWidth() - 264) / 2, 157, 264, 254);
 
