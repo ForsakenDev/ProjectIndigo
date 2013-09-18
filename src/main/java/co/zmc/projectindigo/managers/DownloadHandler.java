@@ -24,10 +24,8 @@ import co.zmc.projectindigo.data.Server;
 import co.zmc.projectindigo.data.log.Logger;
 import co.zmc.projectindigo.gui.MainPanel;
 import co.zmc.projectindigo.gui.ProgressPanel;
-import co.zmc.projectindigo.gui.ServerPanel;
 import co.zmc.projectindigo.mclaunch.MinecraftLauncher;
 import co.zmc.projectindigo.utils.FileUtils;
-import co.zmc.projectindigo.utils.InputStreamLogger;
 import co.zmc.projectindigo.utils.Utils;
 
 public class DownloadHandler extends SwingWorker<Boolean, Void> {
@@ -49,7 +47,7 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
     @Override
     protected Boolean doInBackground() {
         if (_server.shouldDownload()) {
-            FileUtils.deleteDirectory(_server.getBaseDir());
+            // FileUtils.deleteDirectory(_server.getBaseDir());
             if (!load()) { return false; }
         }
         ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Download complete. Launching Game...", 100);
@@ -84,13 +82,12 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
     public void launch() {
         Logger.logInfo("Download complete");
         if (_server != null) {
-            ((ServerPanel) _mainPanel.getPanel(1)).addServer(_server);
             Process pro;
             try {
                 pro = MinecraftLauncher.launchMinecraft(_server, _response.getUsername(), _response.getSessionId(), "MinecraftForge.zip", "1024",
                         "128M");
 
-                InputStreamLogger.start(pro.getInputStream());
+                // InputStreamLogger.start(pro.getInputStream());
                 try {
                     Thread.sleep(3500);
                 } catch (InterruptedException e) {
@@ -98,7 +95,7 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
                 }
                 IndigoLauncher._launcher.setVisible(false);
                 IndigoLauncher._launcher.dispose();
-
+                System.exit(0);
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
@@ -177,7 +174,7 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
         }
         String jarFileName = getFilename(url);
         if (new File(baseDir, jarFileName).exists()) {
-            new File(baseDir, jarFileName).delete();
+            FileUtils.deleteDirectory(new File(baseDir, jarFileName));
         }
         InputStream dlStream = dlConnection.getInputStream();
         FileOutputStream outStream = new FileOutputStream(new File(baseDir, jarFileName));
@@ -302,7 +299,11 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
                         currentEntry = zipIn.getNextEntry();
                         continue;
                     }
-                    FileOutputStream outStream = new FileOutputStream(new File(file[1], currentEntry.getName()));
+                    File newFile = new File(file[1], currentEntry.getName());
+                    if (newFile.exists()) {
+                        FileUtils.deleteDirectory(newFile);
+                    }
+                    FileOutputStream outStream = new FileOutputStream(newFile);
                     int readLen;
                     byte[] buffer = new byte[1024];
                     while ((readLen = zipIn.read(buffer, 0, buffer.length)) > 0) {
