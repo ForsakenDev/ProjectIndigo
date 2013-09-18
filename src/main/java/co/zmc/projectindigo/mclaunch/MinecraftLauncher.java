@@ -92,10 +92,6 @@ public class MinecraftLauncher {
         arguments.add(server.getPort() + "");
         arguments.add(IndigoLauncher.TITLE);
 
-        String cmd = "";
-        for (String s : arguments) {
-            cmd += " " + s;
-        }
         ProcessBuilder processBuilder = new ProcessBuilder(arguments);
         Logger.logInfo("Setting working dir to " + server.getBaseDir().getAbsolutePath() + "/minecraft");
         processBuilder.directory(new File(server.getBaseDir().getAbsolutePath() + "/minecraft"));
@@ -188,7 +184,7 @@ public class MinecraftLauncher {
         }
     }
 
-    private static void loadSecurityManager(String basepath, String nativesDir) {
+    protected static void loadSecurityManager(String basepath, String nativesDir) {
         PolicyManager policy = new PolicyManager();
         policy.copySecurityPolicy();
 

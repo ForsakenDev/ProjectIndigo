@@ -50,10 +50,10 @@ public class MainPanel extends JPanel {
         _width = width;
         _height = height;
         setFont(IndigoLauncher.getMinecraftFont(14));
-        Dimension dim = new Dimension(width, height);
+        Dimension dim = new Dimension(_width, _height);
         setSize(dim);
         setPreferredSize(dim);
-        setBounds(0, 0, width, height);
+        setBounds(0, 0, _width, _height);
         setupLook();
     }
 

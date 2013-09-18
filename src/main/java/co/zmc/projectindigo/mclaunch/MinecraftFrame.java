@@ -2,7 +2,6 @@ package co.zmc.projectindigo.mclaunch;
 
 import java.applet.Applet;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -89,38 +88,46 @@ public class MinecraftFrame extends JFrame {
 
     public void setSize(JFrame component) {
         try {
-//            if (_settings.get(Settings.WINDOW_MAXIMIZED).equalsIgnoreCase("true")) {
-                Toolkit tk = Toolkit.getDefaultToolkit();
-                int xSize = ((int) tk.getScreenSize().getWidth());
-                int ySize = ((int) tk.getScreenSize().getHeight());
-                component.setSize(xSize, ySize);
-//            } else {
-//                Dimension dim = new Dimension(Integer.parseInt(_settings.get(Settings.WINDOW_SIZE.split(",")[0])), Integer.parseInt(_settings
-//                        .get(Settings.WINDOW_SIZE.split(",")[1])));
-//                component.setSize(dim);
-//                component.setPreferredSize(dim);
-//                component.setLocation(Integer.parseInt(_settings.get(Settings.WINDOW_POSITION.split(",")[0])),
-//                        Integer.parseInt(_settings.get(Settings.WINDOW_POSITION.split(",")[1])));
-//            }
+            // if
+            // (_settings.get(Settings.WINDOW_MAXIMIZED).equalsIgnoreCase("true"))
+            // {
+            Toolkit tk = Toolkit.getDefaultToolkit();
+            int xSize = ((int) tk.getScreenSize().getWidth());
+            int ySize = ((int) tk.getScreenSize().getHeight());
+            component.setSize(xSize, ySize);
+            // } else {
+            // Dimension dim = new
+            // Dimension(Integer.parseInt(_settings.get(Settings.WINDOW_SIZE.split(",")[0])),
+            // Integer.parseInt(_settings
+            // .get(Settings.WINDOW_SIZE.split(",")[1])));
+            // component.setSize(dim);
+            // component.setPreferredSize(dim);
+            // component.setLocation(Integer.parseInt(_settings.get(Settings.WINDOW_POSITION.split(",")[0])),
+            // Integer.parseInt(_settings.get(Settings.WINDOW_POSITION.split(",")[1])));
+            // }
         } catch (NumberFormatException e) {
         }
     }
 
     public void setSize(Applet component) {
         try {
-//            if (_settings.get(Settings.WINDOW_MAXIMIZED).equalsIgnoreCase("true")) {
-                Toolkit tk = Toolkit.getDefaultToolkit();
-                int xSize = ((int) tk.getScreenSize().getWidth());
-                int ySize = ((int) tk.getScreenSize().getHeight());
-                component.setSize(xSize, ySize);
-//            } else {
-//                Dimension dim = new Dimension(Integer.parseInt(_settings.get(Settings.WINDOW_SIZE.split(",")[0])), Integer.parseInt(_settings
-//                        .get(Settings.WINDOW_SIZE.split(",")[1])));
-//                component.setSize(dim);
-//                component.setPreferredSize(dim);
-//                component.setLocation(Integer.parseInt(_settings.get(Settings.WINDOW_POSITION.split(",")[0])),
-//                        Integer.parseInt(_settings.get(Settings.WINDOW_POSITION.split(",")[1])));
-//            }
+            // if
+            // (_settings.get(Settings.WINDOW_MAXIMIZED).equalsIgnoreCase("true"))
+            // {
+            Toolkit tk = Toolkit.getDefaultToolkit();
+            int xSize = ((int) tk.getScreenSize().getWidth());
+            int ySize = ((int) tk.getScreenSize().getHeight());
+            component.setSize(xSize, ySize);
+            // } else {
+            // Dimension dim = new
+            // Dimension(Integer.parseInt(_settings.get(Settings.WINDOW_SIZE.split(",")[0])),
+            // Integer.parseInt(_settings
+            // .get(Settings.WINDOW_SIZE.split(",")[1])));
+            // component.setSize(dim);
+            // component.setPreferredSize(dim);
+            // component.setLocation(Integer.parseInt(_settings.get(Settings.WINDOW_POSITION.split(",")[0])),
+            // Integer.parseInt(_settings.get(Settings.WINDOW_POSITION.split(",")[1])));
+            // }
         } catch (NumberFormatException e) {
         }
     }

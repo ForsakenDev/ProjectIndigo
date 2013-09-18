@@ -84,9 +84,8 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
     public void launch() {
         Logger.logInfo("Download complete");
         if (_server != null) {
-            Process pro;
             try {
-                pro = MinecraftLauncher.launchMinecraft(_server, _response.getUsername(), _response.getSessionId(), "MinecraftForge.zip", _settings);
+                MinecraftLauncher.launchMinecraft(_server, _response.getUsername(), _response.getSessionId(), "MinecraftForge.zip", _settings);
 
                 // InputStreamLogger.start(pro.getInputStream());
                 try {
