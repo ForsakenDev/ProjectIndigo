@@ -38,7 +38,6 @@ public class IndigoLauncher extends JFrame {
         setPreferredSize(_serverPanelSize);
         setSize(_serverPanelSize);
         setLocationRelativeTo(null);
-        // setUndecorated(true);
         setVisible(true);
     }
 

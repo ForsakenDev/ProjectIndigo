@@ -29,11 +29,13 @@ public class LoginHandler extends SwingWorker<String, Void> {
     private MainPanel _mainPanel;
     private String    _username;
     private String    _password;
+    private boolean   _savePassword;
 
-    public LoginHandler(MainPanel mainPanel, String username, String password) {
+    public LoginHandler(MainPanel mainPanel, String username, String password, boolean savePassword) {
         _mainPanel = mainPanel;
         _username = username;
         _password = password;
+        _savePassword = savePassword;
     }
 
     @Override
@@ -46,9 +48,13 @@ public class LoginHandler extends SwingWorker<String, Void> {
             LoginResponse response = new LoginResponse(result);
             ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Logged in...", 100);
             Logger.logInfo("Login successful, Starting minecraft..");
-            ((LoginPanel) _mainPanel.getPanel(0)).getUserManager().saveUsername(_username, response.getUsername(), _password);
+            ((LoginPanel) _mainPanel.getPanel(0)).getUserManager().clear();
+            if (_savePassword) {
+                ((LoginPanel) _mainPanel.getPanel(0)).getUserManager().saveUsername(_username, response.getUsername(), _password);
+            }
+            ((LoginPanel) _mainPanel.getPanel(0)).getUserManager().writeUsernameList();
             ((LoginPanel) _mainPanel.getPanel(0)).setResponse(response);
-            ((LoginPanel) _mainPanel.getPanel(0)).onEvent(LoginEvents.SAVE_USER_LAUNCH);
+            ((LoginPanel) _mainPanel.getPanel(0)).onEvent(LoginEvents.LAUNCH);
         } catch (AccountMigratedException e) {
             ((LoginPanel) _mainPanel.getPanel(0)).onEvent(LoginEvents.ACCOUNT_MIGRATED);
         } catch (BadLoginException e) {

@@ -26,19 +26,19 @@ public class SettingsPanel extends BasePanel {
     private Button     _continueBtn;
     private Settings   _settings;
 
+    private Label      _installDirLbl;
+    private TextBox    _installDirBox;
+    private Button     _installDirBtn;
+    private Label      _maxRamLbl;
+    private Label      _maxRamAmtLbl;
+    private JSlider    _maxRamSlider;
+
+    private Label      _javaParamsLbl;
+    private TextBox    _javaParamsBox;
+
     public SettingsPanel(MainPanel mainPanel) {
         super(mainPanel, 2);
     }
-
-    private Label   _installDirLbl;
-    private TextBox _installDirBox;
-    private Button  _installDirBtn;
-    private Label   _maxRamLbl;
-    private Label   _maxRamAmtLbl;
-    private JSlider _maxRamSlider;
-
-    private Label   _javaParamsLbl;
-    private TextBox _javaParamsBox;
 
     public void initComponents() {
         loadSettings();

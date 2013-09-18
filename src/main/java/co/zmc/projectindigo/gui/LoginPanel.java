@@ -34,7 +34,6 @@ public class LoginPanel extends BasePanel {
     private PasswordBox   _password;
     private CheckBox      _rememberMe;
     private Button        _loginBtn;
-
     private String        _activeUser;
 
     public LoginPanel(MainPanel mainPanel) {
@@ -43,6 +42,8 @@ public class LoginPanel extends BasePanel {
 
     public void loadUserManager() {
         _userManager = new UserManager(_mainPanel);
+        _username.setText(getUserManager().getSavedAccounts().get(0));
+        _password.setText(getUserManager().getSavedPassword(getUserManager().getSavedAccounts().get(0)));
     }
 
     public void initComponents() {
@@ -65,7 +66,6 @@ public class LoginPanel extends BasePanel {
 
         _rememberMe = new CheckBox(this, "Remember Me");
         _rememberMe.setBounds(_password.getX() + 45, _password.getY() + 40, 210, 30);
-        _rememberMe.setVisible(false);
         _loginBtn = new Button(this, "Login");
         _loginBtn.setBounds((getWidth() - 100) / 2, _rememberMe.getY() + 40, 100, 25);
         _loginBtn.addActionListener(new ActionListener() {
@@ -89,6 +89,7 @@ public class LoginPanel extends BasePanel {
         };
         _password.addKeyListener(keyListener);
         _username.addKeyListener(keyListener);
+
         add(_loginBg);
         add(_header);
     }
@@ -108,7 +109,7 @@ public class LoginPanel extends BasePanel {
     public final void onEvent(LoginEvents event) {
         switch (event) {
             default:
-            case SAVE_USER_LAUNCH:
+            case LAUNCH:
                 _userManager.writeUsernameList();
                 switchPage(1);
                 return;
@@ -141,9 +142,9 @@ public class LoginPanel extends BasePanel {
             onEvent(LoginEvents.BAD_LOGIN);
             return;
         }
-        tryLogin(user, _userManager.getSavedPassword(user), false);
         _username.setText(user);
         _password.setText(_userManager.getSavedPassword(user));
+        tryLogin(user, _userManager.getSavedPassword(user), false);
     }
 
     public final void tryLogin(final String user, final String pass, final boolean saveUser) {
@@ -152,7 +153,7 @@ public class LoginPanel extends BasePanel {
             return;
         }
         _activeUser = user;
-        LoginHandler loginHandler = new LoginHandler(_mainPanel, user, pass);
+        LoginHandler loginHandler = new LoginHandler(_mainPanel, user, pass, saveUser);
         loginHandler.execute();
     }
 

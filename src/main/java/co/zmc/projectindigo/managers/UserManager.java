@@ -38,7 +38,7 @@ public class UserManager {
         mainPanel.switchPage(0);
     }
 
-    public final List<String> getSavedUsernames() {
+    public final List<String> getSavedAccounts() {
         return new ArrayList<String>(usernames.keySet());
     }
 
@@ -84,6 +84,10 @@ public class UserManager {
     public final String getAccountName(String username) {
         if (usernames.containsKey(username)) { return usernames.get(username).getUsername(); }
         return username;
+    }
+    
+    public final void clear() {
+        usernames.clear();
     }
 
     public final void saveUsername(String key, String user, String pass) {
