@@ -216,7 +216,7 @@
 							<headerType>gui</headerType>
 							<stayAlive>false</stayAlive>
 							<jar>${project.build.directory}/original-${project.name}.jar</jar>
-							<outfile>${project.build.directory}/indigo/${project.name}.exe</outfile>
+							<outfile>${project.build.directory}/${project.name}.exe</outfile>
 							<classPath>
 								<mainClass>${mainClass}</mainClass>
 								<addDependencies>false</addDependencies>
