@@ -36,6 +36,8 @@ public class SettingsPanel extends BasePanel {
     private Label      _javaParamsLbl;
     private TextBox    _javaParamsBox;
 
+    private Button     _forceUpdateBtn;
+
     public SettingsPanel(MainPanel mainPanel) {
         super(mainPanel, 2);
     }
@@ -47,7 +49,7 @@ public class SettingsPanel extends BasePanel {
         _bg.setBounds((getWidth() - (getWidth() - 50)) / 2, (getHeight() - (getHeight() - 50)) / 2, getWidth() - 50, getHeight() - 50);
 
         _continueBtn = new Button(this, "Launch");
-        _continueBtn.setBounds(_bg.getWidth() - (150 - 10), _bg.getHeight() - (25 - 10), 150, 25);
+        _continueBtn.setBounds(_bg.getWidth() - (200 - 10), _bg.getHeight() - (25 - 10), 200, 25);
         _continueBtn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 launch();
@@ -60,9 +62,9 @@ public class SettingsPanel extends BasePanel {
         _installDirBtn = new Button(this, "...");
         _installDirBtn.addActionListener(new DirectorySelector(SettingsPanel.this));
 
-        _installDirBox.setBounds(((getWidth() - (getWidth() - 300)) / 2) - (150 / 2), (50 / 2) + 40, (getWidth() - 300), 35);
+        _installDirBox.setBounds(((getWidth() - (getWidth() - 300)) / 2) - (150 / 2), (50 / 2) + 50, (getWidth() - 300), 25);
         _installDirBtn.setBounds(_installDirBox.getX() + _installDirBox.getWidth() + 50, _installDirBox.getY(), 100, _installDirBox.getHeight());
-        _installDirLbl.setBounds(_installDirBox.getX(), _installDirBox.getY() - 40, _installDirBox.getWidth(), _installDirBox.getHeight());
+        _installDirLbl.setBounds(_installDirBox.getX(), _installDirBox.getY() - 30, _installDirBox.getWidth(), _installDirBox.getHeight());
 
         _maxRamAmtLbl = new Label(this, _settings.get(Settings.MAX_RAM));
         long ram = 0;
@@ -111,17 +113,25 @@ public class SettingsPanel extends BasePanel {
         });
         add(_maxRamSlider, 0);
         _maxRamLbl = new Label(this, "Max RAM Allocation: ");
-        _maxRamSlider.setBounds(((getWidth() - (getWidth() - 300)) / 2) - (150 / 2), _installDirBox.getY() + 50 + 40, (getWidth() - 300), 35);
+        _maxRamSlider.setBounds(((getWidth() - (getWidth() - 300)) / 2) - (150 / 2), _installDirBox.getY() + 50 + 30, (getWidth() - 300), 25);
         _maxRamAmtLbl.setBounds(_maxRamSlider.getX() + _maxRamSlider.getWidth() + 50, _maxRamSlider.getY(), 100, _maxRamSlider.getHeight());
-        _maxRamLbl.setBounds(_maxRamSlider.getX(), _maxRamSlider.getY() - 40, _maxRamSlider.getWidth(), _maxRamSlider.getHeight());;
+        _maxRamLbl.setBounds(_maxRamSlider.getX(), _maxRamSlider.getY() - 30, _maxRamSlider.getWidth(), _maxRamSlider.getHeight());;
 
         _javaParamsLbl = new Label(this, "Additional Java Parameters: ");
         _javaParamsBox = new TextBox(this, "");
         _javaParamsBox.setText(_settings.get(Settings.JAVA_PARAMS));
 
-        _javaParamsBox.setBounds(((getWidth() - (getWidth() - 150)) / 2), _maxRamSlider.getY() + 50 + 40, (getWidth() - 150), 35);
-        _javaParamsLbl.setBounds(_javaParamsBox.getX(), _javaParamsBox.getY() - 40, _javaParamsBox.getWidth(), _javaParamsBox.getHeight());
+        _javaParamsBox.setBounds(((getWidth() - (getWidth() - 150)) / 2), _maxRamSlider.getY() + 50 + 30, (getWidth() - 150), 25);
+        _javaParamsLbl.setBounds(_javaParamsBox.getX(), _javaParamsBox.getY() - 30, _javaParamsBox.getWidth(), _javaParamsBox.getHeight());
 
+        _forceUpdateBtn = new Button(this, "Force Update");
+        _forceUpdateBtn.setBounds(_bg.getX() + 10, _bg.getHeight() - (25 - 10), 200, 25);
+        _forceUpdateBtn.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                ((ServerPanel) _mainPanel.getPanel(1)).getServerManager().getServer(((ServerPanel) _mainPanel.getPanel(1))._selectedServer)
+                        .forceUpdate();
+            }
+        });
         add(_bg);
 
     }

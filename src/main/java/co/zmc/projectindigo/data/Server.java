@@ -8,6 +8,7 @@ import co.zmc.projectindigo.gui.MainPanel;
 import co.zmc.projectindigo.gui.ServerPanel;
 import co.zmc.projectindigo.managers.DownloadHandler;
 import co.zmc.projectindigo.utils.DirectoryLocations;
+import co.zmc.projectindigo.utils.FileUtils;
 import co.zmc.projectindigo.utils.Settings;
 
 public class Server {
@@ -19,10 +20,15 @@ public class Server {
     private String    _downloadURL;
     private String    _version;
     private String    _mcVersion;
-
+    private boolean   _update = false;
     private File      _baseDir;
     private File      _minecraftDir;
     private File      _binDir;
+
+    public Server(MainPanel section, JSONObject server, int port, boolean update) {
+        this(section, server, port);
+        _update = update;
+    }
 
     public Server(MainPanel section, JSONObject server, int port) {
         _mainPanel = section;
@@ -44,6 +50,11 @@ public class Server {
         if (!isDownloaded()) {
             mkdir();
         }
+    }
+
+    public void forceUpdate() {
+        FileUtils.deleteDirectory(_baseDir);
+        mkdir();
     }
 
     public void mkdir() {
@@ -68,6 +79,14 @@ public class Server {
         return _minecraftDir;
     }
 
+    public boolean isUpdate() {
+        return _update;
+    }
+
+    public void setUpdate(boolean update) {
+        _update = update;
+    }
+
     public boolean shouldDownload() {
         Server shouldUpdate = ((ServerPanel) _mainPanel.getPanel(1)).getServerManager().shouldUpdate(this);
         if (shouldUpdate != null) {
@@ -81,6 +100,7 @@ public class Server {
             _downloadURL = shouldUpdate._downloadURL;
             _version = shouldUpdate._version;
             _mcVersion = shouldUpdate._mcVersion;
+            _update = shouldUpdate._update;
             ((ServerPanel) _mainPanel.getPanel(1)).getServerManager().saveServers();
         }
         return !isDownloaded() || shouldUpdate != null;

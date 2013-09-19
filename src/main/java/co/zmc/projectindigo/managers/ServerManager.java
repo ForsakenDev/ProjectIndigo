@@ -193,6 +193,7 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
             try {
                 Server newServer = parseServer(serverURL, server.getPort());
                 if (!server.getVersion().trim().equals(newServer.getVersion().trim())) {
+                    newServer.setUpdate(true);
                     return newServer;
                 } else {
                     return null;

@@ -16,6 +16,7 @@ import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import co.zmc.projectindigo.IndigoLauncher;
@@ -50,6 +51,9 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
     @Override
     protected Boolean doInBackground() {
         if (_server.shouldDownload()) {
+            if (_server.isUpdate()) {
+                JOptionPane.showMessageDialog(null, "An update was found for " + _server.getName());
+            }
             if (!load()) { return false; }
         }
         ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Download complete. Launching Game...", 100);
