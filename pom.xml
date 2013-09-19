@@ -4,9 +4,8 @@
 	<groupId>co.zmc</groupId>
 	<artifactId>projectindigo</artifactId>
 	<version>1.1.2</version>
-	<name>Project Indigo</name>
+	<name>ProjectIndigo</name>
 	<inceptionYear>2013</inceptionYear>
-
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -54,7 +53,7 @@
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-			<version>2.1</version><!-- Stay on 2.1 for Java 5 compatibility -->
+			<version>2.1</version>
 			<scope>compile</scope>
 		</dependency>
 	</dependencies>
@@ -69,7 +68,7 @@
 	<build>
 		<defaultGoal>clean package</defaultGoal>
 		<sourceDirectory>${project.basedir}/src</sourceDirectory>
-		<finalName>${project.artifactId}</finalName>
+		<finalName>${project.name}</finalName>
 		<resources>
 			<resource>
 				<filtering>false</filtering>
@@ -122,6 +121,7 @@
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>2.4</version>
 				<configuration>
+					<outputDirectory>${project.build.directory}/indigo/jar/</outputDirectory>
 					<archive>
 						<manifest>
 							<mainClass>${mainClass}</mainClass>
@@ -205,65 +205,51 @@
 					</execution>
 				</executions>
 			</plugin>
+
+			<plugin>
+				<groupId>com.akathist.maven.plugins.launch4j</groupId>
+				<artifactId>launch4j-maven-plugin</artifactId>
+				<version>1.5.2</version>
+				<executions>
+					<execution>
+						<configuration>
+							<headerType>gui</headerType>
+							<stayAlive>false</stayAlive>
+							<jar>${project.build.directory}/indigo/jar/${project.name}.jar</jar>
+							<outfile>${project.build.directory}/indigo/${project.name}.exe</outfile>
+							<classPath>
+								<mainClass>${mainClass}</mainClass>
+								<addDependencies>false</addDependencies>
+								<preCp>anything</preCp>
+							</classPath>
+							<jre>
+								<minVersion>1.6.0</minVersion>
+							</jre>
+							<icon>${basedir}/src/main/resources/build/exe/icon.ico</icon>
+							<versionInfo>
+								<fileVersion>${project.version}.0</fileVersion>
+								<txtFileVersion>${project.version}.0</txtFileVersion>
+								<productVersion>${project.version}.0</productVersion>
+								<txtProductVersion>${project.version}.0</txtProductVersion>
+								<fileDescription>${project.name}</fileDescription>
+								<productName>${project.name}</productName>
+								<copyright>${project.organization.name}</copyright>
+								<internalName>${project.artifactId}</internalName>
+								<originalFilename>${project.artifactId}.exe</originalFilename>
+							</versionInfo>
+						</configuration>
+						<goals>
+							<goal>launch4j</goal>
+						</goals>
+						<phase>package</phase>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
-
 	<!-- Profiles -->
 	<profiles>
-		<!-- Windows -->
-		<profile>
-			<id>package-win</id>
-			<activation>
-				<os>
-					<family>windows</family>
-				</os>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>com.akathist.maven.plugins.launch4j</groupId>
-						<artifactId>launch4j-maven-plugin</artifactId>
-						<version>1.5.2</version>
-						<executions>
-							<execution>
-								<configuration>
-									<headerType>gui</headerType>
-									<stayAlive>false</stayAlive>
-									<jar>${project.build.directory}/${project.artifactId}.jar</jar>
-									<outfile>${project.build.directory}/${project.artifactId}.exe</outfile>
-									<classPath>
-										<mainClass>${mainClass}</mainClass>
-										<addDependencies>false</addDependencies>
-										<preCp>anything</preCp>
-									</classPath>
-									<jre>
-										<minVersion>1.6.0</minVersion>
-									</jre>
-									<icon>${basedir}/src/main/resources/build/exe/icon.ico</icon>
-									<versionInfo>
-										<fileVersion>2.0.0.${buildNumber}</fileVersion>
-										<txtFileVersion>2.0.0.${buildNumber}</txtFileVersion>
-										<productVersion>2.0.0.${buildNumber}</productVersion>
-										<txtProductVersion>2.0.0.${buildNumber}</txtProductVersion>
-										<fileDescription>${project.name}</fileDescription>
-										<productName>${project.name}</productName>
-										<copyright>${project.organization.name}</copyright>
-										<internalName>${project.artifactId}</internalName>
-										<originalFilename>${project.artifactId}.exe</originalFilename>
-									</versionInfo>
-								</configuration>
-								<goals>
-									<goal>launch4j</goal>
-								</goals>
-								<phase>package</phase>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-
-		<!-- Mac OS X -->
+		<!-- Mac -->
 		<profile>
 			<id>package-mac</id>
 			<activation>
@@ -273,6 +259,7 @@
 			</activation>
 			<build>
 				<plugins>
+					<!-- Mac OSX -->
 					<plugin>
 						<groupId>org.spout</groupId>
 						<artifactId>osxapp-maven-plugin</artifactId>
@@ -286,7 +273,7 @@
 									<iconFile>${basedir}/src/main/resources/build/app/icon.icns</iconFile>
 									<dictionaryFile>${basedir}/src/main/resources/build/app/Info.plist.template</dictionaryFile>
 									<javaApplicationStub>${basedir}/src/main/resources/build/app/JavaApplicationStub</javaApplicationStub>
-									<zipFile>${project.build.directory}/${project.build.finalName}-app.zip</zipFile>
+									<zipFile>${project.build.directory}/indigo/app/${project.build.finalName}.zip</zipFile>
 									<internetEnable>true</internetEnable>
 									<jvmVersion>${minimumJreVersion}+</jvmVersion>
 									<vmOptions>-Xms512M -Xmx1024M -Xdock:name="Indigo Launcher"
