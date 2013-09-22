@@ -8,6 +8,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -178,10 +180,8 @@ public class Utils {
             int col = (i % numPerRow);
             int numColOnCurrRow = (numRows == row ? numData % numPerRow : numPerRow);
 
-            table[i] = new int[] {
-                    modX + (totalAreaWidth / 2) + (tileWidth * col) + (((cellPaddingX / 2) * col))
-                            - (((tileWidth + (cellPaddingX / 2)) * numColOnCurrRow) / 2), (tileHeight * row) + ((cellPaddingY * row) / 2), tileWidth,
-                    tileHeight };
+            table[i] = new int[] { modX + (totalAreaWidth / 2) + (tileWidth * col) + (((cellPaddingX / 2) * col)) - (((tileWidth + (cellPaddingX / 2)) * numColOnCurrRow) / 2),
+                    (tileHeight * row) + ((cellPaddingY * row) / 2), tileWidth, tileHeight };
         }
         return table;
     }
@@ -220,5 +220,26 @@ public class Utils {
 
     public static String replaceLast(String text, String regex, String replacement) {
         return text.replaceFirst("(?s)" + regex + "(?!.*?" + regex + ")", replacement);
+    }
+
+    public static String getRedirectedUrl(String url) throws MalformedURLException, IOException {
+        HttpURLConnection connection;
+        String finalUrl = url;
+        do {
+            System.out.println(finalUrl);
+            connection = (HttpURLConnection) new URL(finalUrl).openConnection();
+            connection.setInstanceFollowRedirects(false);
+            connection.setUseCaches(false);
+            connection.setRequestMethod("GET");
+            connection.connect();
+            int responseCode = connection.getResponseCode();
+            if (responseCode >= 300 && responseCode < 400) {
+                String redirectedUrl = connection.getHeaderField("Location");
+                if (redirectedUrl == null) break;
+                finalUrl = redirectedUrl;
+            } else break;
+        } while (connection.getResponseCode() != HttpURLConnection.HTTP_OK);
+        connection.disconnect();
+        return finalUrl.replaceAll(" ", "%20");
     }
 }

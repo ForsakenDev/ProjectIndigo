@@ -7,7 +7,7 @@ import java.util.Map;
 
 import co.zmc.projectindigo.IndigoLauncher;
 import co.zmc.projectindigo.data.Server;
-import co.zmc.projectindigo.gui.components.Label;
+import co.zmc.projectindigo.gui.components.Button;
 import co.zmc.projectindigo.gui.components.RoundedBox;
 import co.zmc.projectindigo.gui.components.ServerInfo;
 import co.zmc.projectindigo.managers.ServerManager;
@@ -20,7 +20,7 @@ public class ServerPanel extends BasePanel {
 
     private RoundedBox              _serverBox;
     private Map<String, ServerInfo> _servers        = new HashMap<String, ServerInfo>();
-    private Label                   _addBtn;
+    private Button                  _addBtn;
     public String                   _selectedServer = "";
 
     public ServerPanel(MainPanel mainPanel) {
@@ -31,9 +31,9 @@ public class ServerPanel extends BasePanel {
     public void initComponents() {
         _serverBox = new RoundedBox(MainPanel.BORDER_COLOUR);
         _serverBox.setBounds((getWidth() - (getWidth() - 50)) / 2, (getHeight() - (getHeight() - 50)) / 2, getWidth() - 50, getHeight() - 50);
-        _addBtn = new Label(this, "Select the server you wish to join");
+        _addBtn = new Button(this, "Add Server");
         _addBtn.setForeground(Color.WHITE);
-
+        _addBtn.setBounds(_serverBox.getX() - (25 / 2), _serverBox.getY() + (_serverBox.getHeight() - 25 - 10), _serverBox.getWidth() - 20, 25);
         add(_serverBox);
 
     }

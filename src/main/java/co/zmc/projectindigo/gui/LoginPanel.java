@@ -1,9 +1,13 @@
 package co.zmc.projectindigo.gui;
 
+import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import javax.swing.JOptionPane;
 
@@ -129,7 +133,16 @@ public class LoginPanel extends BasePanel {
                         "Premium Minecraft Account Required", JOptionPane.DEFAULT_OPTION);
                 break;
             case NETWORK_DOWN:
-                JOptionPane.showMessageDialog(_mainPanel, "Minecraft.net seems to be down.... Unable to authenticate");
+                JOptionPane.showMessageDialog(_mainPanel, "Minecraft sessions seem to be down.... Unable to authenticate, check http://help.mojang.com/ for information");
+                if (Desktop.isDesktopSupported()) {
+                    try {
+                        Desktop.getDesktop().browse(new URI("https://help.mojang.com/"));
+                    } catch (URISyntaxException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
                 break;
             case PERMISSION_DENIED:
                 JOptionPane.showMessageDialog(_mainPanel, "Ensure " + IndigoLauncher.TITLE + " is whitelisted with any antivirus applications.",

@@ -48,8 +48,6 @@ public class MinecraftLauncher {
                     }
                 }
             }
-        } else {
-            Logger.logInfo("Not loading any instMods (minecraft jar mods), as the directory does not exist.");
         }
 
         cpb.append(Utils.getJavaDelimiter());
@@ -63,8 +61,7 @@ public class MinecraftLauncher {
         List<String> arguments = new ArrayList<String>();
 
         String separator = System.getProperty("file.separator");
-        String path = System.getProperty("java.home") + separator + "bin" + separator + "java"
-                + (Utils.getCurrentOS() == Utils.OS.WINDOWS ? "w" : "");
+        String path = System.getProperty("java.home") + separator + "bin" + separator + "java" + (Utils.getCurrentOS() == Utils.OS.WINDOWS ? "w" : "");
         arguments.add(path);
 
         setMemory(arguments, settings.get(Settings.MAX_RAM));
@@ -90,7 +87,7 @@ public class MinecraftLauncher {
         arguments.add(sessionId);
         arguments.add(server.getIp());
         arguments.add(server.getPort() + "");
-        arguments.add(IndigoLauncher.TITLE);
+        arguments.add(server.getName());
 
         ProcessBuilder processBuilder = new ProcessBuilder(arguments);
         Logger.logInfo("Setting working dir to " + server.getBaseDir().getAbsolutePath() + "/minecraft");
@@ -190,18 +187,13 @@ public class MinecraftLauncher {
 
         policy.addAdditionalPerm("permission java.lang.RuntimePermission \"*\"");
 
-        policy.addAdditionalPerm("permission java.io.FilePermission \""
-                + new File(basepath).getParentFile().getAbsolutePath().replaceAll("\\\\", "/") + "/-\", \"read, write, delete\"");
+        policy.addAdditionalPerm("permission java.io.FilePermission \"" + new File(basepath).getParentFile().getAbsolutePath().replaceAll("\\\\", "/") + "/-\", \"read, write, delete\"");
         policy.addAdditionalPerm("permission java.io.FilePermission \"" + nativesDir.replaceAll("\\\\", "/") + "/-\", \"read\"");
-        policy.addAdditionalPerm("permission java.io.FilePermission \"" + System.getProperty("java.io.tmpdir").replaceAll("\\\\", "/")
-                + "-\", \"read, write, delete\"");
-        policy.addAdditionalPerm("permission java.io.FilePermission \"" + System.getProperty("java.io.tmpdir").replaceAll("\\\\", "/")
-                + "\", \"read, write, delete\"");
+        policy.addAdditionalPerm("permission java.io.FilePermission \"" + System.getProperty("java.io.tmpdir").replaceAll("\\\\", "/") + "-\", \"read, write, delete\"");
+        policy.addAdditionalPerm("permission java.io.FilePermission \"" + System.getProperty("java.io.tmpdir").replaceAll("\\\\", "/") + "\", \"read, write, delete\"");
         policy.addAdditionalPerm("permission java.io.FilePermission \"" + System.getProperty("java.home").replaceAll("\\\\", "/") + "/-\", \"read\"");
-        policy.addAdditionalPerm("permission java.io.FilePermission \""
-                + System.getProperty("java.home").replaceAll("\\\\", "/").replaceAll(" ", "%20") + "/-\", \"read\"");
-        policy.addAdditionalPerm("permission java.io.FilePermission \""
-                + IndigoLauncher.class.getProtectionDomain().getCodeSource().getLocation().getPath().replaceAll("\\\\", "/") + "\", \"read\"");
+        policy.addAdditionalPerm("permission java.io.FilePermission \"" + System.getProperty("java.home").replaceAll("\\\\", "/").replaceAll(" ", "%20") + "/-\", \"read\"");
+        policy.addAdditionalPerm("permission java.io.FilePermission \"" + IndigoLauncher.class.getProtectionDomain().getCodeSource().getLocation().getPath().replaceAll("\\\\", "/") + "\", \"read\"");
 
         policy.writeAdditionalPerms(policy.getPolicyLocation());
 
@@ -216,8 +208,7 @@ public class MinecraftLauncher {
                 try {
                     super.checkPermission(perm);
                 } catch (SecurityException e) {
-                    if ((perm.getName().toLowerCase().contains(".ttf") || perm.getName().toLowerCase().contains(".ttc"))
-                            && perm.getActions().equals("read")) { return; }
+                    if ((perm.getName().toLowerCase().contains(".ttf") || perm.getName().toLowerCase().contains(".ttc")) && perm.getActions().equals("read")) { return; }
 
                     if (perm.getName().contains("loadLibrary.")) {
                         System.out.println("LOADLIB: " + perm.getName());

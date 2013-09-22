@@ -1,46 +1,181 @@
 package co.zmc.projectindigo.data;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
+import co.zmc.projectindigo.data.log.Logger;
 import co.zmc.projectindigo.gui.MainPanel;
+import co.zmc.projectindigo.gui.ProgressPanel;
 import co.zmc.projectindigo.gui.ServerPanel;
 import co.zmc.projectindigo.managers.DownloadHandler;
 import co.zmc.projectindigo.utils.DirectoryLocations;
 import co.zmc.projectindigo.utils.FileUtils;
 import co.zmc.projectindigo.utils.Settings;
+import co.zmc.projectindigo.utils.Utils;
 
 public class Server {
-    private MainPanel _mainPanel;
-    private String    _name;
-    private String    _ip;
-    private int       _port;
-    private String    _logo;
-    private String    _downloadURL;
-    private String    _version;
-    private String    _mcVersion;
-    private boolean   _update = false;
-    private File      _baseDir;
-    private File      _minecraftDir;
-    private File      _binDir;
+    private MainPanel            _mainPanel;
 
-    public Server(MainPanel section, JSONObject server, int port, boolean update) {
-        this(section, server, port);
-        _update = update;
+    private String               _rawJSON;
+    private String               _name;
+    private String               _ip;
+    private int                  _port;
+    private String               _version;
+    private String               _logo;
+    private String               _mcVersion;
+    private String               _modpackDownloadURL;
+    private String               _modpackInfoURL;
+    private String               _forgeVersion;
+
+    private List<Mod>            _mods              = new ArrayList<Mod>();
+    private List<Mod>            _modsToUpdate      = new ArrayList<Mod>();
+    private List<Mod>            _modsToRemove      = new ArrayList<Mod>();
+    private List<FileDownloader> _downloads         = new ArrayList<FileDownloader>();
+
+    private int                  _totalLaunchSize   = 0;
+    private int                  _currentLaunchSize = 0;
+
+    private boolean              _update            = false;
+    private File                 _baseDir;
+    private File                 _minecraftDir;
+    private File                 _binDir;
+
+    public Server(MainPanel section, JSONObject json) {
+        _mainPanel = section;
+        _rawJSON = json.toJSONString();
+        loadJSON(json);
     }
 
-    public Server(MainPanel section, JSONObject server, int port) {
-        _mainPanel = section;
-        _name = (String) server.get("name");
-        _ip = (String) server.get("ip");
-        _port = port;
-        _logo = (String) server.get("logo");
-        _downloadURL = (String) server.get("download_url");
-        _version = (String) server.get("version");
-        _mcVersion = (String) server.get("mc_version");
+    private void loadJSON(JSONObject json) {
+        _name = (String) json.get("name");
+        _ip = (String) json.get("ip");
+        _port = Integer.parseInt((String) json.get("port"));
+        _version = (String) json.get("modpack_version");
+        _modpackInfoURL = (String) json.get("modpack_info_url");
+        _modpackDownloadURL = (String) json.get("modpack_url");
+        _logo = (String) json.get("logo_url");
+        _mcVersion = (String) json.get("mc_version");
+        _forgeVersion = (String) json.get("forge_version");
 
         updateDir();
+
+        JSONObject coreMods = (JSONObject) json.get("coremods");
+        for (Object key : coreMods.keySet()) {
+            if (key instanceof String) {
+                JSONObject jsonMod = (JSONObject) coreMods.get((String) key);
+                _mods.add(new Mod((String) key, (String) jsonMod.get("version"), (String) jsonMod.get("authors"), (String) jsonMod.get("info_url"), (String) jsonMod.get("download_url"), true,
+                        getBaseDir().getAbsolutePath()));
+            }
+        }
+
+        JSONObject mods = (JSONObject) json.get("mods");
+        for (Object key : mods.keySet()) {
+            if (key instanceof String) {
+                JSONObject jsonMod = (JSONObject) mods.get((String) key);
+                _mods.add(new Mod((String) key, (String) jsonMod.get("version"), (String) jsonMod.get("authors"), (String) jsonMod.get("info_url"), (String) jsonMod.get("download_url"), false,
+                        getBaseDir().getAbsolutePath()));
+            }
+        }
+
+        _downloads.add(new FileDownloader(_modpackDownloadURL, getBaseDir().getAbsolutePath(), true));
+        _downloads.add(new FileDownloader("http://files.minecraftforge.net/minecraftforge/minecraftforge-universal-" + getMCVersion() + "-" + getForgeVersion() + ".zip", getBaseDir()
+                .getAbsolutePath() + "/instMods/"));
+        _downloads.add(new FileDownloader("http://s3.amazonaws.com/MinecraftDownload/lwjgl.jar", getBaseDir().getAbsolutePath() + "/minecraft/bin/"));
+        _downloads.add(new FileDownloader("http://s3.amazonaws.com/MinecraftDownload/lwjgl_util.jar", getBaseDir().getAbsolutePath() + "/minecraft/bin/"));
+        _downloads.add(new FileDownloader("http://s3.amazonaws.com/MinecraftDownload/jinput.jar", getBaseDir().getAbsolutePath() + "/minecraft/bin/"));
+        _downloads.add(new FileDownloader("http://assets.minecraft.net/" + getMCVersion().replace(".", "_") + "/minecraft.jar", getBaseDir().getAbsolutePath() + "/minecraft/bin/", true));
+        switch (Utils.getCurrentOS()) {
+            case WINDOWS:
+                _downloads.add(new FileDownloader("http://s3.amazonaws.com/MinecraftDownload/windows_natives.jar", getBaseDir().getAbsolutePath() + "/minecraft/bin/natives/", true));
+                break;
+            case MACOSX:
+                _downloads.add(new FileDownloader("http://s3.amazonaws.com/MinecraftDownload/macosx_natives.jar", getBaseDir().getAbsolutePath() + "/minecraft/bin/natives/", true));
+                break;
+            case UNIX:
+                _downloads.add(new FileDownloader("http://s3.amazonaws.com/MinecraftDownload/linux_natives.jar", getBaseDir().getAbsolutePath() + "/minecraft/bin/natives/", true));
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void loadFileSize(ProgressPanel panel) {
+        int total = _mods.size() + _downloads.size();
+        int totalCompletion = 0;
+        for (Mod mod : _mods) {
+            panel.stateChanged("Validating " + mod.getName() + "...", (int) (((double) totalCompletion / (double) total) * 100D));
+            _totalLaunchSize += mod.getFileSize();
+            totalCompletion++;
+        }
+
+        for (FileDownloader res : _downloads) {
+            panel.stateChanged("Validating " + res.getRawDownloadURL() + "...", (int) (((double) totalCompletion / (double) total) * 100D));
+            _totalLaunchSize += res.getFileSize() * (res.shouldExtract() ? 2 : 1);
+            totalCompletion++;
+        }
+    }
+
+    public Server getNewServer() {
+        try {
+            String server = IOUtils.toString(new URL(_modpackInfoURL));
+            JSONObject sData = (JSONObject) new JSONParser().parse(server);
+            return new Server(_mainPanel, sData);
+        } catch (MalformedURLException e) {
+            Logger.logError(e.getMessage(), e);
+        } catch (ParseException e) {
+            Logger.logError(e.getMessage(), e);
+        } catch (IOException e) {
+            Logger.logError(e.getMessage(), e);
+        }
+        return null;
+    }
+
+    public boolean shouldUpdate() {
+        boolean shouldUpdate = false;
+        Server server = getNewServer();
+        if (server != null) {
+            modLoop: for (Mod updatedMod : server.getMods()) {
+                for (Mod mod : _mods) {
+                    if (mod.getName().equalsIgnoreCase(updatedMod.getName()) && !mod.getVersion().equalsIgnoreCase(updatedMod.getVersion())) {
+                        _modsToUpdate.add(updatedMod);
+                        if (!shouldUpdate) {
+                            shouldUpdate = true;
+                        }
+                        continue modLoop;
+                    }
+                }
+                _modsToUpdate.add(updatedMod);
+            }
+            for (Mod mod : _mods) {
+                if (!server.containsMod(mod.getName())) {
+                    _modsToRemove.add(mod);
+                    if (!shouldUpdate) {
+                        shouldUpdate = true;
+                    }
+                    continue;
+                }
+            }
+        }
+        if (shouldUpdate) {
+            _rawJSON = server._rawJSON;
+        }
+        return shouldUpdate;
+    }
+
+    public boolean containsMod(String modName) {
+        for (Mod mod : _mods) {
+            if (mod.getName().equalsIgnoreCase(modName)) { return true; }
+        }
+        return false;
     }
 
     public void updateDir() {
@@ -79,31 +214,8 @@ public class Server {
         return _minecraftDir;
     }
 
-    public boolean isUpdate() {
-        return _update;
-    }
-
-    public void setUpdate(boolean update) {
-        _update = update;
-    }
-
     public boolean shouldDownload() {
-        Server shouldUpdate = ((ServerPanel) _mainPanel.getPanel(1)).getServerManager().shouldUpdate(this);
-        if (shouldUpdate != null) {
-            _baseDir = shouldUpdate._baseDir;
-            _minecraftDir = shouldUpdate._minecraftDir;
-            _binDir = shouldUpdate._binDir;
-            _name = shouldUpdate._name;
-            _ip = shouldUpdate._ip;
-            _port = shouldUpdate._port;
-            _logo = shouldUpdate._logo;
-            _downloadURL = shouldUpdate._downloadURL;
-            _version = shouldUpdate._version;
-            _mcVersion = shouldUpdate._mcVersion;
-            _update = shouldUpdate._update;
-            ((ServerPanel) _mainPanel.getPanel(1)).getServerManager().saveServers();
-        }
-        return !isDownloaded() || shouldUpdate != null;
+        return !isDownloaded();
     }
 
     public void download(LoginResponse response, Settings settings) {
@@ -131,8 +243,8 @@ public class Server {
         return _logo;
     }
 
-    public String getDownloadURL() {
-        return _downloadURL;
+    public String getModpackInfoURL() {
+        return _modpackInfoURL;
     }
 
     public String getVersion() {
@@ -143,25 +255,93 @@ public class Server {
         return _mcVersion;
     }
 
+    public String getForgeVersion() {
+        return _forgeVersion;
+    }
+
+    public List<Mod> getMods() {
+        return _mods;
+    }
+
+    private boolean downloadResources(ProgressPanel panel) throws IOException {
+        int numLoaded = 0;
+        for (FileDownloader download : _downloads) {
+            if (download.download(panel, _currentLaunchSize, _totalLaunchSize, true)) {
+                _currentLaunchSize += download.getFileSize();
+            }
+            if (download.shouldExtract() && download.extract(panel, _currentLaunchSize, _totalLaunchSize)) {
+                _currentLaunchSize += download.getFileSize();
+            }
+            numLoaded++;
+        }
+        return numLoaded == _downloads.size();
+    }
+
+    private boolean downloadMods(ProgressPanel panel) throws IOException {
+        int numLoaded = 0;
+        for (Mod mod : _mods) {
+            if (mod.download(panel, _currentLaunchSize, _totalLaunchSize, true)) {
+                numLoaded++;
+                _currentLaunchSize += mod.getFileSize();
+            }
+        }
+        return numLoaded == _downloads.size();
+    }
+
+    private boolean updateNewMods(ProgressPanel panel) throws IOException {
+        int numLoaded = 0;
+        List<Integer> idsToRemove = new ArrayList<Integer>();
+        for (Mod mod : _modsToUpdate) {
+            for (int i = 0; i < _mods.size(); i++) {
+                Mod oldMod = _mods.get(i);
+                if (mod.getName().equalsIgnoreCase(oldMod.getName())) {
+                    oldMod.delete();
+                    if (!idsToRemove.contains(i)) {
+                        idsToRemove.add(i);
+                    }
+                }
+            }
+            if (mod.download(panel, _currentLaunchSize, _totalLaunchSize, true)) {
+                numLoaded++;
+                _currentLaunchSize += mod.getFileSize();
+            }
+            _mods.add(mod);
+        }
+        for (Mod mod : _modsToRemove) {
+            for (int i = 0; i < _mods.size(); i++) {
+                Mod oldMod = _mods.get(i);
+                if (mod.getName().equalsIgnoreCase(oldMod.getName())) {
+                    oldMod.delete();
+                    if (!idsToRemove.contains(i)) {
+                        idsToRemove.add(i);
+                    }
+                }
+            }
+        }
+        for (Integer i : idsToRemove) {
+            _mods.remove(i);
+        }
+        return numLoaded == _modsToUpdate.size();
+    }
+
+    public boolean download(ProgressPanel panel) throws IOException {
+        loadFileSize(panel);
+        if (shouldUpdate()) {
+            System.out.println("Performing update");
+            if (!updateNewMods(panel)) { return false; }
+            _modsToUpdate.clear();
+            _modsToRemove.clear();
+        } else {
+            System.out.println("Downloading");
+
+            if (!(downloadResources(panel) && downloadMods(panel))) { return false; }
+        }
+        ((ServerPanel) _mainPanel.getPanel(1)).getServerManager().save();
+        return true;
+    }
+
     @Override
     public String toString() {
-        String data = "{";
-        data += "\n    \"name\": \"" + getName() + "\",";
-        data += "\n    \"ip\": \"" + getIp() + "\",";
-        data += "\n    \"port\": \"" + getPort() + "\",";
-        data += "\n    \"logo\": \"" + getLogo() + "\",";
-        data += "\n    \"download_url\": \"" + getDownloadURL() + "\",";
-        data += "\n    \"version\": \"" + getVersion() + "\",";
-        data += "\n    \"mc_version\": \"" + getMCVersion() + "\",";
-        data += "\n  }";
-        return data;
-    }
-
-    public int getPlayers() {
-        return 83;
-    }
-
-    public int getMaxPlayers() {
-        return 1000;
+        return _rawJSON;
     }
 }

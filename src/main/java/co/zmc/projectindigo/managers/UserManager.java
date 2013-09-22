@@ -85,7 +85,7 @@ public class UserManager {
         if (usernames.containsKey(username)) { return usernames.get(username).getUsername(); }
         return username;
     }
-    
+
     public final void clear() {
         usernames.clear();
     }

@@ -61,9 +61,9 @@ public class MinecraftFrame extends JFrame {
     }
 
     public Dimension getDimension() {
-//        Toolkit tk = Toolkit.getDefaultToolkit();
-//        int xSize = ((int) tk.getScreenSize().getWidth());
-//        int ySize = ((int) tk.getScreenSize().getHeight());
+        // Toolkit tk = Toolkit.getDefaultToolkit();
+        // int xSize = ((int) tk.getScreenSize().getWidth());
+        // int ySize = ((int) tk.getScreenSize().getHeight());
         return new Dimension(854, 480);
     }
 

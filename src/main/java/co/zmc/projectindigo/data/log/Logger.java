@@ -20,6 +20,9 @@ public class Logger {
                 break;
             case ERROR:
                 _logger.log(Level.SEVERE, message);
+                if (t != null) {
+                    t.printStackTrace();
+                }
                 break;
         }
     }
