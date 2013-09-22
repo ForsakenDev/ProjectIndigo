@@ -41,10 +41,11 @@ public class Server {
     private List<Mod>            _modsToRemove      = new ArrayList<Mod>();
     private List<FileDownloader> _downloads         = new ArrayList<FileDownloader>();
 
+    private boolean              canLaunch          = false;
+
     private int                  _totalLaunchSize   = 0;
     private int                  _currentLaunchSize = 0;
 
-    private boolean              _update            = false;
     private File                 _baseDir;
     private File                 _minecraftDir;
     private File                 _binDir;
@@ -266,12 +267,7 @@ public class Server {
     private boolean downloadResources(ProgressPanel panel) throws IOException {
         int numLoaded = 0;
         for (FileDownloader download : _downloads) {
-            if (download.download(panel, _currentLaunchSize, _totalLaunchSize, true)) {
-                _currentLaunchSize += download.getFileSize();
-            }
-            if (download.shouldExtract() && download.extract(panel, _currentLaunchSize, _totalLaunchSize)) {
-                _currentLaunchSize += download.getFileSize();
-            }
+            download.download(this, panel, false);
             numLoaded++;
         }
         return numLoaded == _downloads.size();
@@ -280,12 +276,34 @@ public class Server {
     private boolean downloadMods(ProgressPanel panel) throws IOException {
         int numLoaded = 0;
         for (Mod mod : _mods) {
-            if (mod.download(panel, _currentLaunchSize, _totalLaunchSize, true)) {
-                numLoaded++;
-                _currentLaunchSize += mod.getFileSize();
-            }
+            mod.download(this, panel, true);
+            numLoaded++;
         }
         return numLoaded == _downloads.size();
+    }
+
+    public void addDownloadSize(int amount) {
+        _currentLaunchSize += amount;
+    }
+
+    public int getDownloadProgress() {
+        int prog = (int) ((double) ((double) _currentLaunchSize / (double) _totalLaunchSize) * 100);
+        if (prog > 100) {
+            prog = 100;
+        } else if (prog < 0) {
+            prog = 0;
+        }
+        return prog;
+    }
+
+    public boolean isFinishedDownloading() {
+        return _mods.size() + _downloads.size() <= _numLoadedDownloads;
+    }
+
+    private int _numLoadedDownloads = 0;
+
+    public void addLoadedDownload() {
+        _numLoadedDownloads++;
     }
 
     private boolean updateNewMods(ProgressPanel panel) throws IOException {
@@ -301,10 +319,8 @@ public class Server {
                     }
                 }
             }
-            if (mod.download(panel, _currentLaunchSize, _totalLaunchSize, true)) {
-                numLoaded++;
-                _currentLaunchSize += mod.getFileSize();
-            }
+            mod.download(this, panel, true);
+            numLoaded++;
             _mods.add(mod);
         }
         for (Mod mod : _modsToRemove) {
@@ -333,7 +349,6 @@ public class Server {
             _modsToRemove.clear();
         } else {
             System.out.println("Downloading");
-
             if (!(downloadResources(panel) && downloadMods(panel))) { return false; }
         }
         ((ServerPanel) _mainPanel.getPanel(1)).getServerManager().save();

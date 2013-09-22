@@ -50,6 +50,14 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
     }
 
     protected void done() {
+        Thread.yield();
+        while (!_server.isFinishedDownloading()) {
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         launch();
     }
 
