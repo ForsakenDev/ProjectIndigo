@@ -53,7 +53,7 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
         Thread.yield();
         while (!_server.isFinishedDownloading()) {
             try {
-                Thread.sleep(1);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

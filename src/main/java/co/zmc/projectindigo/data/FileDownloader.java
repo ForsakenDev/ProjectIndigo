@@ -23,6 +23,7 @@ import co.zmc.projectindigo.utils.Utils;
 
 public class FileDownloader {
 
+    protected Thread  _downloadThread;
     protected String  _rawDownloadURL;
     protected String  _baseDir  = "";
     protected boolean _extract  = false;
@@ -91,15 +92,20 @@ public class FileDownloader {
 
     public void download(final Server server, final ProgressPanel panel, boolean thread) throws IOException {
         if (thread) {
-            new Thread(new Runnable() {
+            _downloadThread = new Thread(new Runnable() {
                 public void run() {
+                    // SwingUtilities.invokeLater(new Runnable() {
+                    // public void run() {
                     try {
                         download(server, panel);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+                    // }
+                    // });
                 }
-            }).start();
+            });
+            _downloadThread.start();
         } else {
             try {
                 download(server, panel);
@@ -133,8 +139,7 @@ public class FileDownloader {
         while ((readLen = dlStream.read(buffer, 0, buffer.length)) != -1) {
             outStream.write(buffer, 0, readLen);
             currentDLSize += readLen;
-            server.addDownloadSize(readLen);
-            panel.stateChanged("Downloading " + jarFileName + "...", server.getDownloadProgress());
+            server.addDownloadSize(panel, readLen);
         }
         dlStream.close();
         outStream.close();
@@ -146,10 +151,16 @@ public class FileDownloader {
                 extract(server, panel);
             }
             server.addLoadedDownload();
+            // if (_downloadThread != null) {
+            // try {
+            // _downloadThread.join();
+            // } catch (InterruptedException e) {
+            // e.printStackTrace();
+            // }
+            // }
             return true;
         }
         Logger.logInfo("Could not finish downloading " + jarFileName);
-
         return false;
     }
 
@@ -193,8 +204,7 @@ public class FileDownloader {
                 byte[] buffer = new byte[1024];
                 while ((readLen = zipIn.read(buffer, 0, buffer.length)) > 0) {
                     outStream.write(buffer, 0, readLen);
-                    server.addDownloadSize(readLen);
-                    panel.stateChanged("Extracting " + _downloadedFile.getName() + "...", server.getDownloadProgress());
+                    server.addDownloadSize(panel, readLen);
                 }
                 outStream.close();
                 currentEntry = zipIn.getNextEntry();
@@ -230,8 +240,7 @@ public class FileDownloader {
                 int readLen;
                 while ((readLen = input.read(buffer, 0, 1024)) != -1) {
                     output.write(buffer, 0, readLen);
-                    server.addDownloadSize(readLen);
-                    panel.stateChanged("Extracting " + _downloadedFile.getName() + "...", server.getDownloadProgress());
+                    server.addDownloadSize(panel, readLen);
                 }
                 output.closeEntry();
             }

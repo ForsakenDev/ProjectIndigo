@@ -23,10 +23,6 @@ public class ProgressBar extends JProgressBar {
         setFont(IndigoLauncher.getMinecraftFont(14));
     }
 
-    public Graphics cleanup(Graphics g) {
-        return g;
-    }
-
     public void updateProgress(String reason, int percent) {
         if (percent >= 0 && percent <= 100) {
             if (!isVisible()) {

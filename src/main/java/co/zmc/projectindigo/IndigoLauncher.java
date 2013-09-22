@@ -19,6 +19,7 @@ import co.zmc.projectindigo.utils.Settings;
 
 @SuppressWarnings("serial")
 public class IndigoLauncher extends JFrame {
+
     public static final String   TITLE            = "Indigo Launcher";
     public static IndigoLauncher _launcher;
     public static Dimension      _serverPanelSize = new Dimension(900, 580);
@@ -57,9 +58,8 @@ public class IndigoLauncher extends JFrame {
     }
 
     public static void cleanup() {
-        String[] fileLocations = { DirectoryLocations.BASE_DIR_LOCATION, DirectoryLocations.DATA_DIR_LOCATION,
-                DirectoryLocations.DATA_DIR_LOCATION + "servers", DirectoryLocations.DATA_DIR_LOCATION + "settings",
-                DirectoryLocations.IMAGE_DIR_LOCATION, DirectoryLocations.AVATAR_CACHE_DIR_LOCATION, DirectoryLocations.SERVERS_BASE_DIR_LOCATION,
+        String[] fileLocations = { DirectoryLocations.BASE_DIR_LOCATION, DirectoryLocations.DATA_DIR_LOCATION, DirectoryLocations.DATA_DIR_LOCATION + "servers",
+                DirectoryLocations.DATA_DIR_LOCATION + "settings", DirectoryLocations.IMAGE_DIR_LOCATION, DirectoryLocations.AVATAR_CACHE_DIR_LOCATION, DirectoryLocations.SERVERS_BASE_DIR_LOCATION,
                 DirectoryLocations.LOG_DIR_LOCATION };
 
         for (String s : fileLocations) {

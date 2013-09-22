@@ -226,7 +226,6 @@ public class Utils {
         HttpURLConnection connection;
         String finalUrl = url;
         do {
-            System.out.println(finalUrl);
             connection = (HttpURLConnection) new URL(finalUrl).openConnection();
             connection.setInstanceFollowRedirects(false);
             connection.setUseCaches(false);

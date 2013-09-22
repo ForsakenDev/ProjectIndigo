@@ -1,7 +1,5 @@
 package co.zmc.projectindigo.gui;
 
-import javax.swing.SwingUtilities;
-
 import co.zmc.projectindigo.IndigoLauncher;
 import co.zmc.projectindigo.gui.components.Box;
 import co.zmc.projectindigo.gui.components.ProgressBar;
@@ -26,17 +24,19 @@ public class ProgressPanel extends BasePanel {
         add(_progressBar, 0);
     }
 
+    private int numTimesUpdated = 0;
+
     public void stateChanged(final String status, final float progress) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                int intProgress = Math.round(progress);
-                _progressBar.setValue(intProgress);
-                String text = status;
-                if (text.length() > 60) {
-                    text = text.substring(0, 60) + "...";
-                }
-                _progressBar.setString(intProgress + "% " + text);
-            }
-        });
+        int intProgress = Math.round(progress);
+        _progressBar.setValue(intProgress);
+        String text = status;
+        if (text.length() > 60) {
+            text = text.substring(0, 60) + "...";
+        }
+        _progressBar.setString(text);
+        if (_progressBar.getGraphics() != null && numTimesUpdated >= 105) {
+            _progressBar.update(_progressBar.getGraphics());
+        }
+        numTimesUpdated++;
     }
 }

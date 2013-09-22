@@ -43,12 +43,7 @@ public class AutoUpdater {
                 return;
             }
         }
-        if (args.length == 1) {
-            new IndigoLauncher(args[0]);
-        } else {
-            new IndigoLauncher("");
-        }
-
+        new IndigoLauncher((args.length == 1 ? args[0] : ""));
     }
 
     private static void relaunch() {
@@ -79,8 +74,7 @@ public class AutoUpdater {
                 doc = parseXML(pomStream);
                 descNodes = doc.getElementsByTagName("project");
 
-                String clientVersion = (String) ((Element) descNodes.item(0)).getElementsByTagName("version").item(0).getChildNodes().item(0)
-                        .getNodeValue();
+                String clientVersion = (String) ((Element) descNodes.item(0)).getElementsByTagName("version").item(0).getChildNodes().item(0).getNodeValue();
 
                 return (!version.equals(clientVersion));
             }
@@ -167,8 +161,7 @@ public class AutoUpdater {
                 zipIn = new ZipInputStream(input);
                 ZipEntry currentEntry = zipIn.getNextEntry();
                 while (currentEntry != null) {
-                    if (currentEntry.getName().contains("META-INF") || currentEntry.getName().contains("__MACOSX")
-                            || currentEntry.getName().contains(".DS_Store")) {
+                    if (currentEntry.getName().contains("META-INF") || currentEntry.getName().contains("__MACOSX") || currentEntry.getName().contains(".DS_Store")) {
                         currentEntry = zipIn.getNextEntry();
                         continue;
                     }

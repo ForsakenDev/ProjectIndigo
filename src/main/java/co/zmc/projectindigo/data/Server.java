@@ -282,8 +282,14 @@ public class Server {
         return numLoaded == _downloads.size();
     }
 
-    public void addDownloadSize(int amount) {
+    private int _lastDownloadProgress = 0;
+
+    public void addDownloadSize(ProgressPanel panel, int amount) {
         _currentLaunchSize += amount;
+        if (getDownloadProgress() > _lastDownloadProgress) {
+            _lastDownloadProgress = getDownloadProgress();
+            panel.stateChanged("Downloading mods...", _lastDownloadProgress);
+        }
     }
 
     public int getDownloadProgress() {
