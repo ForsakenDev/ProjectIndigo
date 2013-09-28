@@ -67,6 +67,7 @@ public class MainPanel extends JPanel {
         _panels.put(0, new LoginPanel(this));
         _panels.put(1, new ServerPanel(this));
         _panels.put(2, new SettingsPanel(this));
+        _panels.put(3, new ServerInfoPanel(this));
 
         for (BasePanel p : _panels.values()) {
             add(p);

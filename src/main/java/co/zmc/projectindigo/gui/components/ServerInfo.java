@@ -11,6 +11,7 @@ import javax.swing.JLabel;
 import co.zmc.projectindigo.IndigoLauncher;
 import co.zmc.projectindigo.data.Server;
 import co.zmc.projectindigo.gui.MainPanel;
+import co.zmc.projectindigo.gui.ServerInfoPanel;
 import co.zmc.projectindigo.gui.ServerPanel;
 
 @SuppressWarnings("serial")
@@ -69,9 +70,9 @@ public class ServerInfo extends JLabel {
         _serverBox.addMouseListener(new MouseListener() {
 
             public void mouseClicked(MouseEvent event) {
-                serverPanel._selectedServer = server.getFullIp();
-                serverPanel.switchPage(2);
+            	((ServerInfoPanel) serverPanel.getMainPanel().getPanel(3)).setServer(_server);
                 setActive(true);
+            	serverPanel.switchPage(3);
             }
 
             public void mouseEntered(MouseEvent event) {

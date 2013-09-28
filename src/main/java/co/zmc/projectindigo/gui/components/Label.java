@@ -10,10 +10,18 @@ import co.zmc.projectindigo.IndigoLauncher;
 @SuppressWarnings("serial")
 public class Label extends JLabel {
 
-    public Label(JComponent component, String data) {
-        this.setFont(IndigoLauncher.getMinecraftFont(14));
-        this.setText(data);
-        this.setForeground(Color.WHITE);
-        component.add(this, 0);
-    }
+	public Label(JComponent component, String data) {
+		this(data);
+		component.add(this, 0);
+	}
+	
+	public Label(String label) {
+		this();
+		this.setText(label);
+	}
+	
+	public Label() {
+		this.setFont(IndigoLauncher.getMinecraftFont(14));
+		this.setForeground(Color.WHITE);
+	}
 }
