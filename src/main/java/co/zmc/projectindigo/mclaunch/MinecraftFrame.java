@@ -3,13 +3,16 @@ package co.zmc.projectindigo.mclaunch;
 import java.applet.Applet;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
@@ -20,10 +23,27 @@ import co.zmc.projectindigo.utils.Settings;
 public class MinecraftFrame extends JFrame {
     private Launcher appletWrap = null;
     private Settings _settings;
+    private String   _title;
+    private JLabel   _icon;
 
-    public MinecraftFrame(String title, Settings settings) {
+    private Image getImage(URL iconURL) {
+        Toolkit kit = Toolkit.getDefaultToolkit();
+        return kit.createImage(iconURL);
+    }
+
+    public MinecraftFrame(String title, Settings settings, URL iconURL) {
         super(title);
+        setTitle(title);
+        _title = title;
         _settings = settings;
+
+        Image icon = getImage(iconURL);
+        setIconImage(icon);
+        super.setIconImage(icon);
+        ImageIcon imgIcon = new ImageIcon(icon);
+        _icon = new JLabel(imgIcon);
+        _icon.setBounds((getWidth() - imgIcon.getIconWidth()) / 2, (getHeight() - imgIcon.getIconHeight()) / 2, imgIcon.getIconWidth(), imgIcon.getIconHeight());
+
         try {
             for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -69,14 +89,17 @@ public class MinecraftFrame extends JFrame {
 
     public void start(Applet mcApplet, String basePath, String user, String session, String ip, String port) {
         getContentPane().setBackground(Color.black);
-
         setSize(getDimension());
         setPreferredSize(getDimension());
+        add(_icon);
+
         try {
-            Thread.sleep(1000);
+            Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        remove(_icon);
+
         try {
             appletWrap = new Launcher(mcApplet, new URL("http://www.minecraft.net/game"));
         } catch (MalformedURLException ignored) {

@@ -174,7 +174,6 @@ public class ServerInfoPanel extends BasePanel implements ActionListener {
 
     public void setServer(Server server) {
         this.server = server;
-
         serverImage.update(server.getFullIp(), server.getLogo());
         serverImage.setBounds(actionsBox.getX() + ((actionsBox.getWidth() - 150) / 2), actionsBox.getY() + PADDING, 150, 150);
 

@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Mod extends FileDownloader {
-    private String       _name    = "";
-    private String       _version = "";
-    private List<String> _authors = new ArrayList<String>();
-    private String       _infoUrl = "";
-    private boolean      _coreMod = false;
+    private String       _name         = "";
+    private String       _version      = "";
+    private List<String> _authors      = new ArrayList<String>();
+    private String       _infoUrl      = "";
+    private boolean      _coreMod      = false;
+    private boolean      _shouldUpdate = false;
 
     public Mod(String name, String version, String authors, String infoUrl, String downloadUrl, boolean coreMod, String baseDir) {
         super(downloadUrl, baseDir + "/minecraft/" + (coreMod ? "coremods/" : "mods/"), false);
@@ -54,6 +55,14 @@ public class Mod extends FileDownloader {
 
     protected String getFilename() {
         if (_rawDownloadURL == null) { return ""; }
-        return getName().replaceAll(" ", "").toLowerCase().trim() + ".jar";
+        return (getName() + "-" + getVersion()).replaceAll(" ", "").toLowerCase().trim() + ".jar";
+    }
+
+    public void setShouldUpdate(boolean update) {
+        _shouldUpdate = update;
+    }
+
+    public boolean shouldDownload() {
+        return _shouldUpdate || super.shouldDownload();
     }
 }

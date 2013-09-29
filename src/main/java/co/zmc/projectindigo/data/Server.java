@@ -190,6 +190,7 @@ public class Server {
                             }
                         }
                     }
+                    mod.setShouldUpdate(true);
                     _mods.add(mod);
                 }
                 for (Mod mod : modsToRemove) {
@@ -327,6 +328,10 @@ public class Server {
 
     public String getLogo() {
         return _logo;
+    }
+
+    public String getLogoCacheLocation() {
+        return DirectoryLocations.IMAGE_DIR_LOCATION + getLogo().split("/")[getLogo().split("/").length - 1];
     }
 
     public String getModpackInfoURL() {

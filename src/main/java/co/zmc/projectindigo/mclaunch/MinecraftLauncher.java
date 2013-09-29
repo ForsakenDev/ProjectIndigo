@@ -4,17 +4,18 @@ import java.applet.Applet;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 import co.zmc.projectindigo.Main;
 import co.zmc.projectindigo.data.Server;
 import co.zmc.projectindigo.data.log.Logger;
-import co.zmc.projectindigo.utils.ResourceUtils;
+import co.zmc.projectindigo.utils.DirectoryLocations;
 import co.zmc.projectindigo.utils.Settings;
 import co.zmc.projectindigo.utils.Utils;
 import co.zmc.projectindigo.utils.Utils.OS;
@@ -58,7 +59,11 @@ public class MinecraftLauncher {
         String separator = System.getProperty("file.separator");
         String path = System.getProperty("java.home") + separator + "bin" + separator + "java" + (Utils.getCurrentOS() == Utils.OS.WINDOWS ? "w" : "");
         arguments.add(path);
-
+        String imagePath = DirectoryLocations.IMAGE_DIR_LOCATION + server.getFullIp() + ".png";
+        if (Utils.getCurrentOS() == OS.MACOSX) {
+            arguments.add("-Xdock:icon=" + imagePath);
+            arguments.add("-Xdock:name=" + title);
+        }
         setMemory(arguments, settings.get(Settings.MAX_RAM));
         arguments.add("-XX:+UseConcMarkSweepGC");
         arguments.add("-XX:+CMSIncrementalMode");
@@ -72,14 +77,6 @@ public class MinecraftLauncher {
                 }
             }
         }
-//        if (Utils.getCurrentOS() == OS.MACOSX) {
-//            try {
-//                arguments.add("-Xdock:icon=" + new File(ResourceUtils.getResource("icon_file_mac").toURI()).getAbsolutePath());
-//            } catch (URISyntaxException e) {
-//                e.printStackTrace();
-//            }
-//            arguments.add("-Xdock:name=" + title);
-//        }
 
         arguments.add("-noverify");
         arguments.add("-cp");
@@ -93,6 +90,7 @@ public class MinecraftLauncher {
         arguments.add(server.getIp());
         arguments.add(server.getPort() + "");
         arguments.add(title);
+        arguments.add(imagePath);
 
         ProcessBuilder processBuilder = new ProcessBuilder(arguments);
         Logger.logInfo("Setting working dir to " + server.getBaseDir().getAbsolutePath() + "/minecraft");
@@ -128,7 +126,7 @@ public class MinecraftLauncher {
             new Main();
             return;
         }
-        String basepath = args[0], forgename = args[1], username = args[2], sessionId = args[3], ip = args[4], port = args[5], title = args[6];
+        String basepath = args[0], forgename = args[1], username = args[2], sessionId = args[3], ip = args[4], port = args[5], title = args[6], imagePath = args[7];
         try {
             Logger.logInfo("Loading jars...");
             String[] jarFiles = new String[] { "minecraft.jar", "lwjgl.jar", "lwjgl_util.jar", "jinput.jar" };
@@ -176,7 +174,7 @@ public class MinecraftLauncher {
             try {
                 Class<?> MCAppletClass = cl.loadClass("net.minecraft.client.MinecraftApplet");
                 Applet mcappl = (Applet) MCAppletClass.newInstance();
-                MinecraftFrame mcWindow = new MinecraftFrame(title, new Settings());
+                MinecraftFrame mcWindow = new MinecraftFrame(title, new Settings(), new File(imagePath).toURI().toURL());
                 mcWindow.start(mcappl, basepath, username, sessionId, ip, port);
             } catch (InstantiationException e) {
                 Logger.logError("Applet wrapper failed! Falling back to compatibility mode", e);
@@ -186,5 +184,4 @@ public class MinecraftLauncher {
             Logger.logError("Unknown error during launch", t);
         }
     }
-
 }
