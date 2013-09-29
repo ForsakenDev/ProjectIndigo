@@ -26,6 +26,8 @@ public class ResourceUtils {
     private static final URL    HEADER        = ResourceUtils.class.getResource(BASE_PATH + "/images/header.png");
     private static final URL    SETTINGS      = ResourceUtils.class.getResource(BASE_PATH + "/images/settings.png");
     private static final URL    FOLDER        = ResourceUtils.class.getResource(BASE_PATH + "/images/folder.png");
+    private static final URL    ICON_MAC      = ResourceUtils.class.getResource(BASE_PATH + "/build/app/icon.icns");
+    private static final URL    ICON_WIN      = ResourceUtils.class.getResource(BASE_PATH + "/build/exe/icon.ico");
 
     public static URL getResource(String name) {
         if (name.equalsIgnoreCase("splash_screen")) {
@@ -38,7 +40,11 @@ public class ResourceUtils {
             return SETTINGS;
         } else if (name.equalsIgnoreCase("folder")) {
             return FOLDER;
-        } else if (name.equalsIgnoreCase("header")) { return HEADER; }
+        } else if (name.equalsIgnoreCase("header")) {
+            return HEADER;
+        } else if (name.equalsIgnoreCase("icon_file_mac")) {
+            return ICON_MAC;
+        } else if (name.equalsIgnoreCase("icon_file_win")) { return ICON_WIN; }
         return null;
     }
 

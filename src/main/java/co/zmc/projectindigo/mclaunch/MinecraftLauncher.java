@@ -4,6 +4,7 @@ import java.applet.Applet;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.Permission;
@@ -21,8 +22,10 @@ import co.zmc.projectindigo.Main;
 import co.zmc.projectindigo.data.Server;
 import co.zmc.projectindigo.data.log.Logger;
 import co.zmc.projectindigo.security.PolicyManager;
+import co.zmc.projectindigo.utils.ResourceUtils;
 import co.zmc.projectindigo.utils.Settings;
 import co.zmc.projectindigo.utils.Utils;
+import co.zmc.projectindigo.utils.Utils.OS;
 
 public class MinecraftLauncher {
     public static Process launchMinecraft(Server server, String username, String sessionId, String forgename, Settings settings) throws IOException {
@@ -57,7 +60,7 @@ public class MinecraftLauncher {
             cpb.append(Utils.getJavaDelimiter());
             cpb.append(new File(server.getBinDir(), jarFile).getAbsolutePath().replaceAll(" ", "\\ "));
         }
-
+        String title = server.getName() + " v" + server.getVersion();
         List<String> arguments = new ArrayList<String>();
 
         String separator = System.getProperty("file.separator");
@@ -69,6 +72,7 @@ public class MinecraftLauncher {
         arguments.add("-XX:+CMSIncrementalMode");
         arguments.add("-XX:+AggressiveOpts");
         arguments.add("-XX:+CMSClassUnloadingEnabled");
+
         if (!settings.get(Settings.JAVA_PARAMS).isEmpty() && settings.get(Settings.JAVA_PARAMS).split(" ").length > 0) {
             for (String s : settings.get(Settings.JAVA_PARAMS).split(" ")) {
                 if (!s.isEmpty()) {
@@ -76,6 +80,15 @@ public class MinecraftLauncher {
                 }
             }
         }
+        if (Utils.getCurrentOS() == OS.MACOSX) {
+            try {
+                arguments.add("-Xdock:icon=" + new File(ResourceUtils.getResource("icon_file_mac").toURI()).getAbsolutePath());
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+            }
+            arguments.add("-Xdock:name=" + title);
+        }
+
         arguments.add("-noverify");
         arguments.add("-cp");
         arguments.add(System.getProperty("java.class.path") + cpb.toString().replaceAll(" ", "\\\\ "));
@@ -87,7 +100,7 @@ public class MinecraftLauncher {
         arguments.add(sessionId);
         arguments.add(server.getIp());
         arguments.add(server.getPort() + "");
-        arguments.add(server.getName() + " v" + server.getVersion());
+        arguments.add(title);
 
         ProcessBuilder processBuilder = new ProcessBuilder(arguments);
         Logger.logInfo("Setting working dir to " + server.getBaseDir().getAbsolutePath() + "/minecraft");
