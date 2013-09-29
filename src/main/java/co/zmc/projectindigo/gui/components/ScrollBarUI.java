@@ -9,7 +9,6 @@ import java.awt.RenderingHints;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JScrollBar;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 
 public class ScrollBarUI extends BasicScrollBarUI {
@@ -44,18 +43,21 @@ public class ScrollBarUI extends BasicScrollBarUI {
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         Color color = null;
-        JScrollBar sb = (JScrollBar) c;
-        if (!sb.isEnabled() || r.width > r.height) {
-            return;
-        } else if (isDragging) {
-            color = new Color(50, 50, 50, 120);
+        Color highlight = null;
+        if (isDragging) {
+            color = new Color(50, 50, 50, 160);
+            highlight = new Color(155, 155, 155, 160);
         } else if (isThumbRollover()) {
-            color = new Color(50, 50, 50, 120);
+            color = new Color(50, 50, 50, 160);
+            highlight = new Color(155, 155, 155, 160);
         } else {
-            color = new Color(50, 50, 50, 60);
+            color = new Color(50, 50, 50, 120);
+            highlight = new Color(155, 155, 155, 120);
         }
         g2.setPaint(color);
         g2.fillRoundRect(r.x, r.y, r.width, r.height, 20, 20);
+        g2.setPaint(highlight);
+        g2.drawRoundRect(r.x, r.y, r.width - 1, r.height - 1, 20, 20);
         g2.dispose();
     }
 

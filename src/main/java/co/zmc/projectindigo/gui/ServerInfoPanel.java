@@ -113,7 +113,7 @@ public class ServerInfoPanel extends BasePanel implements ActionListener {
         backButton.setActionCommand("BACK");
 
         descriptionBox = new RoundedBox(MainPanel.BORDER_COLOUR);
-        descriptionBox.setBounds(headerBox.getX(), actionsBox.getY(), getWidth() - 200 - (PADDING * 3), 175);
+        descriptionBox.setBounds(headerBox.getX(), actionsBox.getY(), getWidth() - 200 - (PADDING * 3), actionsBox.getHeight() - 175 - PADDING);
 
         serverDescriptionPane = new JTextPane();
         serverDescriptionPane.setForeground(Color.WHITE);
@@ -130,7 +130,7 @@ public class ServerInfoPanel extends BasePanel implements ActionListener {
         descriptionScrollPane.getVerticalScrollBar().setUI(new ScrollBarUI());
 
         modListBox = new RoundedBox(MainPanel.BORDER_COLOUR);
-        modListBox.setBounds(descriptionBox.getX(), descriptionBox.getY() + descriptionBox.getHeight() + PADDING, getWidth() - 200 - (PADDING * 3), actionsBox.getHeight() - descriptionBox.getHeight()
+        modListBox.setBounds(descriptionBox.getX(), descriptionBox.getY() + descriptionBox.getHeight() + PADDING, descriptionBox.getWidth(), actionsBox.getHeight() - descriptionBox.getHeight()
                 - PADDING);
 
         modPane = new JTextPane();
