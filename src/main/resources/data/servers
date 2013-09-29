@@ -5,25 +5,13 @@
     "port": "25565",
     "modpack_version": "1.0.0",
     "logo_url": "",
-    "modpack_info_url": "http://z-mc.co/modpack.json",
-    "modpack_url": "http://z-mc.co/mod.zip",
+    "modpack_info_url": "http://z-mc.co/modpack/modpack.json",
+    "modpack_url": "http://z-mc.co/modpack/mod.zip",
     "mc_version": "1.5.2",
     "forge_version": "7.8.1.738",
     "coremods": {
-      "CodeChicken Core": {
-        "authors": "ChickenBones", 
-        "version": "0.8.7.3", 
-        "info_url": "http://www.minecraftforum.net/topic/909223-", 
-        "download_url": "http://www.chickenbones.craftsaddle.org/Files/New_Versions/1.5.1/CodeChickenCore 0.8.7.3-fix1.jar", 
-      },
     },
     "mods": {
-      "Damage Indicators": {
-        "authors": "rich1051414", 
-        "version": "2.7.0.1", 
-        "info_url": "http://www.minecraftforum.net/topic/1536685-", 
-        "download_url": "https://dl.dropboxusercontent.com/u/74770478/1.5.2 DamageIndicators v2.7.0.1.zip", 
-      },
     },
   },
 }

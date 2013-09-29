@@ -1,15 +1,9 @@
 package co.zmc.projectindigo.gui;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JPanel;
 import javax.swing.JTextPane;
 
 import co.zmc.projectindigo.IndigoLauncher;
@@ -18,154 +12,115 @@ import co.zmc.projectindigo.gui.components.Button;
 import co.zmc.projectindigo.gui.components.Image;
 import co.zmc.projectindigo.gui.components.Label;
 import co.zmc.projectindigo.gui.components.RoundedBox;
+import co.zmc.projectindigo.utils.Utils;
 
 @SuppressWarnings("serial")
 public class ServerInfoPanel extends BasePanel implements ActionListener {
 
-	private Server server;
+    private Server           server;
 
-	private JPanel panel;
+    private static final int PADDING = 20;
 
-	private RoundedBox actionsBox;
-	private RoundedBox descriptionBox;
-	private RoundedBox headerBox;
+    private RoundedBox       actionsBox;
+    private RoundedBox       descriptionBox;
+    private RoundedBox       headerBox;
 
-	private Button joinButton;
-	private Button deleteButton;
-	private Button backButton;
+    private Button           joinButton;
+    private Button           deleteButton;
+    private Button           backButton;
 
-	private JTextPane serverDescriptionPane;
-	
-	private Label serverIPLabel;
-	private Label serverNameLabel;
+    private JTextPane        serverDescriptionPane;
 
-	private Image serverImage;
-	
-	public ServerInfoPanel(MainPanel mainPanel) {
-		super(mainPanel, 1);
-	}
+    private Label            serverIPLabel;
+    private Label            serverNameLabel;
 
-	@Override
-	public void initComponents() {
-		int xPadding = 10;
-		int yPadding = 10;
+    private Image            serverImage;
 
-		this.setLayout(new FlowLayout());
+    public ServerInfoPanel(MainPanel mainPanel) {
+        super(mainPanel, 3);
+    }
 
-		panel = new JPanel();
-		panel.setOpaque(false);
-		panel.setPreferredSize(new Dimension(this.getWidth() - 20, this.getHeight() - 20));
-		panel.setLayout(new BorderLayout(xPadding, yPadding));
-		
-		actionsBox = new RoundedBox(MainPanel.BORDER_COLOUR);
-		descriptionBox = new RoundedBox(MainPanel.BORDER_COLOUR);
-		headerBox = new RoundedBox(MainPanel.BORDER_COLOUR);
+    @Override
+    public void initComponents() {
+        headerBox = new RoundedBox(MainPanel.BORDER_COLOUR);
+        headerBox.setBounds((getWidth() - (getWidth() - (PADDING * 2))) / 2, PADDING, getWidth() - (PADDING * 2), 60);
 
-		actionsBox.setPreferredSize(new Dimension(200, 70));
-		descriptionBox.setPreferredSize(new Dimension(panel.getPreferredSize().width - 200, panel.getPreferredSize().height - 60));
-		headerBox.setPreferredSize(new Dimension(panel.getPreferredSize().width, 45));
+        serverNameLabel = new Label(this, "");
+        serverNameLabel.setFont(IndigoLauncher.getMinecraftFont(24));
+        serverNameLabel.setBounds(headerBox.getX() + PADDING, headerBox.getY() + ((headerBox.getHeight() - 26) / 2), (int) (headerBox.getWidth() * 0.75), 26);
 
-		actionsBox.setOpaque(false);
-		descriptionBox.setOpaque(false);
-		headerBox.setOpaque(false);
-		
-		// Header box
-		headerBox.setLayout(new FlowLayout());
+        serverIPLabel = new Label(this, "");
+        serverIPLabel.setFont(IndigoLauncher.getMinecraftFont(18));
+        serverIPLabel.setBounds((headerBox.getX() + headerBox.getWidth() + PADDING) - (Utils.getLabelWidth(serverIPLabel) + PADDING), headerBox.getY() + ((headerBox.getHeight() - 18) / 2),
+                (int) (headerBox.getWidth() * 0.75), 18);
 
-		serverNameLabel = new Label();
-		serverIPLabel = new Label();
+        actionsBox = new RoundedBox(MainPanel.BORDER_COLOUR);
+        actionsBox.setBounds(getWidth() - 200 - PADDING, getHeight() - (getHeight() - (headerBox.getHeight() + PADDING) - (PADDING * 2)) - PADDING, 200, getHeight()
+                - (headerBox.getHeight() + PADDING) - (PADDING * 2));
 
-		serverNameLabel.setFont(IndigoLauncher.getMinecraftFont(30));
-		serverNameLabel.setForeground(Color.WHITE);
+        serverImage = new Image("base_char", 150, 150);
+        serverImage.setBounds(actionsBox.getX() + ((actionsBox.getWidth() - 150) / 2), actionsBox.getY() + PADDING, 150, 150);
 
-		serverIPLabel.setForeground(Color.WHITE);
+        joinButton = new Button(this, "Join Server");
+        joinButton.setBackground(new Color(0x36DA62));
+        joinButton.setHoverColour(new Color(0x00B454));
+        joinButton.setBounds(actionsBox.getX() + ((actionsBox.getWidth() - 180) / 2), (serverImage.getY() + serverImage.getHeight()) + PADDING, 180, 25);
+        joinButton.addActionListener(this);
+        joinButton.setActionCommand("CONNECT");
 
-		headerBox.add(serverNameLabel);
-		headerBox.add(serverIPLabel);
-		
-		// Actions box
-		actionsBox.setLayout(new BoxLayout(actionsBox, BoxLayout.Y_AXIS));
+        backButton = new Button(this, "Back");
+        backButton.setBounds(actionsBox.getX() + ((actionsBox.getWidth() - 180) / 2), (joinButton.getY() + joinButton.getHeight()) + (PADDING / 2), 180, 25);
+        backButton.addActionListener(this);
+        backButton.setActionCommand("BACK");
 
-		joinButton = new Button("Join Server");
-		deleteButton = new Button("Delete Server");
-		backButton = new Button("Back");
+        deleteButton = new Button(this, "Delete");
+        deleteButton.setBackground(new Color(0xFF5500));
+        deleteButton.setHoverColour(new Color(0xFF0000));
+        deleteButton.setBounds(actionsBox.getX() + ((actionsBox.getWidth() - 180) / 2), (backButton.getY() + backButton.getHeight()) + (PADDING / 2), 180, 25);
+        deleteButton.addActionListener(this);
+        deleteButton.setActionCommand("DELETE");
 
-		serverImage = new Image("base_char", 150, 150); // SERVER IMAGE PLACEHOLDER. 
-														// I thought would could be the server's image but looks pretty good with user head
-		serverImage.setMaximumSize(new Dimension(150, 150));
-		serverImage.setAlignmentX(CENTER_ALIGNMENT);
+        descriptionBox = new RoundedBox(MainPanel.BORDER_COLOUR);
+        descriptionBox.setBounds(headerBox.getX(), actionsBox.getY(), getWidth() - 200 - (PADDING * 3), getHeight() - (headerBox.getHeight() + PADDING) - (PADDING * 2));
 
-		joinButton.addActionListener(this);
-		joinButton.setActionCommand("CONNECT");
-		deleteButton.addActionListener(this);
-		deleteButton.setActionCommand("DELETE");
-		backButton.addActionListener(this);
-		backButton.setActionCommand("BACK");
+        serverDescriptionPane = new JTextPane();
+        serverDescriptionPane.setForeground(Color.WHITE);
+        serverDescriptionPane.setOpaque(false);
+        serverDescriptionPane.setEditable(false);
+        serverDescriptionPane.setFont(IndigoLauncher.getMinecraftFont(14));
+        serverDescriptionPane.setBounds(descriptionBox.getX() + (PADDING / 2), descriptionBox.getY() + (PADDING / 2), descriptionBox.getWidth() - (PADDING * 2), descriptionBox.getY() - (PADDING * 2));
 
-		joinButton.setMaximumSize(new Dimension(180, 25));
-		deleteButton.setMaximumSize(new Dimension(180, 25));
-		backButton.setMaximumSize(new Dimension(180, 25));
+        add(serverDescriptionPane, 0);
+        add(serverImage, 0);
+        add(descriptionBox);
+        add(headerBox);
+        add(actionsBox);
 
-		joinButton.setAlignmentX(CENTER_ALIGNMENT);
-		deleteButton.setAlignmentX(CENTER_ALIGNMENT);
-		backButton.setAlignmentX(CENTER_ALIGNMENT);
+    }
 
-		joinButton.setBackground(new Color(0xFF5500));
-		joinButton.setHoverColour(new Color(0xFF0000));
+    public void setServer(Server server) {
+        this.server = server;
 
-		int buttonSpacing = 10;
+        serverNameLabel.setText(server.getName());
+        serverIPLabel.setText(server.getFullIp());
+        serverIPLabel.setBounds((headerBox.getX() + headerBox.getWidth() + PADDING) - (Utils.getLabelWidth(serverIPLabel) + (PADDING * 2)), headerBox.getY() + ((headerBox.getHeight() - 18) / 2),
+                (int) (headerBox.getWidth() * 0.75), 18);
+        serverDescriptionPane.setText("This is a server\nThis text is just the description placeholder\nAnd things\nkbye");
+    }
 
-		actionsBox.add(Box.createRigidArea(new Dimension(10, buttonSpacing)));
-		actionsBox.add(serverImage);
-		actionsBox.add(Box.createRigidArea(new Dimension(10, buttonSpacing)));
-		actionsBox.add(joinButton);
-		actionsBox.add(Box.createRigidArea(new Dimension(10, buttonSpacing)));
-		actionsBox.add(backButton);
-		actionsBox.add(Box.createRigidArea(new Dimension(10, buttonSpacing)));
-		actionsBox.add(deleteButton);
-		
-		// Description box
-		descriptionBox.setLayout(new BorderLayout());
-		
-		serverDescriptionPane = new JTextPane();
-		serverDescriptionPane.setForeground(Color.WHITE);
-		serverDescriptionPane.setOpaque(false);
-		serverDescriptionPane.setEditable(false);
-		//serverDescriptionPane.setFont(IndigoLauncher.getMinecraftFont(14));
+    public void actionPerformed(ActionEvent e) {
+        if (e.getActionCommand().equals("CONNECT")) {
+            ((ServerPanel) getMainPanel().getPanel(1))._selectedServer = server.getFullIp();
+            switchPage(2);
+        }
 
-		descriptionBox.add(serverDescriptionPane, BorderLayout.CENTER);
-		
-		panel.add(headerBox, BorderLayout.PAGE_START);
-		panel.add(descriptionBox, BorderLayout.CENTER);
-		panel.add(actionsBox, BorderLayout.LINE_END);
-		
-		this.add(panel);
+        if (e.getActionCommand().equals("DELETE")) {
+            // DELETE SERVER PLACEHOLDER
+        }
 
-	}
-
-	public void setServer(Server server) {
-		this.server = server;
-
-		serverNameLabel.setText(server.getName());
-		serverIPLabel.setText(server.getFullIp());
-
-		serverDescriptionPane.setText("This is a server\nThis text is just the description placeholder\nAnd things\nkbye");
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getActionCommand().equals("CONNECT")) {
-			((ServerPanel) getMainPanel().getPanel(1))._selectedServer = server.getFullIp();
-			switchPage(2);
-		}
-
-		if (e.getActionCommand().equals("DELETE")) {
-			// DELETE SERVER PLACEHOLDER
-		}
-
-		if (e.getActionCommand().equals("BACK")) {
-			switchPage(1);
-		}
-	}
+        if (e.getActionCommand().equals("BACK")) {
+            switchPage(1);
+        }
+    }
 
 }

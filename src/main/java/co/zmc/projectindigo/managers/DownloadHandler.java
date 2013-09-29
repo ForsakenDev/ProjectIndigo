@@ -35,8 +35,10 @@ public class DownloadHandler extends SwingWorker<Boolean, Void> {
 
     @Override
     protected Boolean doInBackground() {
-        if (_server.shouldUpdate() || _server.shouldDownload()) {
+
+        if (_server.checkUpdates() || _server.shouldDownload()) {
             JOptionPane.showMessageDialog(null, "An update was found for " + _server.getName());
+
             try {
                 if (_server.download(((ProgressPanel) _mainPanel.getPanel(-1)))) {
                     ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Download complete. Launching Game...", 100);

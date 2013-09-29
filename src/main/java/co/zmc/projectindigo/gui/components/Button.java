@@ -30,7 +30,7 @@ public class Button extends JButton implements MouseListener {
 		frame.add(this, 0);
 	}
 	
-	public Button(String label) {
+	private Button(String label) {
 		setText(label);
 		setBackground(Color.WHITE);
 		addMouseListener(this);

@@ -22,14 +22,12 @@ import co.zmc.projectindigo.utils.DirectoryLocations;
 import co.zmc.projectindigo.utils.FileUtils;
 
 public class ServerManager extends SwingWorker<Boolean, Void> {
-    private static final File _saveFile         = new File(DirectoryLocations.DATA_DIR_LOCATION, "servers");
+    private static final File _saveFile = new File(DirectoryLocations.DATA_DIR_LOCATION, "servers");
     private String            _status;
     private int               _percentComplete;
-    private List<Server>      _servers          = new ArrayList<Server>();
+    private List<Server>      _servers  = new ArrayList<Server>();
     private MainPanel         _mainPanel;
-    private int               numToLoad         = 0;
-    private int               currentParseIndex = 0;
-    private JSONObject        servers           = null;
+    private JSONObject        servers   = null;
 
     public ServerManager(MainPanel mainPanel) {
         _mainPanel = mainPanel;

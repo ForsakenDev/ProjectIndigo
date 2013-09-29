@@ -1,5 +1,6 @@
 package co.zmc.projectindigo.utils;
 
+import java.awt.font.FontRenderContext;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
@@ -24,6 +25,7 @@ import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
 
 import co.zmc.projectindigo.IndigoLauncher;
+import co.zmc.projectindigo.gui.components.Label;
 
 public class Utils {
 
@@ -240,5 +242,10 @@ public class Utils {
         } while (connection.getResponseCode() != HttpURLConnection.HTTP_OK);
         connection.disconnect();
         return finalUrl.replaceAll(" ", "%20");
+    }
+
+    public static int getLabelWidth(Label label) {
+        FontRenderContext frc = new FontRenderContext(label.getFont().getTransform(), true, true);
+        return (int) (label.getFont().getStringBounds(label.getText(), frc).getWidth()) + ((1 * label.getText().length()) / 2);
     }
 }

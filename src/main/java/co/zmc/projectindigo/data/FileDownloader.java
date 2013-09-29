@@ -49,20 +49,21 @@ public class FileDownloader {
         return _extract;
     }
 
-    protected void loadFileSize() {
-        if (_rawDownloadURL == null) { return; }
-        try {
-            _fileSize = getDownloadURL().openConnection().getContentLength();
-        } catch (IOException e) {
-            Logger.logError(e.getMessage(), e);
-        }
-        return;
+    public Runnable loadFileSize(final Server server, final ProgressPanel panel) {
+        return new Runnable() {
+            public void run() {
+                if (_rawDownloadURL == null) { return; }
+                try {
+                    _fileSize = getDownloadURL().openConnection().getContentLength();
+                    server.addValidatedFile(panel, _fileSize, _extract);
+                } catch (IOException e) {
+                    Logger.logError(e.getMessage(), e);
+                }
+            }
+        };
     }
 
     public int getFileSize() {
-        if (_fileSize == -1) {
-            loadFileSize();
-        }
         return _fileSize;
     }
 
@@ -90,32 +91,19 @@ public class FileDownloader {
         return _downloadURL;
     }
 
-    public void download(final Server server, final ProgressPanel panel, boolean thread) throws IOException {
-        if (thread) {
-            _downloadThread = new Thread(new Runnable() {
-                public void run() {
-                    // SwingUtilities.invokeLater(new Runnable() {
-                    // public void run() {
-                    try {
-                        download(server, panel);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    // }
-                    // });
+    public Runnable download(final Server server, final ProgressPanel panel) throws IOException {
+        return new Runnable() {
+            public void run() {
+                try {
+                    downloadFile(server, panel);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            });
-            _downloadThread.start();
-        } else {
-            try {
-                download(server, panel);
-            } catch (IOException e) {
-                e.printStackTrace();
             }
-        }
+        };
     }
 
-    private boolean download(Server server, ProgressPanel panel) throws IOException {
+    private boolean downloadFile(Server server, ProgressPanel panel) throws IOException {
         if (_rawDownloadURL == null) { return false; }
         String jarFileName = getFilename();
         File downloadedFile = new File(_baseDir, jarFileName);
@@ -151,13 +139,6 @@ public class FileDownloader {
                 extract(server, panel);
             }
             server.addLoadedDownload();
-            // if (_downloadThread != null) {
-            // try {
-            // _downloadThread.join();
-            // } catch (InterruptedException e) {
-            // e.printStackTrace();
-            // }
-            // }
             return true;
         }
         Logger.logInfo("Could not finish downloading " + jarFileName);
@@ -204,7 +185,6 @@ public class FileDownloader {
                 byte[] buffer = new byte[1024];
                 while ((readLen = zipIn.read(buffer, 0, buffer.length)) > 0) {
                     outStream.write(buffer, 0, readLen);
-                    server.addDownloadSize(panel, readLen);
                 }
                 outStream.close();
                 currentEntry = zipIn.getNextEntry();

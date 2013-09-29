@@ -6,6 +6,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONObject;
@@ -36,15 +39,17 @@ public class Server {
     private String               _modpackInfoURL;
     private String               _forgeVersion;
 
-    private List<Mod>            _mods              = new ArrayList<Mod>();
-    private List<Mod>            _modsToUpdate      = new ArrayList<Mod>();
-    private List<Mod>            _modsToRemove      = new ArrayList<Mod>();
-    private List<FileDownloader> _downloads         = new ArrayList<FileDownloader>();
+    private List<Mod>            _mods                 = new ArrayList<Mod>();
+    private List<Mod>            _modsToUpdate         = new ArrayList<Mod>();
+    private List<Mod>            _modsToRemove         = new ArrayList<Mod>();
+    private List<FileDownloader> _downloads            = new ArrayList<FileDownloader>();
 
-    private boolean              canLaunch          = false;
+    private int                  _totalLaunchSize      = 0;
+    private int                  _currentLaunchSize    = 0;
 
-    private int                  _totalLaunchSize   = 0;
-    private int                  _currentLaunchSize = 0;
+    private int                  _numLoadedDownloads   = 0;
+    private int                  _lastDownloadProgress = 0;
+    private int                  _numLoadedValidate    = 0;
 
     private File                 _baseDir;
     private File                 _minecraftDir;
@@ -75,6 +80,7 @@ public class Server {
                 JSONObject jsonMod = (JSONObject) coreMods.get((String) key);
                 _mods.add(new Mod((String) key, (String) jsonMod.get("version"), (String) jsonMod.get("authors"), (String) jsonMod.get("info_url"), (String) jsonMod.get("download_url"), true,
                         getBaseDir().getAbsolutePath()));
+
             }
         }
 
@@ -107,22 +113,17 @@ public class Server {
             default:
                 break;
         }
+
     }
 
-    public void loadFileSize(ProgressPanel panel) {
-        int total = _mods.size() + _downloads.size();
-        int totalCompletion = 0;
-        for (Mod mod : _mods) {
-            panel.stateChanged("Validating " + mod.getName() + "...", (int) (((double) totalCompletion / (double) total) * 100D));
-            _totalLaunchSize += mod.getFileSize();
-            totalCompletion++;
-        }
+    public void addValidatedFile(ProgressPanel panel, int fileSize, boolean shouldExtract) {
+        _numLoadedValidate++;
+        panel.stateChanged("Validating Mod Links", (int) (((double) _numLoadedValidate / (double) (_mods.size() + _downloads.size())) * 100D));
+        _totalLaunchSize += ((double) fileSize * (shouldExtract ? 2.5D : 1D));
+    }
 
-        for (FileDownloader res : _downloads) {
-            panel.stateChanged("Validating " + res.getRawDownloadURL() + "...", (int) (((double) totalCompletion / (double) total) * 100D));
-            _totalLaunchSize += res.getFileSize() * (res.shouldExtract() ? 2 : 1);
-            totalCompletion++;
-        }
+    public boolean isFinishedValidating() {
+        return _mods.size() + _downloads.size() <= _numLoadedValidate;
     }
 
     public Server getNewServer() {
@@ -140,7 +141,7 @@ public class Server {
         return null;
     }
 
-    public boolean shouldUpdate() {
+    public boolean checkUpdates() {
         boolean shouldUpdate = false;
         Server server = getNewServer();
         if (server != null) {
@@ -168,6 +169,7 @@ public class Server {
         }
         if (shouldUpdate) {
             _rawJSON = server._rawJSON;
+            ((ServerPanel) _mainPanel.getPanel(1)).getServerManager().save();
         }
         return shouldUpdate;
     }
@@ -196,6 +198,16 @@ public class Server {
     public void mkdir() {
         if (!_baseDir.exists()) {
             _baseDir.mkdir();
+        }
+    }
+
+    public void mkdirs() {
+        mkdir();
+        if (!_minecraftDir.exists()) {
+            _minecraftDir.mkdir();
+        }
+        if (!_binDir.exists()) {
+            _binDir.mkdir();
         }
     }
 
@@ -264,32 +276,38 @@ public class Server {
         return _mods;
     }
 
-    private boolean downloadResources(ProgressPanel panel) throws IOException {
-        int numLoaded = 0;
-        for (FileDownloader download : _downloads) {
-            download.download(this, panel, false);
-            numLoaded++;
-        }
-        return numLoaded == _downloads.size();
-    }
+    public List<Runnable> loadFileSize(ProgressPanel panel) {
+        List<Runnable> mods = new ArrayList<Runnable>();
 
-    private boolean downloadMods(ProgressPanel panel) throws IOException {
-        int numLoaded = 0;
+        for (FileDownloader res : _downloads) {
+            mods.add(res.loadFileSize(this, panel));
+        }
         for (Mod mod : _mods) {
-            mod.download(this, panel, true);
-            numLoaded++;
+            mods.add(mod.loadFileSize(this, panel));
         }
-        return numLoaded == _downloads.size();
+        return mods;
     }
 
-    private int _lastDownloadProgress = 0;
+    private List<Runnable> downloadResources(ProgressPanel panel) throws IOException {
+        List<Runnable> mods = new ArrayList<Runnable>();
+        for (FileDownloader download : _downloads) {
+            mods.add(download.download(this, panel));
+        }
+        return mods;
+    }
+
+    private List<Runnable> downloadMods(ProgressPanel panel) throws IOException {
+        List<Runnable> mods = new ArrayList<Runnable>();
+        for (Mod mod : _mods) {
+            mods.add(mod.download(this, panel));
+        }
+        return mods;
+    }
 
     public void addDownloadSize(ProgressPanel panel, int amount) {
         _currentLaunchSize += amount;
-        if (getDownloadProgress() > _lastDownloadProgress) {
-            _lastDownloadProgress = getDownloadProgress();
-            panel.stateChanged("Downloading mods...", _lastDownloadProgress);
-        }
+        _lastDownloadProgress = getDownloadProgress();
+        panel.stateChanged("Downloading mods", _lastDownloadProgress);
     }
 
     public int getDownloadProgress() {
@@ -306,14 +324,11 @@ public class Server {
         return _mods.size() + _downloads.size() <= _numLoadedDownloads;
     }
 
-    private int _numLoadedDownloads = 0;
-
     public void addLoadedDownload() {
         _numLoadedDownloads++;
     }
 
-    private boolean updateNewMods(ProgressPanel panel) throws IOException {
-        int numLoaded = 0;
+    private void updateNewMods(ProgressPanel panel) throws IOException {
         List<Integer> idsToRemove = new ArrayList<Integer>();
         for (Mod mod : _modsToUpdate) {
             for (int i = 0; i < _mods.size(); i++) {
@@ -325,8 +340,6 @@ public class Server {
                     }
                 }
             }
-            mod.download(this, panel, true);
-            numLoaded++;
             _mods.add(mod);
         }
         for (Mod mod : _modsToRemove) {
@@ -343,21 +356,41 @@ public class Server {
         for (Integer i : idsToRemove) {
             _mods.remove(i);
         }
-        return numLoaded == _modsToUpdate.size();
+
+        _modsToUpdate.clear();
+        _modsToRemove.clear();
     }
 
     public boolean download(ProgressPanel panel) throws IOException {
-        loadFileSize(panel);
-        if (shouldUpdate()) {
-            System.out.println("Performing update");
-            if (!updateNewMods(panel)) { return false; }
-            _modsToUpdate.clear();
-            _modsToRemove.clear();
-        } else {
-            System.out.println("Downloading");
-            if (!(downloadResources(panel) && downloadMods(panel))) { return false; }
+        mkdirs();
+        updateNewMods(panel);
+        ExecutorService pool = Executors.newFixedThreadPool(10);
+        for (Runnable r : loadFileSize(panel)) {
+            pool.submit(r);
+        }
+        pool.shutdown();
+        try {
+            pool.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("total file size: " + this._totalLaunchSize);
+
+        pool = Executors.newFixedThreadPool(10);
+        for (Runnable r : downloadResources(panel)) {
+            pool.submit(r);
+        }
+        for (Runnable r : downloadMods(panel)) {
+            pool.submit(r);
+        }
+        pool.shutdown();
+        try {
+            pool.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
         ((ServerPanel) _mainPanel.getPanel(1)).getServerManager().save();
+
         return true;
     }
 

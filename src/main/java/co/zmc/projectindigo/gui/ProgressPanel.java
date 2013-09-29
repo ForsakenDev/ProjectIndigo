@@ -24,19 +24,26 @@ public class ProgressPanel extends BasePanel {
         add(_progressBar, 0);
     }
 
-    private int numTimesUpdated = 0;
+    private long   _progressChangedSecond = System.currentTimeMillis();
+    private int    numDots                = 1;
+    private String dots                   = "";
 
     public void stateChanged(final String status, final float progress) {
         int intProgress = Math.round(progress);
         _progressBar.setValue(intProgress);
         String text = status;
+        if (System.currentTimeMillis() - _progressChangedSecond > 1000) {
+            dots = "";
+            numDots++;
+            for (int i = 0; i < (numDots % 4); i++) {
+                dots += ".";
+            }
+            _progressChangedSecond = System.currentTimeMillis();
+        }
         if (text.length() > 60) {
-            text = text.substring(0, 60) + "...";
+            text = text.substring(0, 60);
         }
-        _progressBar.setString(text);
-        if (_progressBar.getGraphics() != null && numTimesUpdated >= 105) {
-            _progressBar.update(_progressBar.getGraphics());
-        }
-        numTimesUpdated++;
+        _progressBar.setString(text + dots);
+
     }
 }

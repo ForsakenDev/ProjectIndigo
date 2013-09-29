@@ -15,7 +15,7 @@ public class Label extends JLabel {
 		component.add(this, 0);
 	}
 	
-	public Label(String label) {
+	private Label(String label) {
 		this();
 		this.setText(label);
 	}
