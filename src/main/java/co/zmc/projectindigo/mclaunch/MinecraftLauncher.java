@@ -14,11 +14,7 @@ import java.util.List;
 import co.zmc.projectindigo.Main;
 import co.zmc.projectindigo.data.Server;
 import co.zmc.projectindigo.data.log.Logger;
-<<<<<<< HEAD
-import co.zmc.projectindigo.security.PolicyManager;
 import co.zmc.projectindigo.utils.ResourceUtils;
-=======
->>>>>>> c33b1185f5ff60fbc88d32d75a28cc7b9c88411c
 import co.zmc.projectindigo.utils.Settings;
 import co.zmc.projectindigo.utils.Utils;
 import co.zmc.projectindigo.utils.Utils.OS;
@@ -172,8 +168,8 @@ public class MinecraftLauncher {
             URLClassLoader cl = new URLClassLoader(urls, MinecraftLauncher.class.getClassLoader());
 
             Logger.logInfo("Loading security class");
-            //PolicyManager manager = new PolicyManager();
-            //manager.enforceSecurityManager(basepath, nativesDir);
+            // PolicyManager manager = new PolicyManager();
+            // manager.enforceSecurityManager(basepath, nativesDir);
 
             Logger.logInfo("Loading minecraft class");
 
@@ -191,5 +187,4 @@ public class MinecraftLauncher {
         }
     }
 
-    
 }
