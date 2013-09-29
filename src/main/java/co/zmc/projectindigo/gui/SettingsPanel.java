@@ -16,7 +16,6 @@ import co.zmc.projectindigo.gui.components.DirectorySelector;
 import co.zmc.projectindigo.gui.components.Label;
 import co.zmc.projectindigo.gui.components.RoundedBox;
 import co.zmc.projectindigo.gui.components.TextBox;
-import co.zmc.projectindigo.utils.DirectoryLocations;
 import co.zmc.projectindigo.utils.Settings;
 
 @SuppressWarnings("serial")
@@ -39,7 +38,7 @@ public class SettingsPanel extends BasePanel {
     private Button     _forceUpdateBtn;
 
     public SettingsPanel(MainPanel mainPanel) {
-        super(mainPanel, 2);
+        super(mainPanel, 3);
     }
 
     public void initComponents() {
@@ -48,11 +47,12 @@ public class SettingsPanel extends BasePanel {
         _bg = new RoundedBox(MainPanel.BORDER_COLOUR);
         _bg.setBounds((getWidth() - (getWidth() - 50)) / 2, (getHeight() - (getHeight() - 50)) / 2, getWidth() - 50, getHeight() - 50);
 
-        _continueBtn = new Button(this, "Launch");
+        _continueBtn = new Button(this, "Back");
         _continueBtn.setBounds(_bg.getWidth() - (200 - 10), _bg.getHeight() - (25 - 10), 200, 25);
         _continueBtn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                launch();
+                save();
+                _mainPanel.switchPage(2);
             }
         });
 
@@ -102,8 +102,7 @@ public class SettingsPanel extends BasePanel {
                 }
             }
         }
-        int ramMax = (Integer.parseInt(_settings.get(Settings.MAX_RAM)) > _maxRamSlider.getMaximum()) ? _maxRamSlider.getMaximum() : Integer
-                .parseInt(_settings.get(Settings.MAX_RAM));
+        int ramMax = (Integer.parseInt(_settings.get(Settings.MAX_RAM)) > _maxRamSlider.getMaximum()) ? _maxRamSlider.getMaximum() : Integer.parseInt(_settings.get(Settings.MAX_RAM));
         _maxRamSlider.setValue(ramMax);
         _maxRamAmtLbl.setText(getAmount());
         _maxRamSlider.addChangeListener(new ChangeListener() {
@@ -128,8 +127,7 @@ public class SettingsPanel extends BasePanel {
         _forceUpdateBtn.setBounds(_bg.getX() + 10, _bg.getHeight() - (25 - 10), 200, 25);
         _forceUpdateBtn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                ((ServerPanel) _mainPanel.getPanel(1)).getServerManager().getServer(((ServerPanel) _mainPanel.getPanel(1))._selectedServer)
-                        .forceUpdate();
+                ((ServerPanel) _mainPanel.getPanel(1)).getServerManager().getServer(((ServerPanel) _mainPanel.getPanel(1))._selectedServer).forceUpdate();
             }
         });
         add(_bg);
@@ -153,15 +151,10 @@ public class SettingsPanel extends BasePanel {
         _settings = new Settings();
     }
 
-    public void launch() {
+    public void save() {
         _settings.set(Settings.INSTALL_PATH, _installDirBox.getText());
         _settings.set(Settings.MAX_RAM, _maxRamSlider.getValue() + "");
         _settings.set(Settings.JAVA_PARAMS, _javaParamsBox.getText());
         _settings.save();
-        DirectoryLocations.updateServerDir();
-        ((ServerPanel) _mainPanel.getPanel(1)).getServerManager().getServer(((ServerPanel) _mainPanel.getPanel(1))._selectedServer).updateDir();
-
-        ((ServerPanel) getMainPanel().getPanel(1)).launchServer(_settings);
-
     }
 }

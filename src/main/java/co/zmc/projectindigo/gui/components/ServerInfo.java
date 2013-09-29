@@ -70,9 +70,9 @@ public class ServerInfo extends JLabel {
         _serverBox.addMouseListener(new MouseListener() {
 
             public void mouseClicked(MouseEvent event) {
-            	((ServerInfoPanel) serverPanel.getMainPanel().getPanel(3)).setServer(_server);
+            	((ServerInfoPanel) serverPanel.getMainPanel().getPanel(2)).setServer(_server);
                 setActive(true);
-            	serverPanel.switchPage(3);
+            	serverPanel.switchPage(2);
             }
 
             public void mouseEntered(MouseEvent event) {

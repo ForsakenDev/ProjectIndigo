@@ -19,6 +19,7 @@ import co.zmc.projectindigo.data.log.Logger;
 import co.zmc.projectindigo.gui.MainPanel;
 import co.zmc.projectindigo.gui.ProgressPanel;
 import co.zmc.projectindigo.gui.ServerPanel;
+import co.zmc.projectindigo.gui.SettingsPanel;
 import co.zmc.projectindigo.managers.DownloadHandler;
 import co.zmc.projectindigo.utils.DirectoryLocations;
 import co.zmc.projectindigo.utils.FileUtils;
@@ -397,5 +398,11 @@ public class Server {
     @Override
     public String toString() {
         return _rawJSON;
+    }
+
+    public void launch() {
+        DirectoryLocations.updateServerDir();
+        updateDir();
+        ((ServerPanel) _mainPanel.getPanel(1)).launchServer(((SettingsPanel) _mainPanel.getPanel(3)).getSettings());
     }
 }

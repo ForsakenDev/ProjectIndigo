@@ -1,9 +1,12 @@
 package co.zmc.projectindigo.gui;
 
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
+import javax.swing.JOptionPane;
 import javax.swing.JTextPane;
 
 import co.zmc.projectindigo.IndigoLauncher;
@@ -26,6 +29,8 @@ public class ServerInfoPanel extends BasePanel implements ActionListener {
     private RoundedBox       headerBox;
 
     private Button           joinButton;
+    private Button           editButton;
+    private Button           settingsButton;
     private Button           deleteButton;
     private Button           backButton;
 
@@ -37,7 +42,7 @@ public class ServerInfoPanel extends BasePanel implements ActionListener {
     private Image            serverImage;
 
     public ServerInfoPanel(MainPanel mainPanel) {
-        super(mainPanel, 3);
+        super(mainPanel, 2);
     }
 
     @Override
@@ -62,21 +67,30 @@ public class ServerInfoPanel extends BasePanel implements ActionListener {
         serverImage.setBounds(actionsBox.getX() + ((actionsBox.getWidth() - 150) / 2), actionsBox.getY() + PADDING, 150, 150);
 
         joinButton = new Button(this, "Join Server");
-        joinButton.setBackground(new Color(0x36DA62));
-        joinButton.setHoverColour(new Color(0x00B454));
+        joinButton.setBackground(new Color(0x73FF73));
+        joinButton.setHoverColour(new Color(0x40FF40));
         joinButton.setBounds(actionsBox.getX() + ((actionsBox.getWidth() - 180) / 2), (serverImage.getY() + serverImage.getHeight()) + PADDING, 180, 25);
         joinButton.addActionListener(this);
         joinButton.setActionCommand("CONNECT");
 
-        backButton = new Button(this, "Back");
-        backButton.setBounds(actionsBox.getX() + ((actionsBox.getWidth() - 180) / 2), (joinButton.getY() + joinButton.getHeight()) + (PADDING / 2), 180, 25);
-        backButton.addActionListener(this);
-        backButton.setActionCommand("BACK");
+        editButton = new Button(this, "Edit Modpack");
+        editButton.setBackground(new Color(0xCCCCCC));
+        editButton.setHoverColour(new Color(0xAAAAAA));
+        editButton.setBounds(actionsBox.getX() + ((actionsBox.getWidth() - 180) / 2), (joinButton.getY() + joinButton.getHeight()) + PADDING, 180, 25);
+        editButton.addActionListener(this);
+        editButton.setActionCommand("EDIT");
+
+        settingsButton = new Button(this, "Settings");
+        settingsButton.setBackground(new Color(0xCCCCCC));
+        settingsButton.setHoverColour(new Color(0xAAAAAA));
+        settingsButton.setBounds(actionsBox.getX() + ((actionsBox.getWidth() - 180) / 2), (editButton.getY() + editButton.getHeight()) + PADDING, 180, 25);
+        settingsButton.addActionListener(this);
+        settingsButton.setActionCommand("SETTINGS");
 
         deleteButton = new Button(this, "Delete");
-        deleteButton.setBackground(new Color(0xFF5500));
-        deleteButton.setHoverColour(new Color(0xFF0000));
-        deleteButton.setBounds(actionsBox.getX() + ((actionsBox.getWidth() - 180) / 2), (backButton.getY() + backButton.getHeight()) + (PADDING / 2), 180, 25);
+        deleteButton.setBackground(new Color(0xFF7373));
+        deleteButton.setHoverColour(new Color(0xFF4040));
+        deleteButton.setBounds(actionsBox.getX() + ((actionsBox.getWidth() - 180) / 2), (actionsBox.getY() + actionsBox.getHeight() - 25) - (PADDING / 2), 180, 25);
         deleteButton.addActionListener(this);
         deleteButton.setActionCommand("DELETE");
 
@@ -95,7 +109,6 @@ public class ServerInfoPanel extends BasePanel implements ActionListener {
         add(descriptionBox);
         add(headerBox);
         add(actionsBox);
-
     }
 
     public void setServer(Server server) {
@@ -111,14 +124,22 @@ public class ServerInfoPanel extends BasePanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("CONNECT")) {
             ((ServerPanel) getMainPanel().getPanel(1))._selectedServer = server.getFullIp();
-            switchPage(2);
-        }
-
-        if (e.getActionCommand().equals("DELETE")) {
+            server.launch();
+        } else if (e.getActionCommand().equals("EDIT")) {
+            if (!this.server.getMinecraftDir().exists()) {
+                JOptionPane.showMessageDialog(_mainPanel, "The server needs to be launched before you can edit it", "Not downloaded", JOptionPane.WARNING_MESSAGE);
+            } else {
+                try {
+                    Desktop.getDesktop().open(this.server.getMinecraftDir());
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        } else if (e.getActionCommand().equals("SETTINGS")) {
+            switchPage(3);
+        } else if (e.getActionCommand().equals("DELETE")) {
             // DELETE SERVER PLACEHOLDER
-        }
-
-        if (e.getActionCommand().equals("BACK")) {
+        } else if (e.getActionCommand().equals("BACK")) {
             switchPage(1);
         }
     }
