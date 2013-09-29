@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
 import co.zmc.projectindigo.IndigoLauncher;
@@ -15,6 +16,7 @@ import co.zmc.projectindigo.gui.components.Button;
 import co.zmc.projectindigo.gui.components.Image;
 import co.zmc.projectindigo.gui.components.Label;
 import co.zmc.projectindigo.gui.components.RoundedBox;
+import co.zmc.projectindigo.gui.components.ScrollBarUI;
 import co.zmc.projectindigo.utils.Utils;
 
 @SuppressWarnings("serial")
@@ -35,8 +37,8 @@ public class ServerInfoPanel extends BasePanel implements ActionListener {
     private Button           backButton;
     private Button           deleteButton;
 
+    private JScrollPane      scrollPane;
     private JTextPane        serverDescriptionPane;
-
     private Label            serverIPLabel;
     private Label            serverNameLabel;
 
@@ -102,16 +104,23 @@ public class ServerInfoPanel extends BasePanel implements ActionListener {
         backButton.setActionCommand("BACK");
 
         descriptionBox = new RoundedBox(MainPanel.BORDER_COLOUR);
-        descriptionBox.setBounds(headerBox.getX(), actionsBox.getY(), getWidth() - 200 - (PADDING * 3), getHeight() - (headerBox.getHeight() + PADDING) - (PADDING * 2));
+        descriptionBox.setBounds(headerBox.getX(), actionsBox.getY(), getWidth() - 200 - (PADDING * 3), 175);
 
         serverDescriptionPane = new JTextPane();
         serverDescriptionPane.setForeground(Color.WHITE);
         serverDescriptionPane.setOpaque(false);
         serverDescriptionPane.setEditable(false);
         serverDescriptionPane.setFont(IndigoLauncher.getMinecraftFont(14));
-        serverDescriptionPane.setBounds(descriptionBox.getX() + (PADDING / 2), descriptionBox.getY() + (PADDING / 2), descriptionBox.getWidth() - (PADDING * 2), descriptionBox.getY() - (PADDING * 2));
-
-        add(serverDescriptionPane, 0);
+        
+        scrollPane = new JScrollPane(serverDescriptionPane);
+        scrollPane.setBounds(descriptionBox.getX() + (PADDING / 2), descriptionBox.getY() + (PADDING / 2), descriptionBox.getWidth() - PADDING, descriptionBox.getHeight() - PADDING);
+        scrollPane.setBorder(null);
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
+        scrollPane.getVerticalScrollBar().setOpaque(false);
+        scrollPane.getVerticalScrollBar().setUI(new ScrollBarUI());
+        
+        add(scrollPane, 0);
         add(serverImage, 0);
         add(descriptionBox);
         add(headerBox);
@@ -125,7 +134,8 @@ public class ServerInfoPanel extends BasePanel implements ActionListener {
         serverIPLabel.setText(server.getFullIp());
         serverIPLabel.setBounds((headerBox.getX() + headerBox.getWidth() + PADDING) - (Utils.getLabelWidth(serverIPLabel) + (PADDING * 2)), headerBox.getY() + ((headerBox.getHeight() - 18) / 2),
                 (int) (headerBox.getWidth() * 0.75), 18);
-        serverDescriptionPane.setText("This is a server\nThis text is just the description placeholder\nAnd things\nkbye");
+        serverDescriptionPane
+                .setText("This is a server\nThis text is just the description placeholder\nThis is a server\nThis text is just the description placeholder\nThis is a server\nThis text is just the description placeholder\nThis is a server\nThis text is just the description placeholder\nThis is a server\nThis text is just the description placeholder");
     }
 
     public void actionPerformed(ActionEvent e) {
