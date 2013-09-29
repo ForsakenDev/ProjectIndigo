@@ -48,11 +48,11 @@ public class ScrollBarUI extends BasicScrollBarUI {
         if (!sb.isEnabled() || r.width > r.height) {
             return;
         } else if (isDragging) {
-            color = new Color(50, 50, 50, 100);
+            color = new Color(50, 50, 50, 120);
         } else if (isThumbRollover()) {
-            color = new Color(50, 50, 50, 100);
+            color = new Color(50, 50, 50, 120);
         } else {
-            color = new Color(50, 50, 50, 40);
+            color = new Color(50, 50, 50, 60);
         }
         g2.setPaint(color);
         g2.fillRoundRect(r.x, r.y, r.width, r.height, 20, 20);

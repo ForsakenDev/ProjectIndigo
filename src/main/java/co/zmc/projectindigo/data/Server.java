@@ -115,7 +115,6 @@ public class Server {
             default:
                 break;
         }
-
     }
 
     public void addValidatedFile(ProgressPanel panel, int fileSize, boolean shouldExtract) {
@@ -398,6 +397,14 @@ public class Server {
         ((ServerPanel) _mainPanel.getPanel(1)).getServerManager().save();
 
         return true;
+    }
+
+    public int getPlayersOnline() {
+        return 82;
+    }
+
+    public int getMaxPlayers() {
+        return 1000;
     }
 
     @Override

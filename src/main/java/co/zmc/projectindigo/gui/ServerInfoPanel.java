@@ -5,12 +5,16 @@ import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 
 import co.zmc.projectindigo.IndigoLauncher;
+import co.zmc.projectindigo.data.Mod;
 import co.zmc.projectindigo.data.Server;
 import co.zmc.projectindigo.gui.components.Button;
 import co.zmc.projectindigo.gui.components.Image;
@@ -28,6 +32,7 @@ public class ServerInfoPanel extends BasePanel implements ActionListener {
 
     private RoundedBox       actionsBox;
     private RoundedBox       descriptionBox;
+    private RoundedBox       modListBox;
     private RoundedBox       headerBox;
 
     private Button           joinButton;
@@ -37,10 +42,13 @@ public class ServerInfoPanel extends BasePanel implements ActionListener {
     private Button           backButton;
     private Button           deleteButton;
 
-    private JScrollPane      scrollPane;
+    private JScrollPane      descriptionScrollPane;
     private JTextPane        serverDescriptionPane;
     private Label            serverIPLabel;
     private Label            serverNameLabel;
+
+    private JScrollPane      modScrollPane;
+    private JTextPane        modPane;
 
     private Image            serverImage;
 
@@ -59,6 +67,7 @@ public class ServerInfoPanel extends BasePanel implements ActionListener {
 
         serverIPLabel = new Label(this, "");
         serverIPLabel.setFont(IndigoLauncher.getMinecraftFont(18));
+        serverIPLabel.setForeground(new Color(255, 255, 255, 100));
         serverIPLabel.setBounds((headerBox.getX() + headerBox.getWidth() + PADDING) - (Utils.getLabelWidth(serverIPLabel) + PADDING), headerBox.getY() + ((headerBox.getHeight() - 18) / 2),
                 (int) (headerBox.getWidth() * 0.75), 18);
 
@@ -112,17 +121,53 @@ public class ServerInfoPanel extends BasePanel implements ActionListener {
         serverDescriptionPane.setEditable(false);
         serverDescriptionPane.setFont(IndigoLauncher.getMinecraftFont(14));
 
-        scrollPane = new JScrollPane(serverDescriptionPane);
-        scrollPane.setBounds(descriptionBox.getX() + (PADDING / 2), descriptionBox.getY() + (PADDING / 2), descriptionBox.getWidth() - PADDING, descriptionBox.getHeight() - PADDING);
-        scrollPane.setBorder(null);
-        scrollPane.setOpaque(false);
-        scrollPane.getViewport().setOpaque(false);
-        scrollPane.getVerticalScrollBar().setOpaque(false);
-        scrollPane.getVerticalScrollBar().setUI(new ScrollBarUI());
+        descriptionScrollPane = new JScrollPane(serverDescriptionPane);
+        descriptionScrollPane.setBounds(descriptionBox.getX() + (PADDING / 2), descriptionBox.getY() + (PADDING / 2), descriptionBox.getWidth() - PADDING, descriptionBox.getHeight() - PADDING);
+        descriptionScrollPane.setBorder(null);
+        descriptionScrollPane.setOpaque(false);
+        descriptionScrollPane.getViewport().setOpaque(false);
+        descriptionScrollPane.getVerticalScrollBar().setOpaque(false);
+        descriptionScrollPane.getVerticalScrollBar().setUI(new ScrollBarUI());
 
-        add(scrollPane, 0);
+        modListBox = new RoundedBox(MainPanel.BORDER_COLOUR);
+        modListBox.setBounds(descriptionBox.getX(), descriptionBox.getY() + descriptionBox.getHeight() + PADDING, getWidth() - 200 - (PADDING * 3), actionsBox.getHeight() - descriptionBox.getHeight()
+                - PADDING);
+
+        modPane = new JTextPane();
+        modPane.setForeground(Color.WHITE);
+        modPane.setOpaque(false);
+        modPane.setEditable(false);
+        modPane.setContentType("text/html");
+        modPane.setFont(IndigoLauncher.getMinecraftFont(14));
+        modPane.addHyperlinkListener(new HyperlinkListener() {
+            public void hyperlinkUpdate(HyperlinkEvent e) {
+                if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+                    if (Desktop.isDesktopSupported()) {
+                        try {
+                            Desktop.getDesktop().browse(e.getURL().toURI());
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        } catch (URISyntaxException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                }
+            }
+        });
+
+        modScrollPane = new JScrollPane(modPane);
+        modScrollPane.setBounds(modListBox.getX() + (PADDING / 2), modListBox.getY() + (PADDING / 2), modListBox.getWidth() - PADDING, modListBox.getHeight() - PADDING);
+        modScrollPane.setBorder(null);
+        modScrollPane.setOpaque(false);
+        modScrollPane.getViewport().setOpaque(false);
+        modScrollPane.getVerticalScrollBar().setOpaque(false);
+        modScrollPane.getVerticalScrollBar().setUI(new ScrollBarUI());
+
+        add(descriptionScrollPane, 0);
+        add(modScrollPane, 0);
         add(serverImage, 0);
         add(descriptionBox);
+        add(modListBox);
         add(headerBox);
         add(actionsBox);
     }
@@ -136,6 +181,17 @@ public class ServerInfoPanel extends BasePanel implements ActionListener {
                 (int) (headerBox.getWidth() * 0.75), 18);
         serverDescriptionPane.setText(server.getDescription());
         serverDescriptionPane.setCaretPosition(0);
+        String modsInfo = "<style type=\"text/css\">a {color:white;text-decoration: none} p {color: gray;}</style><table>";
+        for (int i = 0; i < server.getMods().size(); i++) {
+            Mod m = server.getMods().get(i);
+            if (i > 0) {
+                modsInfo += "<br />";
+            }
+            modsInfo += "<tr><td><a href=" + m.getInfoUrl() + ">" + m.getName() + " </a><p>-   by " + m.getAuthorsAsString() + "</p></td></tr>";
+        }
+        modsInfo += "</table>";
+        modPane.setText(modsInfo);
+        modPane.setCaretPosition(0);
     }
 
     public void actionPerformed(ActionEvent e) {
