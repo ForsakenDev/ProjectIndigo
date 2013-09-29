@@ -31,8 +31,9 @@ public class ServerInfoPanel extends BasePanel implements ActionListener {
     private Button           joinButton;
     private Button           editButton;
     private Button           settingsButton;
-    private Button           deleteButton;
+    private Button           forceUpdateButton;
     private Button           backButton;
+    private Button           deleteButton;
 
     private JTextPane        serverDescriptionPane;
 
@@ -74,25 +75,31 @@ public class ServerInfoPanel extends BasePanel implements ActionListener {
         joinButton.setActionCommand("CONNECT");
 
         editButton = new Button(this, "Edit Modpack");
-        editButton.setBackground(new Color(0xCCCCCC));
-        editButton.setHoverColour(new Color(0xAAAAAA));
-        editButton.setBounds(actionsBox.getX() + ((actionsBox.getWidth() - 180) / 2), (joinButton.getY() + joinButton.getHeight()) + PADDING, 180, 25);
+        editButton.setBounds(actionsBox.getX() + ((actionsBox.getWidth() - 180) / 2), (joinButton.getY() + joinButton.getHeight()) + (PADDING / 2), 180, 25);
         editButton.addActionListener(this);
         editButton.setActionCommand("EDIT");
 
         settingsButton = new Button(this, "Settings");
-        settingsButton.setBackground(new Color(0xCCCCCC));
-        settingsButton.setHoverColour(new Color(0xAAAAAA));
-        settingsButton.setBounds(actionsBox.getX() + ((actionsBox.getWidth() - 180) / 2), (editButton.getY() + editButton.getHeight()) + PADDING, 180, 25);
+        settingsButton.setBounds(actionsBox.getX() + ((actionsBox.getWidth() - 180) / 2), (editButton.getY() + editButton.getHeight()) + (PADDING / 2), 180, 25);
         settingsButton.addActionListener(this);
         settingsButton.setActionCommand("SETTINGS");
+
+        forceUpdateButton = new Button(this, "Force Update");
+        forceUpdateButton.setBounds(actionsBox.getX() + ((actionsBox.getWidth() - 180) / 2), (settingsButton.getY() + settingsButton.getHeight()) + (PADDING / 2), 180, 25);
+        forceUpdateButton.addActionListener(this);
+        forceUpdateButton.setActionCommand("UPDATE");
 
         deleteButton = new Button(this, "Delete");
         deleteButton.setBackground(new Color(0xFF7373));
         deleteButton.setHoverColour(new Color(0xFF4040));
-        deleteButton.setBounds(actionsBox.getX() + ((actionsBox.getWidth() - 180) / 2), (actionsBox.getY() + actionsBox.getHeight() - 25) - (PADDING / 2), 180, 25);
+        deleteButton.setBounds(actionsBox.getX() + ((actionsBox.getWidth() - 180) / 2), (forceUpdateButton.getY() + forceUpdateButton.getHeight()) + (PADDING / 2), 180, 25);
         deleteButton.addActionListener(this);
         deleteButton.setActionCommand("DELETE");
+
+        backButton = new Button(this, "Back");
+        backButton.setBounds(actionsBox.getX() + ((actionsBox.getWidth() - 180) / 2), (actionsBox.getY() + actionsBox.getHeight() - 25) - (PADDING / 2), 180, 25);
+        backButton.addActionListener(this);
+        backButton.setActionCommand("BACK");
 
         descriptionBox = new RoundedBox(MainPanel.BORDER_COLOUR);
         descriptionBox.setBounds(headerBox.getX(), actionsBox.getY(), getWidth() - 200 - (PADDING * 3), getHeight() - (headerBox.getHeight() + PADDING) - (PADDING * 2));
@@ -137,10 +144,12 @@ public class ServerInfoPanel extends BasePanel implements ActionListener {
             }
         } else if (e.getActionCommand().equals("SETTINGS")) {
             switchPage(3);
-        } else if (e.getActionCommand().equals("DELETE")) {
-            // DELETE SERVER PLACEHOLDER
         } else if (e.getActionCommand().equals("BACK")) {
             switchPage(1);
+        } else if (e.getActionCommand().equals("UPDATE")) {
+            server.forceUpdate();
+        } else if (e.getActionCommand().equals("DELETE")) {
+            // DELETE SERVER PLACEHOLDER
         }
     }
 

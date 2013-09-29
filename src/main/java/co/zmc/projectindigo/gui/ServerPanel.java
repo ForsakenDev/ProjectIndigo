@@ -33,7 +33,7 @@ public class ServerPanel extends BasePanel {
         _serverBox.setBounds((getWidth() - (getWidth() - 50)) / 2, (getHeight() - (getHeight() - 50)) / 2, getWidth() - 50, getHeight() - 50);
         _addBtn = new Button(this, "Add Server");
         _addBtn.setForeground(Color.WHITE);
-        _addBtn.setBounds(_serverBox.getX() - (25 / 2), _serverBox.getY() + (_serverBox.getHeight() - 25 - 10), _serverBox.getWidth() - 20, 25);
+        _addBtn.setBounds(_serverBox.getX() + (25 / 2), _serverBox.getY() + (_serverBox.getHeight() - 25 - 10), _serverBox.getWidth() - 20, 25);
         add(_serverBox);
 
     }
@@ -55,8 +55,8 @@ public class ServerPanel extends BasePanel {
     public synchronized void addServer(final Server server) {
         try {
             ServerInfo info = new ServerInfo(this, server);
-            info.setBounds((getWidth() - ((getWidth() - 50) - (50 * 2))) / 2, ((getHeight() - (getHeight() - 50)) / 2)
-                    + (MainPanel.PADDING + (_servers.size() * 32 + MainPanel.PADDING)), (getWidth() - 50) - (50 * 2), 24);
+            info.setBounds((getWidth() - ((getWidth() - 50) - (50 * 2))) / 2, ((getHeight() - (getHeight() - 50)) / 2) + (MainPanel.PADDING + (_servers.size() * 32 + MainPanel.PADDING)),
+                    (getWidth() - 50) - (50 * 2), 24);
             _servers.put(server.getFullIp(), info);
 
         } catch (Exception e) {
@@ -66,8 +66,7 @@ public class ServerPanel extends BasePanel {
     public void launchServer(Settings settings) {
         switchPage(-1);
         try {
-            IndigoLauncher._launcher.launchMinecraft(_serverManager.getServer(_selectedServer),
-                    ((LoginPanel) _mainPanel.getPanel(0)).getLoginResponse(), settings);
+            IndigoLauncher._launcher.launchMinecraft(_serverManager.getServer(_selectedServer), ((LoginPanel) _mainPanel.getPanel(0)).getLoginResponse(), settings);
         } catch (IOException e) {
             e.printStackTrace();
         }

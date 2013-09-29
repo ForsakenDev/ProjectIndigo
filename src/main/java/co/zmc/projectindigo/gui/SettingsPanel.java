@@ -35,8 +35,6 @@ public class SettingsPanel extends BasePanel {
     private Label      _javaParamsLbl;
     private TextBox    _javaParamsBox;
 
-    private Button     _forceUpdateBtn;
-
     public SettingsPanel(MainPanel mainPanel) {
         super(mainPanel, 3);
     }
@@ -123,13 +121,6 @@ public class SettingsPanel extends BasePanel {
         _javaParamsBox.setBounds(((getWidth() - (getWidth() - 150)) / 2), _maxRamSlider.getY() + 50 + 30, (getWidth() - 150), 25);
         _javaParamsLbl.setBounds(_javaParamsBox.getX(), _javaParamsBox.getY() - 30, _javaParamsBox.getWidth(), _javaParamsBox.getHeight());
 
-        _forceUpdateBtn = new Button(this, "Force Update");
-        _forceUpdateBtn.setBounds(_bg.getX() + 10, _bg.getHeight() - (25 - 10), 200, 25);
-        _forceUpdateBtn.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                ((ServerPanel) _mainPanel.getPanel(1)).getServerManager().getServer(((ServerPanel) _mainPanel.getPanel(1))._selectedServer).forceUpdate();
-            }
-        });
         add(_bg);
 
     }
