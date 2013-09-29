@@ -41,8 +41,6 @@ public class Server {
     private String               _forgeVersion;
     private String               _description;
     private List<Mod>            _mods                 = new ArrayList<Mod>();
-    private List<Mod>            _modsToUpdate         = new ArrayList<Mod>();
-    private List<Mod>            _modsToRemove         = new ArrayList<Mod>();
     private List<FileDownloader> _downloads            = new ArrayList<FileDownloader>();
 
     private int                  _totalLaunchSize      = 0;
@@ -55,6 +53,8 @@ public class Server {
     private File                 _baseDir;
     private File                 _minecraftDir;
     private File                 _binDir;
+
+    private boolean              _shouldUpdate         = false;
 
     public Server(MainPanel section, JSONObject json) {
         _mainPanel = section;
@@ -120,7 +120,7 @@ public class Server {
     public void addValidatedFile(ProgressPanel panel, int fileSize, boolean shouldExtract) {
         _numLoadedValidate++;
         panel.stateChanged("Validating Mod Links", (int) (((double) _numLoadedValidate / (double) (_mods.size() + _downloads.size())) * 100D));
-        _totalLaunchSize += ((double) fileSize * (shouldExtract ? 2.5D : 1D));
+        _totalLaunchSize += ((double) fileSize * (shouldExtract ? 2D : 1D));
     }
 
     public boolean isFinishedValidating() {
@@ -143,36 +143,103 @@ public class Server {
     }
 
     public boolean checkUpdates() {
-        boolean shouldUpdate = false;
-        Server server = getNewServer();
-        if (server != null) {
-            modLoop: for (Mod updatedMod : server.getMods()) {
-                for (Mod mod : _mods) {
-                    if (mod.getName().equalsIgnoreCase(updatedMod.getName()) && !mod.getVersion().equalsIgnoreCase(updatedMod.getVersion())) {
-                        _modsToUpdate.add(updatedMod);
-                        if (!shouldUpdate) {
-                            shouldUpdate = true;
+        if (!_shouldUpdate) {
+            Server server = getNewServer();
+            List<Mod> modsToUpdate = new ArrayList<Mod>();
+            List<Mod> modsToRemove = new ArrayList<Mod>();
+            if (server != null) {
+                modLoop: for (Mod updatedMod : server.getMods()) {
+                    for (Mod mod : _mods) {
+                        if (mod.getName().equalsIgnoreCase(updatedMod.getName())
+                                && (!mod.getVersion().equalsIgnoreCase(updatedMod.getVersion()) || !mod.getRawDownloadURL().equalsIgnoreCase(updatedMod.getRawDownloadURL()))) {
+                            modsToUpdate.add(updatedMod);
+                            if (!_shouldUpdate) {
+                                _shouldUpdate = true;
+                            }
+                            continue modLoop;
                         }
-                        continue modLoop;
+                    }
+                    _shouldUpdate = true;
+                    modsToUpdate.add(updatedMod);
+                }
+                for (Mod mod : _mods) {
+                    if (!server.containsMod(mod.getName())) {
+                        modsToRemove.add(mod);
+                        if (!_shouldUpdate) {
+                            _shouldUpdate = true;
+                        }
+                        continue;
                     }
                 }
-                _modsToUpdate.add(updatedMod);
             }
-            for (Mod mod : _mods) {
-                if (!server.containsMod(mod.getName())) {
-                    _modsToRemove.add(mod);
-                    if (!shouldUpdate) {
-                        shouldUpdate = true;
+
+            if (_shouldUpdate) {
+                List<Integer> idsToRemove = new ArrayList<Integer>();
+                for (Mod mod : modsToUpdate) {
+                    for (int i = 0; i < _mods.size(); i++) {
+                        Mod oldMod = _mods.get(i);
+                        if (mod.getName().equalsIgnoreCase(oldMod.getName())) {
+                            try {
+                                oldMod.delete();
+                            } catch (MalformedURLException e) {
+                                e.printStackTrace();
+                            }
+                            if (!idsToRemove.contains(i)) {
+                                idsToRemove.add(i);
+                            }
+                        }
                     }
-                    continue;
+                    _mods.add(mod);
                 }
+                for (Mod mod : modsToRemove) {
+                    for (int i = 0; i < _mods.size(); i++) {
+                        Mod oldMod = _mods.get(i);
+                        if (mod.getName().equalsIgnoreCase(oldMod.getName())) {
+                            try {
+                                oldMod.delete();
+                            } catch (MalformedURLException e) {
+                                e.printStackTrace();
+                            }
+                            if (!idsToRemove.contains(i)) {
+                                idsToRemove.add(i);
+                            }
+                        }
+                    }
+                }
+                for (Integer i : idsToRemove) {
+                    _mods.remove(i);
+                }
+                _baseDir = server._baseDir;
+                _binDir = server._binDir;
+                _description = server._description;
+                _forgeVersion = server._forgeVersion;
+                _ip = server._ip;
+                _logo = server._logo;
+                _mcVersion = server._mcVersion;
+                _minecraftDir = server._minecraftDir;
+                if (!_modpackDownloadURL.equalsIgnoreCase(server._modpackDownloadURL)) {
+                    _modpackDownloadURL = server._modpackDownloadURL;
+                    List<FileDownloader> tmpDownloads = new ArrayList<FileDownloader>();
+                    for (FileDownloader dl : _downloads) {
+                        tmpDownloads.add(dl);
+                    }
+                    tmpDownloads.remove(0);
+                    _downloads.clear();
+                    _downloads.add(new FileDownloader(_modpackDownloadURL, getBaseDir().getAbsolutePath(), true));
+                    for (FileDownloader dl : tmpDownloads) {
+                        _downloads.add(dl);
+                    }
+
+                }
+                _modpackInfoURL = server._modpackInfoURL;
+                _name = server._name;
+                _port = server._port;
+                _version = server._version;
+                _rawJSON = server._rawJSON;
+                ((ServerPanel) _mainPanel.getPanel(1)).getServerManager().save();
             }
         }
-        if (shouldUpdate) {
-            _rawJSON = server._rawJSON;
-            ((ServerPanel) _mainPanel.getPanel(1)).getServerManager().save();
-        }
-        return shouldUpdate;
+        return _shouldUpdate;
     }
 
     public boolean containsMod(String modName) {
@@ -285,10 +352,14 @@ public class Server {
         List<Runnable> mods = new ArrayList<Runnable>();
 
         for (FileDownloader res : _downloads) {
-            mods.add(res.loadFileSize(this, panel));
+            if (res.shouldDownload()) {
+                mods.add(res.loadFileSize(this, panel));
+            }
         }
         for (Mod mod : _mods) {
-            mods.add(mod.loadFileSize(this, panel));
+            if (mod.shouldDownload()) {
+                mods.add(mod.loadFileSize(this, panel));
+            }
         }
         return mods;
     }
@@ -296,7 +367,9 @@ public class Server {
     private List<Runnable> downloadResources(ProgressPanel panel) throws IOException {
         List<Runnable> mods = new ArrayList<Runnable>();
         for (FileDownloader download : _downloads) {
-            mods.add(download.download(this, panel));
+            if (download.shouldDownload()) {
+                mods.add(download.download(this, panel));
+            }
         }
         return mods;
     }
@@ -304,7 +377,9 @@ public class Server {
     private List<Runnable> downloadMods(ProgressPanel panel) throws IOException {
         List<Runnable> mods = new ArrayList<Runnable>();
         for (Mod mod : _mods) {
-            mods.add(mod.download(this, panel));
+            if (mod.shouldDownload()) {
+                mods.add(mod.download(this, panel));
+            }
         }
         return mods;
     }
@@ -333,42 +408,8 @@ public class Server {
         _numLoadedDownloads++;
     }
 
-    private void updateNewMods(ProgressPanel panel) throws IOException {
-        List<Integer> idsToRemove = new ArrayList<Integer>();
-        for (Mod mod : _modsToUpdate) {
-            for (int i = 0; i < _mods.size(); i++) {
-                Mod oldMod = _mods.get(i);
-                if (mod.getName().equalsIgnoreCase(oldMod.getName())) {
-                    oldMod.delete();
-                    if (!idsToRemove.contains(i)) {
-                        idsToRemove.add(i);
-                    }
-                }
-            }
-            _mods.add(mod);
-        }
-        for (Mod mod : _modsToRemove) {
-            for (int i = 0; i < _mods.size(); i++) {
-                Mod oldMod = _mods.get(i);
-                if (mod.getName().equalsIgnoreCase(oldMod.getName())) {
-                    oldMod.delete();
-                    if (!idsToRemove.contains(i)) {
-                        idsToRemove.add(i);
-                    }
-                }
-            }
-        }
-        for (Integer i : idsToRemove) {
-            _mods.remove(i);
-        }
-
-        _modsToUpdate.clear();
-        _modsToRemove.clear();
-    }
-
     public boolean download(ProgressPanel panel) throws IOException {
         mkdirs();
-        updateNewMods(panel);
         ExecutorService pool = Executors.newFixedThreadPool(10);
         for (Runnable r : loadFileSize(panel)) {
             pool.submit(r);
@@ -379,7 +420,6 @@ public class Server {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println("total file size: " + this._totalLaunchSize);
 
         pool = Executors.newFixedThreadPool(10);
         for (Runnable r : downloadResources(panel)) {
@@ -388,12 +428,14 @@ public class Server {
         for (Runnable r : downloadMods(panel)) {
             pool.submit(r);
         }
+
         pool.shutdown();
         try {
             pool.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
         ((ServerPanel) _mainPanel.getPanel(1)).getServerManager().save();
 
         return true;

@@ -65,21 +65,18 @@ public class ResourceUtils {
         return stream;
     }
 
-    public static BufferedImage loadCachedImage(String path, String cacheLocation, BufferedImage defaultImage) {
-        String name = path.split("/")[path.split("/").length - 1];
+    public static BufferedImage loadCachedImage(String name, String path, BufferedImage defaultImage) {
         if (!name.contains(".png")) {
             name += ".png";
         }
-        BufferedImage image = Utils.loadCachedImage(cacheLocation + name);
+        BufferedImage image = Utils.loadCachedImage(DirectoryLocations.IMAGE_DIR_LOCATION + name);
         if (image == null) {
             try {
                 URLConnection conn = new URL(path).openConnection();
                 conn.setDoInput(true);
                 conn.setDoOutput(false);
-                System.setProperty("http.agent",
-                        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.162 Safari/535.19");
-                conn.setRequestProperty("User-Agent",
-                        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.162 Safari/535.19");
+                System.setProperty("http.agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.162 Safari/535.19");
+                conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.162 Safari/535.19");
                 HttpURLConnection.setFollowRedirects(true);
                 conn.setUseCaches(false);
                 ((HttpURLConnection) conn).setInstanceFollowRedirects(true);
@@ -96,7 +93,7 @@ public class ResourceUtils {
                     }
                 }
                 if (image != null) {
-                    ImageIO.write(image, "png", new File(cacheLocation, name));
+                    ImageIO.write(image, "png", new File(DirectoryLocations.IMAGE_DIR_LOCATION, name));
                     return image;
                 }
                 return defaultImage;

@@ -87,7 +87,7 @@ public class MinecraftLauncher {
         arguments.add(sessionId);
         arguments.add(server.getIp());
         arguments.add(server.getPort() + "");
-        arguments.add(server.getName());
+        arguments.add(server.getName() + " v" + server.getVersion());
 
         ProcessBuilder processBuilder = new ProcessBuilder(arguments);
         Logger.logInfo("Setting working dir to " + server.getBaseDir().getAbsolutePath() + "/minecraft");

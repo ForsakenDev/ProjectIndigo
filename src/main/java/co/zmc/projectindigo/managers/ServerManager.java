@@ -58,8 +58,10 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
                 if (key instanceof String) {
                     String name = (String) key;
                     Server s = parseServer((JSONObject) servers.get(name));
+                    s.checkUpdates();
                     _servers.add(s);
                     ((ServerPanel) _mainPanel.getPanel(1)).addServer(s);
+
                 }
             }
         } catch (Exception e) {

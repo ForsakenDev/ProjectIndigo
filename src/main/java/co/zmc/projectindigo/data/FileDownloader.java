@@ -49,15 +49,20 @@ public class FileDownloader {
         return _extract;
     }
 
+    public boolean shouldDownload() {
+        return _rawDownloadURL != null && !_rawDownloadURL.isEmpty();
+    }
+
     public Runnable loadFileSize(final Server server, final ProgressPanel panel) {
         return new Runnable() {
             public void run() {
-                if (_rawDownloadURL == null) { return; }
-                try {
-                    _fileSize = getDownloadURL().openConnection().getContentLength();
-                    server.addValidatedFile(panel, _fileSize, _extract);
-                } catch (IOException e) {
-                    Logger.logError(e.getMessage(), e);
+                if (_rawDownloadURL != null && !_rawDownloadURL.isEmpty()) {
+                    try {
+                        _fileSize = getDownloadURL().openConnection().getContentLength();
+                        server.addValidatedFile(panel, _fileSize, _extract);
+                    } catch (IOException e) {
+                        Logger.logError(e.getMessage(), e);
+                    }
                 }
             }
         };
@@ -68,34 +73,40 @@ public class FileDownloader {
     }
 
     protected String getFilename() throws MalformedURLException {
-        if (_rawDownloadURL == null) { return ""; }
-        if (_rawDownloadURL.contains("minecraftforge")) { return "MinecraftForge.zip"; }
-        String string = getDownloadURL().getFile();
-        if (string.contains("?")) {
-            string = string.substring(0, string.indexOf('?'));
+        if (_rawDownloadURL != null && !_rawDownloadURL.isEmpty()) {
+            if (_rawDownloadURL.contains("minecraftforge")) { return "MinecraftForge.zip"; }
+            String string = getDownloadURL().getFile();
+            if (string.contains("?")) {
+                string = string.substring(0, string.indexOf('?'));
+            }
+            return string.substring(string.lastIndexOf('/') + 1);
         }
-        return string.substring(string.lastIndexOf('/') + 1);
+        return "";
     }
 
     protected final URL getDownloadURL() {
-        if (_rawDownloadURL == null) { return null; }
-        if (_downloadURL == null) {
-            try {
-                _downloadURL = new URL(Utils.getRedirectedUrl(_rawDownloadURL));
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+        if (_rawDownloadURL != null && !_rawDownloadURL.isEmpty()) {
+            if (_downloadURL == null) {
+                try {
+                    _downloadURL = new URL(Utils.getRedirectedUrl(_rawDownloadURL));
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
+            return _downloadURL;
         }
-        return _downloadURL;
+        return null;
     }
 
     public Runnable download(final Server server, final ProgressPanel panel) throws IOException {
         return new Runnable() {
             public void run() {
                 try {
-                    downloadFile(server, panel);
+                    if (_rawDownloadURL != null && !_rawDownloadURL.isEmpty()) {
+                        downloadFile(server, panel);
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -104,7 +115,6 @@ public class FileDownloader {
     }
 
     private boolean downloadFile(Server server, ProgressPanel panel) throws IOException {
-        if (_rawDownloadURL == null) { return false; }
         String jarFileName = getFilename();
         File downloadedFile = new File(_baseDir, jarFileName);
         Logger.logInfo("Downloading " + jarFileName + " to \"" + _baseDir + "\"");
@@ -145,17 +155,20 @@ public class FileDownloader {
         return false;
     }
 
-    public boolean extract(Server server, ProgressPanel panel) {
-        if (_downloadedFile == null) { return false; }
+    public void extract(Server server, ProgressPanel panel) {
+        if (_downloadedFile == null) { return; }
+        Logger.logInfo("Extracting " + _downloadedFile.getName() + " to \"" + _baseDir + "\"");
+
         if (_downloadedFile.getName().contains("minecraft.jar")) {
-            return extractJar(server, panel, true);
+            extractJar(server, panel, true);
         } else {
-            return extractZip(server, panel, true);
+            extractZip(server, panel, true);
         }
+        Logger.logInfo("Extracting " + _downloadedFile.getName() + " to \"" + _baseDir + "\"");
+
     }
 
-    protected boolean extractZip(Server server, ProgressPanel panel, boolean overwrite) {
-        Logger.logInfo("Extracting " + _downloadedFile.getName() + " to \"" + _baseDir + "\"");
+    protected void extractZip(Server server, ProgressPanel panel, boolean overwrite) {
 
         FileInputStream input = null;
         ZipInputStream zipIn = null;
@@ -185,13 +198,14 @@ public class FileDownloader {
                 byte[] buffer = new byte[1024];
                 while ((readLen = zipIn.read(buffer, 0, buffer.length)) > 0) {
                     outStream.write(buffer, 0, readLen);
+                    server.addDownloadSize(panel, readLen);
                 }
                 outStream.close();
                 currentEntry = zipIn.getNextEntry();
             }
         } catch (IOException e) {
             Logger.logError(e.getMessage(), e);
-            return false;
+            return;
         } finally {
             try {
                 zipIn.close();
@@ -201,7 +215,6 @@ public class FileDownloader {
             }
         }
         _downloadedFile.delete();
-        return true;
     }
 
     protected boolean extractJar(Server server, ProgressPanel panel, boolean overwrite) {

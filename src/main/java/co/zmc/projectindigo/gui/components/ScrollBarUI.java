@@ -14,6 +14,7 @@ import javax.swing.plaf.basic.BasicScrollBarUI;
 public class ScrollBarUI extends BasicScrollBarUI {
     private final Dimension d = new Dimension();
 
+    @SuppressWarnings("serial")
     @Override
     protected JButton createDecreaseButton(int orientation) {
         return new JButton() {
@@ -24,6 +25,7 @@ public class ScrollBarUI extends BasicScrollBarUI {
         };
     }
 
+    @SuppressWarnings("serial")
     @Override
     protected JButton createIncreaseButton(int orientation) {
         return new JButton() {

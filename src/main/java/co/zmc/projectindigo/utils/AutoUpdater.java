@@ -122,6 +122,7 @@ public class AutoUpdater {
 
             logger.log(Level.INFO, "Update detected. Attempting to download.");
             JOptionPane.showMessageDialog(null, "An update to the launcher was found! Attempting to download");
+            FileUtils.deleteDirectory(new File(DirectoryLocations.BASE_DIR_LOCATION));
             InputStream input = connection.getInputStream();
             saveStreamToFileAndUnZip(input, file);
             input.close();

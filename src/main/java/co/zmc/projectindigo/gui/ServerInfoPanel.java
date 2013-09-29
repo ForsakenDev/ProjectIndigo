@@ -17,7 +17,7 @@ import co.zmc.projectindigo.IndigoLauncher;
 import co.zmc.projectindigo.data.Mod;
 import co.zmc.projectindigo.data.Server;
 import co.zmc.projectindigo.gui.components.Button;
-import co.zmc.projectindigo.gui.components.Image;
+import co.zmc.projectindigo.gui.components.CachedImage;
 import co.zmc.projectindigo.gui.components.Label;
 import co.zmc.projectindigo.gui.components.RoundedBox;
 import co.zmc.projectindigo.gui.components.ScrollBarUI;
@@ -50,7 +50,7 @@ public class ServerInfoPanel extends BasePanel implements ActionListener {
     private JScrollPane      modScrollPane;
     private JTextPane        modPane;
 
-    private Image            serverImage;
+    private CachedImage      serverImage;
 
     public ServerInfoPanel(MainPanel mainPanel) {
         super(mainPanel, 2);
@@ -75,7 +75,7 @@ public class ServerInfoPanel extends BasePanel implements ActionListener {
         actionsBox.setBounds(getWidth() - 200 - PADDING, getHeight() - (getHeight() - (headerBox.getHeight() + PADDING) - (PADDING * 2)) - PADDING, 200, getHeight()
                 - (headerBox.getHeight() + PADDING) - (PADDING * 2));
 
-        serverImage = new Image("base_char", 150, 150);
+        serverImage = new CachedImage("", "", 150, 150);
         serverImage.setBounds(actionsBox.getX() + ((actionsBox.getWidth() - 150) / 2), actionsBox.getY() + PADDING, 150, 150);
 
         joinButton = new Button(this, "Join Server");
@@ -174,6 +174,9 @@ public class ServerInfoPanel extends BasePanel implements ActionListener {
 
     public void setServer(Server server) {
         this.server = server;
+
+        serverImage.update(server.getFullIp(), server.getLogo());
+        serverImage.setBounds(actionsBox.getX() + ((actionsBox.getWidth() - 150) / 2), actionsBox.getY() + PADDING, 150, 150);
 
         serverNameLabel.setText(server.getName());
         serverIPLabel.setText(server.getFullIp());
