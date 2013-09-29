@@ -72,14 +72,14 @@ public class MinecraftLauncher {
                 }
             }
         }
-        if (Utils.getCurrentOS() == OS.MACOSX) {
-            try {
-                arguments.add("-Xdock:icon=" + new File(ResourceUtils.getResource("icon_file_mac").toURI()).getAbsolutePath());
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
-            }
-            arguments.add("-Xdock:name=" + title);
-        }
+//        if (Utils.getCurrentOS() == OS.MACOSX) {
+//            try {
+//                arguments.add("-Xdock:icon=" + new File(ResourceUtils.getResource("icon_file_mac").toURI()).getAbsolutePath());
+//            } catch (URISyntaxException e) {
+//                e.printStackTrace();
+//            }
+//            arguments.add("-Xdock:name=" + title);
+//        }
 
         arguments.add("-noverify");
         arguments.add("-cp");

@@ -150,11 +150,12 @@ public class Server {
             if (server != null) {
                 modLoop: for (Mod updatedMod : server.getMods()) {
                     for (Mod mod : _mods) {
-                        if (mod.getName().equalsIgnoreCase(updatedMod.getName())
-                                && (!mod.getVersion().equalsIgnoreCase(updatedMod.getVersion()) || !mod.getRawDownloadURL().equalsIgnoreCase(updatedMod.getRawDownloadURL()))) {
-                            modsToUpdate.add(updatedMod);
-                            if (!_shouldUpdate) {
-                                _shouldUpdate = true;
+                        if (mod.getName().equalsIgnoreCase(updatedMod.getName())) {
+                            if (!mod.getVersion().equalsIgnoreCase(updatedMod.getVersion()) || !mod.getRawDownloadURL().equalsIgnoreCase(updatedMod.getRawDownloadURL())) {
+                                modsToUpdate.add(updatedMod);
+                                if (!_shouldUpdate) {
+                                    _shouldUpdate = true;
+                                }
                             }
                             continue modLoop;
                         }
@@ -296,7 +297,7 @@ public class Server {
     }
 
     public boolean shouldDownload() {
-        return !isDownloaded();
+        return !(isDownloaded() && !_shouldUpdate);
     }
 
     public void download(LoginResponse response, Settings settings) {
@@ -455,8 +456,6 @@ public class Server {
     }
 
     public void launch() {
-        DirectoryLocations.updateServerDir();
-        updateDir();
         ((ServerPanel) _mainPanel.getPanel(1)).launchServer(((SettingsPanel) _mainPanel.getPanel(3)).getSettings());
     }
 }

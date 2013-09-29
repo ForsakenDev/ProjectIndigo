@@ -10,12 +10,14 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import co.zmc.projectindigo.data.Server;
 import co.zmc.projectindigo.data.log.Logger;
 import co.zmc.projectindigo.gui.components.Button;
 import co.zmc.projectindigo.gui.components.DirectorySelector;
 import co.zmc.projectindigo.gui.components.Label;
 import co.zmc.projectindigo.gui.components.RoundedBox;
 import co.zmc.projectindigo.gui.components.TextBox;
+import co.zmc.projectindigo.utils.DirectoryLocations;
 import co.zmc.projectindigo.utils.Settings;
 
 @SuppressWarnings("serial")
@@ -147,5 +149,10 @@ public class SettingsPanel extends BasePanel {
         _settings.set(Settings.MAX_RAM, _maxRamSlider.getValue() + "");
         _settings.set(Settings.JAVA_PARAMS, _javaParamsBox.getText());
         _settings.save();
+
+        DirectoryLocations.updateServerDir();
+        for (Server s : ((ServerPanel) _mainPanel.getPanel(1)).getServerManager().getServers()) {
+            s.updateDir();
+        }
     }
 }
