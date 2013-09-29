@@ -52,7 +52,7 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
             if (!_saveFile.exists()) {
                 _saveFile.createNewFile();
             }
-            servers = (JSONObject) new JSONParser().parse(new Scanner(_saveFile, "UTF-8").useDelimiter("\\A").next());
+            servers = (JSONObject) new JSONParser().parse(new Scanner(_saveFile).useDelimiter("\\A").next());
 
             for (Object key : servers.keySet()) {
                 if (key instanceof String) {

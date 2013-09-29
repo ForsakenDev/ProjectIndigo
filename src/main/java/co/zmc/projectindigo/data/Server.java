@@ -39,7 +39,7 @@ public class Server {
     private String               _modpackDownloadURL;
     private String               _modpackInfoURL;
     private String               _forgeVersion;
-
+    private String               _description;
     private List<Mod>            _mods                 = new ArrayList<Mod>();
     private List<Mod>            _modsToUpdate         = new ArrayList<Mod>();
     private List<Mod>            _modsToRemove         = new ArrayList<Mod>();
@@ -72,6 +72,7 @@ public class Server {
         _logo = (String) json.get("logo_url");
         _mcVersion = (String) json.get("mc_version");
         _forgeVersion = (String) json.get("forge_version");
+        _description = (String) json.get("description");
 
         updateDir();
 
@@ -251,6 +252,10 @@ public class Server {
 
     public int getPort() {
         return _port;
+    }
+
+    public String getDescription() {
+        return _description;
     }
 
     public String getLogo() {

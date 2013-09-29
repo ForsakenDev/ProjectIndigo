@@ -111,7 +111,7 @@ public class ServerInfoPanel extends BasePanel implements ActionListener {
         serverDescriptionPane.setOpaque(false);
         serverDescriptionPane.setEditable(false);
         serverDescriptionPane.setFont(IndigoLauncher.getMinecraftFont(14));
-        
+
         scrollPane = new JScrollPane(serverDescriptionPane);
         scrollPane.setBounds(descriptionBox.getX() + (PADDING / 2), descriptionBox.getY() + (PADDING / 2), descriptionBox.getWidth() - PADDING, descriptionBox.getHeight() - PADDING);
         scrollPane.setBorder(null);
@@ -119,7 +119,7 @@ public class ServerInfoPanel extends BasePanel implements ActionListener {
         scrollPane.getViewport().setOpaque(false);
         scrollPane.getVerticalScrollBar().setOpaque(false);
         scrollPane.getVerticalScrollBar().setUI(new ScrollBarUI());
-        
+
         add(scrollPane, 0);
         add(serverImage, 0);
         add(descriptionBox);
@@ -134,8 +134,8 @@ public class ServerInfoPanel extends BasePanel implements ActionListener {
         serverIPLabel.setText(server.getFullIp());
         serverIPLabel.setBounds((headerBox.getX() + headerBox.getWidth() + PADDING) - (Utils.getLabelWidth(serverIPLabel) + (PADDING * 2)), headerBox.getY() + ((headerBox.getHeight() - 18) / 2),
                 (int) (headerBox.getWidth() * 0.75), 18);
-        serverDescriptionPane
-                .setText("This is a server\nThis text is just the description placeholder\nThis is a server\nThis text is just the description placeholder\nThis is a server\nThis text is just the description placeholder\nThis is a server\nThis text is just the description placeholder\nThis is a server\nThis text is just the description placeholder");
+        serverDescriptionPane.setText(server.getDescription());
+        serverDescriptionPane.setCaretPosition(0);
     }
 
     public void actionPerformed(ActionEvent e) {
