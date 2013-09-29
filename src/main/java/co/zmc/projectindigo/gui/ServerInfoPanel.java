@@ -190,7 +190,7 @@ public class ServerInfoPanel extends BasePanel implements ActionListener {
             if (i > 0) {
                 modsInfo += "<br />";
             }
-            modsInfo += "<tr><td><a href=" + m.getInfoUrl() + ">" + m.getName() + " </a><p>-   by " + m.getAuthorsAsString() + "</p></td></tr>";
+            modsInfo += "<tr><td><a href=" + m.getInfoUrl() + ">" + m.getName() + " v" + m.getVersion() + " </a><p>-   by " + m.getAuthorsAsString() + "</p></td></tr>";
         }
         modsInfo += "</table>";
         modPane.setText(modsInfo);
@@ -214,6 +214,7 @@ public class ServerInfoPanel extends BasePanel implements ActionListener {
         } else if (e.getActionCommand().equals("SETTINGS")) {
             switchPage(3);
         } else if (e.getActionCommand().equals("BACK")) {
+            ((ServerPanel) getMainPanel().getPanel(1)).resetServers();
             switchPage(1);
         } else if (e.getActionCommand().equals("UPDATE")) {
             server.forceUpdate();

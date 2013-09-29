@@ -40,11 +40,7 @@ public class ServerInfo extends JLabel {
         _ip.setFont(IndigoLauncher.getMinecraftFont(12));
 
         _serverBox.addMouseListener(new MouseListener() {
-
             public void mouseClicked(MouseEvent event) {
-                ((ServerInfoPanel) serverPanel.getMainPanel().getPanel(2)).setServer(_server);
-                setActive(true);
-                serverPanel.switchPage(2);
             }
 
             public void mouseEntered(MouseEvent event) {
@@ -54,11 +50,15 @@ public class ServerInfo extends JLabel {
             }
 
             public void mousePressed(MouseEvent event) {
+                if (!isActive()) {
+                    ((ServerInfoPanel) serverPanel.getMainPanel().getPanel(2)).setServer(_server);
+                    setActive(true);
+                    serverPanel.switchPage(2);
+                }
             }
 
             public void mouseReleased(MouseEvent event) {
             }
-
         });
     }
 
