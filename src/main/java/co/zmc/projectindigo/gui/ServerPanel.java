@@ -50,7 +50,10 @@ public class ServerPanel extends BasePanel {
                             port = Integer.parseInt(ip.substring(index + 1));
                             ip = ip.substring(0, index);
                         }
-                        getServerManager().loadServer(ip, port);
+                        if (!getServerManager().loadServer(ip, port)) {
+                            JOptionPane.showMessageDialog(getParent(), "This server is either offline or not integrated into the Indigo Launcher", "Invalid Server", JOptionPane.WARNING_MESSAGE);
+
+                        }
                     } catch (NumberFormatException e1) {
                         JOptionPane.showMessageDialog(getParent(), "You need to include a valid port number", "Invalid Port", JOptionPane.WARNING_MESSAGE);
                     }

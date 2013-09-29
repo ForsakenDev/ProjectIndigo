@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import org.apache.commons.io.IOUtils;
@@ -131,7 +130,7 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
         FileUtils.writeStringToFile(str, _saveFile);
     }
 
-    public void loadServer(String ip, int port) {
+    public boolean loadServer(String ip, int port) {
         Socket s = new Socket();
         String serverURL = "";
         try {
@@ -173,8 +172,7 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
             out.close();
             s.close();
         } catch (ConnectException e) {
-            JOptionPane.showMessageDialog(null, "Failed to connect to the server... Are you sure the address is right?", "Connection failed", JOptionPane.WARNING_MESSAGE);
-            return;
+            Logger.logError(e.getMessage(), e);
         } catch (Exception e) {
             Logger.logError(e.getMessage(), e);
         }
@@ -188,6 +186,7 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
                     addServer(server);
                 }
                 save();
+                return true;
             } catch (ParseException e) {
                 Logger.logError(e.getMessage(), e);
             } catch (MalformedURLException e) {
@@ -196,5 +195,6 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
                 e.printStackTrace();
             }
         }
+        return false;
     }
 }
