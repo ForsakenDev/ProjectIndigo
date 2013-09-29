@@ -1,6 +1,7 @@
 package co.zmc.projectindigo.gui;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,6 +51,16 @@ public class ServerPanel extends BasePanel {
     public ServerInfo getServerInfo(String fullIp) {
         if (_servers.containsKey(fullIp)) { return _servers.get(fullIp); }
         return null;
+    }
+
+    public void removeServer(String fullIp) {
+        if (_servers.containsKey(fullIp)) {
+            for (Component c : _servers.get(fullIp).getAllComponents()) {
+                remove(c);
+            }
+            remove(_servers.get(fullIp));
+            _servers.remove(fullIp);
+        }
     }
 
     public synchronized void addServer(final Server server) {

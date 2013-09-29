@@ -88,6 +88,22 @@ public class ServerManager extends SwingWorker<Boolean, Void> {
         return _servers;
     }
 
+    public void removeServer(String fullIp) {
+        int index = -1;
+        for (int i = 0; i < _servers.size(); i++) {
+            Server s = _servers.get(i);
+            if (s.getFullIp().equalsIgnoreCase(fullIp)) {
+                s.getBaseDir().delete();
+                index = i;
+            }
+        }
+        if (index != -1) {
+            _servers.remove(index);
+            ((ServerPanel) _mainPanel.getPanel(1)).removeServer(fullIp);
+            save();
+        }
+    }
+
     public void save() {
         String str = "{\n";
         for (int i = 0; i < _servers.size(); i++) {

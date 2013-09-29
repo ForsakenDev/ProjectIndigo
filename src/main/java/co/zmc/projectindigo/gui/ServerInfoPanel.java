@@ -159,7 +159,8 @@ public class ServerInfoPanel extends BasePanel implements ActionListener {
         } else if (e.getActionCommand().equals("UPDATE")) {
             server.forceUpdate();
         } else if (e.getActionCommand().equals("DELETE")) {
-            // DELETE SERVER PLACEHOLDER
+            ((ServerPanel) getMainPanel().getPanel(1)).getServerManager().removeServer(server.getFullIp());
+            switchPage(1);
         }
     }
 
