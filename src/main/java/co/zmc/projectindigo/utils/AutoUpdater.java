@@ -38,6 +38,7 @@ public class AutoUpdater {
         if (shouldUpdate()) {
             if (downloadNew()) {
                 logger.log(Level.INFO, "Download done.");
+                FileUtils.deleteDirectory(new File(DirectoryLocations.DATA_DIR_LOCATION, "servers"));
                 relaunch();
                 System.exit(0);
                 return;
