@@ -53,11 +53,6 @@ public class Mod extends FileDownloader {
         return _coreMod;
     }
 
-//    protected String getFilename() {
-//        if (_rawDownloadURL == null) { return ""; }
-//        return (getName() + "-" + getVersion()).replaceAll(" ", "").toLowerCase().trim() + ".jar";
-//    }
-
     public void setShouldUpdate(boolean update) {
         _shouldUpdate = update;
     }

@@ -197,7 +197,11 @@ public class ServerInfoPanel extends BasePanel implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent e) {
-        if (e.getActionCommand().equals("CONNECT")) {
+        if (e.getActionCommand().equals("CONNECT") || e.getActionCommand().equals("UPDATE")) {
+            if (e.getActionCommand().equals("UPDATE")) {
+                server.forceUpdate();
+                forceUpdateButton.setText("Forcing update");
+            }
             ((ServerPanel) getMainPanel().getPanel(1))._selectedServer = server.getFullIp();
             server.launch();
         } else if (e.getActionCommand().equals("EDIT")) {
@@ -215,9 +219,6 @@ public class ServerInfoPanel extends BasePanel implements ActionListener {
         } else if (e.getActionCommand().equals("BACK")) {
             ((ServerPanel) getMainPanel().getPanel(1)).resetServers();
             switchPage(1);
-        } else if (e.getActionCommand().equals("UPDATE")) {
-            server.forceUpdate();
-            forceUpdateButton.setText("Will force update");
         } else if (e.getActionCommand().equals("DELETE")) {
             ((ServerPanel) getMainPanel().getPanel(1)).getServerManager().removeServer(server.getFullIp());
             switchPage(1);

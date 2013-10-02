@@ -114,6 +114,16 @@ public class FileDownloader {
         };
     }
 
+    protected String getFileExtension() {
+        try {
+            String[] filename = getFilename().split(".");
+            return filename[filename.length - 1];
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return "jar";
+    }
+
     private boolean downloadFile(Server server, ProgressPanel panel) throws IOException {
         String jarFileName = getFilename();
         File downloadedFile = new File(_baseDir, jarFileName);
@@ -169,7 +179,6 @@ public class FileDownloader {
     }
 
     protected void extractZip(Server server, ProgressPanel panel, boolean overwrite) {
-
         FileInputStream input = null;
         ZipInputStream zipIn = null;
         try {

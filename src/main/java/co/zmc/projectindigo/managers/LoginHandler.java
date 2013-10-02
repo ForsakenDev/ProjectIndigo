@@ -42,12 +42,12 @@ public class LoginHandler extends SwingWorker<String, Void> {
     protected String doInBackground() {
         _mainPanel.switchPage(-1);
         try {
-            ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Logging in as " + _username + "...", 33);
+            ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Logging in as " + _username, 33);
             String result = doLogin();
-            ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Reading response...", 99);
+            ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Reading response", 99);
             LoginResponse response = new LoginResponse(result);
-            ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Logged in...", 100);
-            Logger.logInfo("Login successful, Starting minecraft..");
+            ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Logged in", 100);
+            Logger.logInfo("Login successful, Starting minecraft");
             ((LoginPanel) _mainPanel.getPanel(0)).getUserManager().clear();
             if (_savePassword) {
                 ((LoginPanel) _mainPanel.getPanel(0)).getUserManager().saveUsername(_username, response.getUsername(), _password);
@@ -78,13 +78,11 @@ public class LoginHandler extends SwingWorker<String, Void> {
         return "";
     }
 
-    public String doLogin() throws BadLoginException, MinecraftUserNotPremiumException, MCNetworkException, OutdatedMCLauncherException,
-            UnsupportedEncodingException, IOException {
+    public String doLogin() throws BadLoginException, MinecraftUserNotPremiumException, MCNetworkException, OutdatedMCLauncherException, UnsupportedEncodingException, IOException {
         String result = null;
         try {
-            result = getString(new URL("https://login.minecraft.net/?user=" + URLEncoder.encode(_username, "UTF-8") + "&password="
-                    + URLEncoder.encode(_password, "UTF-8") + "&version=13"));
-            ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Sending username and password...", 66);
+            result = getString(new URL("https://login.minecraft.net/?user=" + URLEncoder.encode(_username, "UTF-8") + "&password=" + URLEncoder.encode(_password, "UTF-8") + "&version=13"));
+            ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Sending username and password", 66);
         } catch (MalformedURLException e) {
         } catch (IOException e) {
             throw new MCNetworkException();
