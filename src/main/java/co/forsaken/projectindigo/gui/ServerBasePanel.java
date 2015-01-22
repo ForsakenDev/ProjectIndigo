@@ -73,6 +73,7 @@ import co.forsaken.projectindigo.utils.Utils;
         for (final ServerToken t : result.servers) {
           Server s = new Server(t);
           if (s != null && s.online) {
+            s.finishedLoading();
             if (activeServer == null) {
               setServer(s);
             }

@@ -60,8 +60,11 @@ import com.google.gson.JsonSyntaxException;
     } else if (token.modpackType.equalsIgnoreCase("technic")) {
       loader = new TechnicServerLoader(this);
     }
-    LogManager.info(token.friendlyName + " has been fully hooked into " + token.modpackType);
     mkdirs();
+  }
+
+  public void finishedLoading() {
+    LogManager.info(token.friendlyName + " has been fully hooked into " + token.modpackType);
   }
 
   public void cleanup() {

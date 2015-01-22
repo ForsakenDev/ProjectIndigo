@@ -220,7 +220,7 @@ public class JsonWebCall {
       HttpURLConnection con = (HttpURLConnection) new URL(_url).openConnection();
       con.setRequestMethod("HEAD");
 
-      con.setConnectTimeout(5000);
+      con.setConnectTimeout(2000);
 
       if (con.getResponseCode() != HttpURLConnection.HTTP_OK) { throw new Exception("Service " + _url + " unavailable, oh no!"); }
     } catch (java.net.SocketTimeoutException e) {
