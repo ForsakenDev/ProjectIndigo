@@ -37,11 +37,17 @@ public class AutoUpdater {
 
   public static void main(String[] args) {
     if (shouldUpdate()) {
-      if (downloadNew()) {
-        LogManager.info("Download done.");
-        relaunch();
-        System.exit(0);
-        return;
+      if (JOptionPane.showConfirmDialog(null, "An update to the launcher was found! Would you like to download?") == JOptionPane.OK_OPTION) {
+        if (downloadNew()) {
+          LogManager.info("Download done.");
+          relaunch();
+          System.exit(0);
+          return;
+        }
+      } else {
+        try {
+          goToPage();
+        } catch (IOException e) {}
       }
     }
     new IndigoLauncher((args.length == 1 ? args[0] : ""));
@@ -110,40 +116,35 @@ public class AutoUpdater {
 
   private static boolean downloadNew() {
     try {
+
       String jarLocation = AutoUpdater.class.getProtectionDomain().getCodeSource().getLocation().getPath();
       URL url = new URL("http://indigo.forsaken.co/downloads/jar/ProjectIndigo.jar");
       if (Utils.getCurrentOS() == OS.WINDOWS && jarLocation.contains(".exe")) {
-        url = new URL("http://indigo.forsaken.co/downloads/exe/ProjectIndigo.zip");
+        url = new URL("http://indigo.forsaken.co/downloads/exe/ProjectIndigo.exe");
         jarLocation = jarLocation.substring(0, jarLocation.indexOf(".exe") + 4);
       } else if (Utils.getCurrentOS() == OS.MACOSX && jarLocation.contains(".app")) {
         url = new URL("http://indigo.forsaken.co/downloads/app/ProjectIndigo.zip");
         jarLocation = jarLocation.substring(0, jarLocation.indexOf(".app") + 4);
       }
-      HttpURLConnection connection = (HttpURLConnection) url.openConnection(); 
-      connection.addRequestProperty("User-Agent", "Mozilla/4.76"); 
+      HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+      connection.addRequestProperty("User-Agent", "Mozilla/4.76");
       File file = new File(jarLocation);
       FileUtils.deleteDirectory(file);
-
-      if (Utils.getCurrentOS() == OS.WINDOWS && jarLocation.contains(".exe")) {
-        file = new File(jarLocation.replaceAll(".exe", ".zip").replaceAll("%20", " "));
-      } else if (Utils.getCurrentOS() == OS.MACOSX && jarLocation.contains(".app")) {
-        file = new File(jarLocation.replaceAll(".app", ".zip").replaceAll("%20", " "));
-      }
       LogManager.info("Update detected. Attempting to download.");
-      JOptionPane.showMessageDialog(null, "An update to the launcher was found! Attempting to download");
       InputStream input = connection.getInputStream();
       saveStreamToFileAndUnZip(input, file);
       input.close();
+      return true;
     } catch (MalformedURLException e) {
       e.printStackTrace();
     } catch (IOException e) {
       e.printStackTrace();
     }
-    return true;
+    return false;
   }
 
   public static void goToPage() throws IOException {
-    JOptionPane.showMessageDialog(null, "An update to the launcher was found! You need to download it to use this launcher");
+    JOptionPane.showMessageDialog(null, "You might experience issues using an outdated version, check the website for information");
     if (Desktop.isDesktopSupported()) {
       try {
         Desktop.getDesktop().browse(new URI("http://indigo.forsaken.co/"));
@@ -151,7 +152,6 @@ public class AutoUpdater {
         e.printStackTrace();
       }
     }
-    System.exit(0);
   }
 
   public static void saveStreamToFileAndUnZip(InputStream input, File file) throws IOException {

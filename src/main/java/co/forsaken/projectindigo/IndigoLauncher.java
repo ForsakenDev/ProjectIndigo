@@ -27,8 +27,7 @@ import co.forsaken.projectindigo.utils.ResourceUtils;
   public LauncherConsole       console;
 
   public IndigoLauncher(String defaultLogin) {
-    cleanup();
-    LogManager.start();
+
     _launcher = this;
     setLookandFeel();
     launchMainPanel(defaultLogin);
