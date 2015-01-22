@@ -15,7 +15,7 @@ public class Settings {
       try {
         if (!SETTINGS_FILE.exists()) {
           SETTINGS_FILE.createNewFile();
-          FileUtils.writeStringToFile("{ \"installDir\": \"\", \"maxRam\": \"1024\", \"javaParams\": \"-XX:PermSize=128M\", \"windowSize\": \"1280,720\", \"windowPos\": \"0,0\", \"windowMax\": \"true\" }", SETTINGS_FILE);
+          FileUtils.writeStringToFile("{ \"installDir\": \"\", \"maxRam\": \"1024\", \"javaParams\": \"-XX:PermSize=512M\", \"windowSize\": \"1280,720\", \"windowPos\": \"0,0\", \"windowMax\": \"true\" }", SETTINGS_FILE);
         }
         token = new Gson().fromJson(new Scanner(SETTINGS_FILE, "UTF-8").useDelimiter("\\A").next(), SettingsToken.class);
       } catch (FileNotFoundException e) {

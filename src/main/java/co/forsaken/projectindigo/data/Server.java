@@ -28,6 +28,7 @@ import co.forsaken.projectindigo.log.LogManager;
 import co.forsaken.projectindigo.mclaunch.MinecraftLauncher;
 import co.forsaken.projectindigo.utils.DirectoryLocations;
 import co.forsaken.projectindigo.utils.ServerLoader;
+import co.forsaken.projectindigo.utils.Settings;
 import co.forsaken.projectindigo.utils.atlauncher.AtLauncherServerLoader;
 import co.forsaken.projectindigo.utils.ftb.FtbServerLoader;
 import co.forsaken.projectindigo.utils.ftb.tokens.Artifact;
@@ -101,7 +102,17 @@ import com.google.gson.JsonSyntaxException;
   }
 
   public File getMinecraftDir() {
-    return new File(String.format(DirectoryLocations.SERVER_DIR_LOCATION, token.friendlyName.replace(" ", "_").replace(".", "_")));
+    if (Settings.getToken().installPath == null || Settings.getToken().installPath.isEmpty()) {
+      Settings.getToken().installPath = new File(String.format(DirectoryLocations.SERVER_DIR_LOCATION, token.friendlyName.replace(" ", "_").replace(".", "_"))).getAbsolutePath();
+      Settings.save();
+    } else {
+      File s = new File(Settings.getToken().installPath);
+      if (!s.exists() || !s.isDirectory()) {
+        Settings.getToken().installPath = new File(String.format(DirectoryLocations.SERVER_DIR_LOCATION, token.friendlyName.replace(" ", "_").replace(".", "_"))).getAbsolutePath();
+        Settings.save();
+      }
+    }
+    return new File(Settings.getToken().installPath);
   }
 
   public File getModsDir() {
@@ -155,6 +166,7 @@ import com.google.gson.JsonSyntaxException;
 
   public void prepDownload() {
     mkdirs();
+    downloads.clear();
     if (loader.isWholeDownload()) {
       downloads.add(new FileDownloader(this, getDownloadLocation(), getMinecraftDir().getAbsolutePath(), true, false));
     }
@@ -194,7 +206,7 @@ import com.google.gson.JsonSyntaxException;
         }
       }
     }
-    downloads.add(new FileDownloader(this, "http://optifine.net/downloadx?f=OptiFine_1.7.10_HD_U_B4.jar&x=cfc05b59db9a9a2b9fc6125cada321cc", getModsDir().getAbsolutePath(), "OptiFine_1.7.10_HD_A4.jar", false));
+    downloads.add(new FileDownloader(this, "http://indigo.forsken.co/downloads/OptiFine_1.7.10_HD_U_B4.jar", getModsDir().getAbsolutePath(), "OptiFine_1.7.10_HD_A4.jar", false));
     downloads.add(new FileDownloader(this, "http://files.player.to/fastcraft-1.16.jar", getModsDir().getAbsolutePath(), false));
   }
 
@@ -218,9 +230,9 @@ import com.google.gson.JsonSyntaxException;
   }
 
   public boolean download(final ProgressPanel panel) throws IOException {
-    prepDownload();
     new Thread() {
       public void run() {
+        prepDownload();
         ExecutorService pool = Executors.newFixedThreadPool(10);
         for (Runnable r : loadFileSize(panel)) {
           pool.submit(r);
@@ -350,9 +362,9 @@ import com.google.gson.JsonSyntaxException;
   }
 
   public void launch(final MainPanel panel) {
-    cleanupLibs();
     Thread launcher = new Thread() {
       public void run() {
+        cleanupLibs();
         try {
           long start = System.currentTimeMillis();
 

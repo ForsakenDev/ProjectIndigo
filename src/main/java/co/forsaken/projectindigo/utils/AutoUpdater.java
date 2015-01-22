@@ -12,8 +12,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -58,6 +58,15 @@ public class AutoUpdater {
     }
   }
 
+  private static int parseVersion(String version) {
+    Pattern pat = Pattern.compile("\\.");
+    Matcher match = pat.matcher(version);
+    if (match.find()) {
+      version = match.replaceAll("");
+    }
+    return Integer.parseInt(version);
+  }
+
   public static boolean shouldUpdate() {
     try {
       URL url = new URL("https://raw.github.com/ForsakenDev/ProjectIndigo/master/pom.xml");
@@ -75,8 +84,7 @@ public class AutoUpdater {
         descNodes = doc.getElementsByTagName("project");
 
         String clientVersion = (String) ((Element) descNodes.item(0)).getElementsByTagName("version").item(0).getChildNodes().item(0).getNodeValue();
-
-        return (!version.equals(clientVersion));
+        return parseVersion(version) > parseVersion(clientVersion);
       }
 
     } catch (MalformedURLException e) {

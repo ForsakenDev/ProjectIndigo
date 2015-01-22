@@ -58,7 +58,8 @@ import co.forsaken.projectindigo.utils.Settings;
     _installDirBox.setEnabled(false);
     _installDirBtn = new Button(this, "...");
     _installDirBtn.addActionListener(new DirectorySelector(SettingsPanel.this));
-
+    _installDirBox.setEnabled(false);
+    _installDirBtn.setEnabled(false);
     _installDirBox.setBounds(((getWidth() - (getWidth() - 300)) / 2) - (150 / 2), (50 / 2) + 50, (getWidth() - 300), 25);
     _installDirBtn.setBounds(_installDirBox.getX() + _installDirBox.getWidth() + 50, _installDirBox.getY(), 100, _installDirBox.getHeight());
     _installDirLbl.setBounds(_installDirBox.getX(), _installDirBox.getY() - 30, _installDirBox.getWidth(), _installDirBox.getHeight());
