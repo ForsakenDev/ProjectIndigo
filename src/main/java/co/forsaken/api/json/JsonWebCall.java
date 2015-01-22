@@ -31,6 +31,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -213,6 +215,20 @@ public class JsonWebCall {
 
   public <T> T executeGet(Class<T> retType, boolean encapsulate) throws Exception {
     if (_log) System.out.println("Requested: [" + _url + "]");
+    try {
+      HttpURLConnection.setFollowRedirects(false);
+      HttpURLConnection con = (HttpURLConnection) new URL(_url).openConnection();
+      con.setRequestMethod("HEAD");
+
+      con.setConnectTimeout(5000);
+
+      if (con.getResponseCode() != HttpURLConnection.HTTP_OK) { throw new Exception("Service " + _url + " unavailable, oh no!"); }
+    } catch (java.net.SocketTimeoutException e) {
+      throw new Exception("Service " + _url + " unavailable, oh no!", e);
+    } catch (java.io.IOException e) {
+      throw new Exception("Service " + _url + " unavailable, oh no!", e);
+    }
+
     HttpClient httpClient = new DefaultHttpClient(_connectionManager);
     InputStream in = null;
     T returnData = null;

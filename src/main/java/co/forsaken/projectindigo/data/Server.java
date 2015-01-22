@@ -60,7 +60,7 @@ import com.google.gson.JsonSyntaxException;
     } else if (token.modpackType.equalsIgnoreCase("technic")) {
       loader = new TechnicServerLoader(this);
     }
-    LogManager.info("Download " + token.friendlyName + (loader != null && loader.isWholeDownload() ? " Whole Modpack " + " from " + getDownloadLocation() : " Mod By Mod "));
+    LogManager.info(token.friendlyName + " has been fully hooked into " + token.modpackType);
     mkdirs();
   }
 
