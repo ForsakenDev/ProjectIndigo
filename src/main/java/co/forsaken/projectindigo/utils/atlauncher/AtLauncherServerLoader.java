@@ -9,11 +9,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import lombok.extern.java.Log;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -21,9 +16,8 @@ import org.w3c.dom.NodeList;
 
 import co.forsaken.api.json.JsonWebCall;
 import co.forsaken.projectindigo.data.Mod;
-import co.forsaken.projectindigo.data.Server;
 import co.forsaken.projectindigo.data.Mod.ModType;
-import co.forsaken.projectindigo.data.log.Logger;
+import co.forsaken.projectindigo.data.Server;
 import co.forsaken.projectindigo.log.LogManager;
 import co.forsaken.projectindigo.utils.DirectoryLocations;
 import co.forsaken.projectindigo.utils.FileUtils;
@@ -89,19 +83,24 @@ public class AtLauncherServerLoader extends ServerLoader {
 
   private static PacksToken getModpackInfo() {
     if (token == null) {
-      PacksToken t = new JsonWebCall(API_BASE + API_BASE_PACKS).executeGet(PacksToken.class, true);
-      token = t;
+      try {
+        token = new JsonWebCall(API_BASE + API_BASE_PACKS).executeGet(PacksToken.class, true);
+      } catch (Exception e) {
+        LogManager.error(API_BASE + API_BASE_PACKS + " could not be retrieved... its most likely down, try again in a few seconds");
+        return null;
+      }
     }
     return token;
   }
 
-  @Override public void load(Server server) {
-    loadPack(server);
+  @Override public boolean load(Server server) {
+    return loadPack(server);
   }
 
   private boolean loadPack(Server server) {
     PacksToken token = getModpackInfo();
-    boolean found = false;
+    if (token == null) { return false; }
+    boolean found = true;
     for (ModpackToken t : token.data) {
       if (!t.name.equalsIgnoreCase(server.getToken().modpackRefName)) {
         continue;

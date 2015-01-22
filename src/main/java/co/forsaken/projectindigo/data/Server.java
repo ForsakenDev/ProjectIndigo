@@ -49,6 +49,7 @@ import com.google.gson.JsonSyntaxException;
   private ServerLoader         loader;
   private String               launchArgs;
   private String               jarOrder = "";
+  public boolean               online;
 
   public Server(ServerToken _token) {
     token = _token;

@@ -18,8 +18,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import co.forsaken.projectindigo.data.Mod;
-import co.forsaken.projectindigo.data.Server;
 import co.forsaken.projectindigo.data.Mod.ModType;
+import co.forsaken.projectindigo.data.Server;
 import co.forsaken.projectindigo.data.log.Logger;
 import co.forsaken.projectindigo.log.LogManager;
 import co.forsaken.projectindigo.utils.DirectoryLocations;
@@ -81,14 +81,13 @@ public class FtbServerLoader extends ServerLoader {
     return ftbModpackInfo.get(secondaryInfo);
   }
 
-  @Override public void load(Server server) {
-    if (!loadPack("modpacks.xml", server)) {
-      loadPack("thirdparty.xml", server);
-    }
+  @Override public boolean load(Server server) {
+    return loadPack("modpacks.xml", server) | loadPack("thirdparty.xml", server);
   }
 
   private boolean loadPack(String type, Server server) {
     Document doc = getFtbModpackInfo(type);
+    if (doc == null) { return false; }
     NodeList modPacks = doc.getElementsByTagName("modpack");
     boolean found = false;
     for (int i = 0; i < modPacks.getLength(); i++) {
@@ -149,9 +148,11 @@ public class FtbServerLoader extends ServerLoader {
           if (!found) found = true;
         } else {
           LogManager.info("Failed to get mods list");
+          return false;
         }
       } catch (Exception e) {
         LogManager.error("Error while updating modpack info");
+        return false;
       }
     }
     return found;

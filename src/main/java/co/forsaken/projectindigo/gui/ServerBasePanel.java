@@ -34,6 +34,7 @@ import co.forsaken.projectindigo.gui.components.CachedImage;
 import co.forsaken.projectindigo.gui.components.Label;
 import co.forsaken.projectindigo.gui.components.RoundedBox;
 import co.forsaken.projectindigo.gui.components.ScrollBarUI;
+import co.forsaken.projectindigo.log.LogManager;
 import co.forsaken.projectindigo.utils.Callback;
 import co.forsaken.projectindigo.utils.Utils;
 
@@ -71,11 +72,15 @@ import co.forsaken.projectindigo.utils.Utils;
       public void run(final ActiveServersToken result) {
         for (final ServerToken t : result.servers) {
           Server s = new Server(t);
-          if (activeServer == null) {
-            setServer(s);
+          if (s != null && s.online) {
+            if (activeServer == null) {
+              setServer(s);
+            }
+            addServer(s);
+            servers.put(t.name, s);
+          } else {
+            LogManager.error(t.friendlyName + " repository seems to be offline, this is " + t.modpackType + "'s fault");
           }
-          addServer(s);
-          servers.put(t.name, s);
         }
       }
     });
@@ -240,10 +245,15 @@ import co.forsaken.projectindigo.utils.Utils;
   }
 
   public void setServer(Server _server) {
+    if (!_server.online) {
+      LogManager.error(_server.getToken().friendlyName + " could not be activated.. It had some residual errors");
+      return;
+    }
     activeServer = _server;
     serverNameLabel.setText(activeServer.getToken().friendlyName + " v" + activeServer.getToken().version);
     serverIPLabel.setText(activeServer.getToken().friendlyIp);
     serverIPLabel.setBounds((headerBox.getX() + headerBox.getWidth() + PADDING) - (Utils.getLabelWidth(serverIPLabel) + (PADDING * 2)), headerBox.getY() + ((headerBox.getHeight() - 18) / 2), (int) (headerBox.getWidth() * 0.75), 18);
+
     serverDescriptionPane.setText(activeServer.getDesc().replace("\n", "<br />"));
     serverDescriptionPane.setCaretPosition(0);
     String modsInfo = "";

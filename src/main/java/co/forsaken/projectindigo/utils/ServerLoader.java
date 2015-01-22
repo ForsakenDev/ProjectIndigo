@@ -40,12 +40,15 @@ public abstract class ServerLoader {
   private static boolean         loadedResources       = false;
 
   public ServerLoader(Server _server, boolean _wholeDownload) {
-    load(_server);
+    if (load(_server)) {
+      _server.online = true;
+    } else {
+      _server.online = false;
+    }
     wholeDownload = _wholeDownload;
-
   }
 
-  public abstract void load(Server server);
+  public abstract boolean load(Server server);
 
   public abstract String getDownloadUrl(Server server);
 

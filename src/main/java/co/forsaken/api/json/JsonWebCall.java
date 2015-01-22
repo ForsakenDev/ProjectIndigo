@@ -211,7 +211,7 @@ public class JsonWebCall {
     return returnData;
   }
 
-  public <T> T executeGet(Class<T> retType, boolean encapsulate) {
+  public <T> T executeGet(Class<T> retType, boolean encapsulate) throws Exception {
     if (_log) System.out.println("Requested: [" + _url + "]");
     HttpClient httpClient = new DefaultHttpClient(_connectionManager);
     InputStream in = null;
@@ -231,7 +231,7 @@ public class JsonWebCall {
         returnData = new Gson().fromJson(res, retType);
       }
     } catch (Exception ex) {
-      ex.printStackTrace();
+      throw ex;
     } finally {
       httpClient.getConnectionManager().shutdown();
       if (in != null) {
