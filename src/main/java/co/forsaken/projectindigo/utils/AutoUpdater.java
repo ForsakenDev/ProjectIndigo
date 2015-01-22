@@ -38,7 +38,6 @@ public class AutoUpdater {
     if (shouldUpdate()) {
       if (downloadNew()) {
         LogManager.info("Download done.");
-        FileUtils.deleteDirectory(new File(DirectoryLocations.DATA_DIR_LOCATION, "servers"));
         relaunch();
         System.exit(0);
         return;
@@ -61,7 +60,7 @@ public class AutoUpdater {
 
   public static boolean shouldUpdate() {
     try {
-      URL url = new URL("https://raw.github.com/ZephyrMC-Dev/ProjectIndigo/master/pom.xml");
+      URL url = new URL("https://raw.github.com/ForsakenDev/ProjectIndigo/master/pom.xml");
 
       URLConnection connection = url.openConnection();
 
@@ -70,7 +69,7 @@ public class AutoUpdater {
 
       String version = (String) ((Element) descNodes.item(0)).getElementsByTagName("version").item(0).getChildNodes().item(0).getNodeValue();
 
-      InputStream pomStream = AutoUpdater.class.getClassLoader().getResourceAsStream("META-INF/maven/co.zmc/projectindigo/pom.xml");
+      InputStream pomStream = AutoUpdater.class.getClassLoader().getResourceAsStream("META-INF/maven/co.forsaken/projectindigo/pom.xml");
       if (pomStream != null) {
         doc = parseXML(pomStream);
         descNodes = doc.getElementsByTagName("project");
@@ -103,12 +102,12 @@ public class AutoUpdater {
   private static boolean downloadNew() {
     try {
       String jarLocation = AutoUpdater.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-      URL url = new URL("http://zephyrunleashed.com/indigo/jar/ProjectIndigo.jar");
+      URL url = new URL("http://indigo.forsaken.co/downloads/jar/ProjectIndigo.zip");
       if (Utils.getCurrentOS() == OS.WINDOWS && jarLocation.contains(".exe")) {
-        url = new URL("http://zephyrunleashed.com/indigo/exe/ProjectIndigo.zip");
+        url = new URL("http://indigo.forsaken.co/downloads/exe/ProjectIndigo.zip");
         jarLocation = jarLocation.substring(0, jarLocation.indexOf(".exe") + 4);
       } else if (Utils.getCurrentOS() == OS.MACOSX && jarLocation.contains(".app")) {
-        url = new URL("http://zephyrunleashed.com/indigo/app/ProjectIndigo.zip");
+        url = new URL("http://indigo.forsaken.co/downloads/app/ProjectIndigo.zip");
         jarLocation = jarLocation.substring(0, jarLocation.indexOf(".app") + 4);
       }
       URLConnection connection = url.openConnection();
@@ -138,7 +137,7 @@ public class AutoUpdater {
     JOptionPane.showMessageDialog(null, "An update to the launcher was found! You need to download it to use this launcher");
     if (Desktop.isDesktopSupported()) {
       try {
-        Desktop.getDesktop().browse(new URI("http://zephyrunleashed.com/indigolauncher"));
+        Desktop.getDesktop().browse(new URI("http://indigo.forsaken.co/"));
       } catch (URISyntaxException e) {
         e.printStackTrace();
       }

@@ -15,7 +15,6 @@ import co.forsaken.projectindigo.gui.LauncherConsole;
 import co.forsaken.projectindigo.gui.MainPanel;
 import co.forsaken.projectindigo.log.LogManager;
 import co.forsaken.projectindigo.utils.DirectoryLocations;
-import co.forsaken.projectindigo.utils.FileUtils;
 import co.forsaken.projectindigo.utils.ResourceUtils;
 
 @SuppressWarnings("serial") public class IndigoLauncher extends JFrame {
@@ -28,9 +27,9 @@ import co.forsaken.projectindigo.utils.ResourceUtils;
   public LauncherConsole       console;
 
   public IndigoLauncher(String defaultLogin) {
+    cleanup();
     LogManager.start();
     _launcher = this;
-    cleanup();
     setLookandFeel();
     launchMainPanel(defaultLogin);
     console = new LauncherConsole();
@@ -49,6 +48,7 @@ import co.forsaken.projectindigo.utils.ResourceUtils;
       @Override public void windowClosed(WindowEvent e) {
         console.dispose();
         LogManager.join();
+        System.exit(0);
       }
 
       @Override public void windowActivated(WindowEvent e) {}
@@ -66,7 +66,7 @@ import co.forsaken.projectindigo.utils.ResourceUtils;
 
   private void setLookandFeel() {
     setTitle(IndigoLauncher.TITLE);
-    setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+    setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     setResizable(false);
     setSize(_loginPanelSize);
     setPreferredSize(_loginPanelSize);
@@ -81,23 +81,15 @@ import co.forsaken.projectindigo.utils.ResourceUtils;
   }
 
   public static void cleanup() {
-    String[] fileLocations = { DirectoryLocations.BASE_DIR_LOCATION, DirectoryLocations.DATA_DIR_LOCATION, DirectoryLocations.DATA_DIR_LOCATION + "servers", DirectoryLocations.DATA_DIR_LOCATION + "settings", DirectoryLocations.IMAGE_DIR_LOCATION,
-        DirectoryLocations.AVATAR_CACHE_DIR_LOCATION, DirectoryLocations.INSTANCE_DIR_LOCATION, DirectoryLocations.LOG_DIR_LOCATION, DirectoryLocations.FTB_DATA_DIR_LOCATION, DirectoryLocations.AT_DATA_DIR_LOCATION };
+    String[] fileLocations = { DirectoryLocations.BASE_DIR_LOCATION, DirectoryLocations.DATA_DIR_LOCATION, DirectoryLocations.DATA_DIR_LOCATION + "settings", DirectoryLocations.IMAGE_DIR_LOCATION, DirectoryLocations.AVATAR_CACHE_DIR_LOCATION,
+        DirectoryLocations.INSTANCE_DIR_LOCATION, DirectoryLocations.LOG_DIR_LOCATION, DirectoryLocations.FTB_DATA_DIR_LOCATION, DirectoryLocations.AT_DATA_DIR_LOCATION };
 
     for (String s : fileLocations) {
       File file = new File(s);
       if (file.exists()) {
         continue;
       } else {
-        if (s.charAt(s.length() - 1) == '/') {
-          file.mkdir();
-        } else {
-          if (s.contains("servers")) {
-            FileUtils.writeStreamToFile(ResourceUtils.getResourceAsStream("defaultServers"), file);
-          } else if (s.contains("settings")) {
-            FileUtils.writeStreamToFile(ResourceUtils.getResourceAsStream("settings"), file);
-          }
-        }
+        file.mkdirs();
       }
     }
   }

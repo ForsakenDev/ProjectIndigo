@@ -4,15 +4,13 @@
 	<groupId>co.forsaken</groupId>
 	<artifactId>projectindigo</artifactId>
 	<name>ProjectIndigo</name>
-	<version>2.0</version>
+	<version>2.0.1</version>
 	<organization>
 		<name>Forsaken Network LLC</name>
 		<url>http://www.forsaken.co</url>
 	</organization>
 	<packaging>jar</packaging>
-	<description>
-        Custom server launcher for the Forsaken Network server
-    </description>
+	<description> Custom server launcher for the Forsaken Network server </description>
 	<url>https://www.forsaken.co</url>
 
 	<properties>
@@ -204,7 +202,10 @@
 								<chmod
 									file="${project.build.directory}/${project.name}-${project.version}.jar"
 									perm="ugo+rwx" />
-
+								<mkdir dir="${project.build.directory}/output/" />
+								<mkdir dir="${project.build.directory}/output/app/" />
+								<mkdir dir="${project.build.directory}/output/jar/" />
+								<mkdir dir="${project.build.directory}/output/exe/" />
 								<mkdir dir="${project.build.directory}/${project.name}.app" />
 								<copy todir="${project.build.directory}/${project.name}.app">
 									<fileset dir="${basedir}/macapp" includes="**" />
@@ -226,6 +227,15 @@
 										filemode="755" />
 								</zip>
 								<delete dir="{project.build.directory}/${project.name}.app" />
+								<copy
+									file="${project.build.directory}/${project.name}-${project.version}.jar"
+									tofile="${project.build.directory}/output/jar/${project.name}.jar" />
+								<copy
+									file="${project.build.directory}/${project.name}-${project.version}.exe"
+									tofile="${project.build.directory}/output/exe/${project.name}.exe" />
+								<copy
+									file="${project.build.directory}/${project.name}-${project.version}.zip"
+									tofile="${project.build.directory}/output/app/${project.name}.zip" />
 							</target>
 						</configuration>
 						<goals>
