@@ -52,7 +52,7 @@ public class LoginHandler extends SwingWorker<String, Void> {
       ((LoginPanel) _mainPanel.getPanel(0)).setResponse(result);
       ((LoginPanel) _mainPanel.getPanel(0)).onEvent(LoginEvents.LAUNCH);
     } catch (AuthenticationException e) {
-      ((LoginPanel) _mainPanel.getPanel(0)).onEvent(LoginEvents.ACCOUNT_MIGRATED);
+      ((LoginPanel) _mainPanel.getPanel(0)).onEvent(LoginEvents.AUTH_ERROR, e.getLocalizedMessage());
     } catch (UnsupportedEncodingException e) {
       Logger.logError(e.getMessage(), e);
       this.cancel(true);

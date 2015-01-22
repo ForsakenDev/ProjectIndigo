@@ -109,7 +109,7 @@ import co.forsaken.projectindigo.session.Identity;
     return _loginResponse;
   }
 
-  public final void onEvent(LoginEvents event) {
+  public final void onEvent(LoginEvents event, String... msg) {
     switch (event) {
       default:
       case LAUNCH:
@@ -120,12 +120,8 @@ import co.forsaken.projectindigo.session.Identity;
       case BAD_LOGIN:
         JOptionPane.showMessageDialog(_mainPanel, "Invalid username/password combination." + "\n\n" + IndigoLauncher.TITLE + " will not work without a premium Minecraft account.", "Bad Login Information!", JOptionPane.WARNING_MESSAGE);
         break;
-      case ACCOUNT_MIGRATED:
-        JOptionPane.showMessageDialog(_mainPanel, "Please use your email address instead of your username.", "Account Migrated!", JOptionPane.WARNING_MESSAGE);
-        _userManager.removeAccount(_activeUser);
-        break;
-      case USER_NOT_PREMIUM:
-        JOptionPane.showConfirmDialog(_mainPanel, IndigoLauncher.TITLE + " will not work without a premium Minecraft account!", "Premium Minecraft Account Required", JOptionPane.DEFAULT_OPTION);
+      case AUTH_ERROR:
+        JOptionPane.showMessageDialog(_mainPanel, msg);
         break;
       case NETWORK_DOWN:
         JOptionPane.showMessageDialog(_mainPanel, "Minecraft sessions seem to be down.... Unable to authenticate, check http://help.mojang.com/ for information");
