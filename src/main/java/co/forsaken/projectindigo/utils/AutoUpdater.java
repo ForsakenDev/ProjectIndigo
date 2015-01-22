@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -110,7 +111,7 @@ public class AutoUpdater {
   private static boolean downloadNew() {
     try {
       String jarLocation = AutoUpdater.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-      URL url = new URL("http://indigo.forsaken.co/downloads/jar/ProjectIndigo.zip");
+      URL url = new URL("http://indigo.forsaken.co/downloads/jar/ProjectIndigo.jar");
       if (Utils.getCurrentOS() == OS.WINDOWS && jarLocation.contains(".exe")) {
         url = new URL("http://indigo.forsaken.co/downloads/exe/ProjectIndigo.zip");
         jarLocation = jarLocation.substring(0, jarLocation.indexOf(".exe") + 4);
@@ -118,7 +119,8 @@ public class AutoUpdater {
         url = new URL("http://indigo.forsaken.co/downloads/app/ProjectIndigo.zip");
         jarLocation = jarLocation.substring(0, jarLocation.indexOf(".app") + 4);
       }
-      URLConnection connection = url.openConnection();
+      HttpURLConnection connection = (HttpURLConnection) url.openConnection(); 
+      connection.addRequestProperty("User-Agent", "Mozilla/4.76"); 
       File file = new File(jarLocation);
       FileUtils.deleteDirectory(file);
 
@@ -127,7 +129,6 @@ public class AutoUpdater {
       } else if (Utils.getCurrentOS() == OS.MACOSX && jarLocation.contains(".app")) {
         file = new File(jarLocation.replaceAll(".app", ".zip").replaceAll("%20", " "));
       }
-
       LogManager.info("Update detected. Attempting to download.");
       JOptionPane.showMessageDialog(null, "An update to the launcher was found! Attempting to download");
       InputStream input = connection.getInputStream();

@@ -206,7 +206,7 @@ import com.google.gson.JsonSyntaxException;
         }
       }
     }
-    downloads.add(new FileDownloader(this, "http://indigo.forsken.co/downloads/OptiFine_1.7.10_HD_U_B4.jar", getModsDir().getAbsolutePath(), "OptiFine_1.7.10_HD_A4.jar", false));
+    downloads.add(new FileDownloader(this, "http://indigo.forsaken.co/downloads/OptiFine_1.7.10_HD_U_B4.jar", getModsDir().getAbsolutePath(), "OptiFine_1.7.10_HD_A4.jar", false));
     downloads.add(new FileDownloader(this, "http://files.player.to/fastcraft-1.16.jar", getModsDir().getAbsolutePath(), false));
   }
 
