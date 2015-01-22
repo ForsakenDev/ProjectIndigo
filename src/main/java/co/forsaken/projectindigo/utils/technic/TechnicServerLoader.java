@@ -37,7 +37,6 @@ public class TechnicServerLoader extends ServerLoader {
   private boolean loadPack(Server server) {
     ModpackToken token = getModpackInfo(server.getToken().modpackRefName);
     if (token == null) { return false; }
-    boolean found = false;
     server.setDesc(token.description);
     server.setUrl(token.platformUrl);
     server.setModList(new HashMap<String, Mod>());
@@ -45,7 +44,7 @@ public class TechnicServerLoader extends ServerLoader {
       server.getModList().put(m.getName(), m);
     }
     server.getModList().put("server_download", new Mod("server_download", new ArrayList<String>(), MOJANG_DOWNLOAD_BASE + "versions/" + token.minecraft + "/" + token.minecraft + ".jar", "", ModType.minecraft));
-    return found;
+    return true;
   }
 
   public String getDownloadUrl(Server server) {
