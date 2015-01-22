@@ -44,7 +44,9 @@ public class AtLauncherServerLoader extends ServerLoader {
     String url = String.format(API_BASE + API_BASE_PACK_INFO, name.replaceAll(" ", ""), version);
     String nme = (name + "-" + version).replaceAll(".", "_").replaceAll(" ", "");
     if (!modpackInfo.containsKey(nme)) {
-      File modpackFile = new File(DirectoryLocations.DATA_DIR_LOCATION, type + File.separator + nme);
+      File baseModTypeFile = new File(DirectoryLocations.BACKEND_DATA_DIR.format(type + "/"));
+      if (!baseModTypeFile.exists()) baseModTypeFile.mkdirs();
+      File modpackFile = new File(baseModTypeFile, nme);
       try {
         if (!modpackFile.exists()) modpackFile.createNewFile();
         FileUtils.writeStreamToFile(new URL(url).openStream(), modpackFile);

@@ -30,7 +30,6 @@ public final class LogEventWriter implements Closeable, Flushable {
 
   public LogEventWriter(Writer writer) {
     if (writer == null) { throw new ChunkyException("Writer == null"); }
-
     this.writer = writer;
   }
 

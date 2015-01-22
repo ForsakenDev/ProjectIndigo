@@ -22,6 +22,7 @@ import co.forsaken.projectindigo.utils.Settings;
 
   private RoundedBox _bg;
   private Button     _continueBtn;
+  private Button     _backBtn;
   private Settings   _settings;
 
   private Label      _installDirLbl;
@@ -44,8 +45,15 @@ import co.forsaken.projectindigo.utils.Settings;
     _bg = new RoundedBox(MainPanel.BORDER_COLOUR);
     _bg.setBounds((getWidth() - (getWidth() - 50)) / 2, (getHeight() - (getHeight() - 50)) / 2, getWidth() - 50, getHeight() - 50);
 
-    _continueBtn = new Button(this, "Back");
-    _continueBtn.setBounds(_bg.getWidth() - (200 - 10), _bg.getHeight() - (25 - 10), 200, 25);
+    _backBtn = new Button(this, "Back");
+    _backBtn.setBounds(_bg.getWidth() - (200 - 10), _bg.getHeight() - (25 - 10), 200, 25);
+    _backBtn.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        _mainPanel.switchPage(1);
+      }
+    });
+    _continueBtn = new Button(this, "Save");
+    _continueBtn.setBounds(_backBtn.getX() - 200 - 50, _bg.getHeight() - (25 - 10), 200, 25);
     _continueBtn.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         save();
@@ -55,11 +63,10 @@ import co.forsaken.projectindigo.utils.Settings;
 
     _installDirLbl = new Label(this, "Install Location: ");
     _installDirBox = new TextBox(this, Settings.getToken().installPath);
-    _installDirBox.setEnabled(false);
+    _installDirBox.setEditable(false);
+    _installDirBox.setText(Settings.getToken().installPath);
     _installDirBtn = new Button(this, "...");
     _installDirBtn.addActionListener(new DirectorySelector(SettingsPanel.this));
-    _installDirBox.setEnabled(false);
-    _installDirBtn.setEnabled(false);
     _installDirBox.setBounds(((getWidth() - (getWidth() - 300)) / 2) - (150 / 2), (50 / 2) + 50, (getWidth() - 300), 25);
     _installDirBtn.setBounds(_installDirBox.getX() + _installDirBox.getWidth() + 50, _installDirBox.getY(), 100, _installDirBox.getHeight());
     _installDirLbl.setBounds(_installDirBox.getX(), _installDirBox.getY() - 30, _installDirBox.getWidth(), _installDirBox.getHeight());
@@ -147,7 +154,6 @@ import co.forsaken.projectindigo.utils.Settings;
     Settings.getToken().installPath = _installDirBox.getText();
     Settings.getToken().maxRam = _maxRamSlider.getValue() + "";
     Settings.getToken().javaParams = _javaParamsBox.getText();
-    _settings.save();
-
+    Settings.save();
   }
 }

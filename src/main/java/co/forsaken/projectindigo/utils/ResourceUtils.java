@@ -83,7 +83,7 @@ public class ResourceUtils {
     if (!name.contains(".png")) {
       name += ".png";
     }
-    BufferedImage image = Utils.loadCachedImage(DirectoryLocations.IMAGE_DIR_LOCATION + name);
+    BufferedImage image = Utils.loadCachedImage(DirectoryLocations.BACKEND_CACHE_DIR.format(name));
     if (image == null) {
       try {
         URLConnection conn = new URL(path).openConnection();
@@ -107,7 +107,11 @@ public class ResourceUtils {
           }
         }
         if (image != null) {
-          ImageIO.write(image, "png", new File(DirectoryLocations.IMAGE_DIR_LOCATION, name));
+          File f = new File(DirectoryLocations.BACKEND_CACHE_DIR.format(name));
+          if (!f.exists()) {
+            f.createNewFile();
+          }
+          ImageIO.write(image, "png", f);
           return image;
         }
         return defaultImage;

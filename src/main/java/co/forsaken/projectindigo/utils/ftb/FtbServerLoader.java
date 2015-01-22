@@ -45,7 +45,9 @@ public class FtbServerLoader extends ServerLoader {
   private static Document getFtbModpackInfo(String secondaryInfo) {
     String url = FTB_BaseInfoLoc + secondaryInfo;
     if (!ftbModpackInfo.containsKey(secondaryInfo)) {
-      File modpackFile = new File(DirectoryLocations.DATA_DIR_LOCATION, "ftb" + File.separator + secondaryInfo);
+      File baseModTypeFile = new File(DirectoryLocations.BACKEND_DATA_DIR.format("ftb/"));
+      if (!baseModTypeFile.exists()) baseModTypeFile.mkdirs();
+      File modpackFile = new File(baseModTypeFile, secondaryInfo);
       try {
         if (!modpackFile.exists()) modpackFile.createNewFile();
         FileUtils.writeStreamToFile(new URL(url).openStream(), modpackFile);

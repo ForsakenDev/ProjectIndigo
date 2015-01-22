@@ -80,16 +80,10 @@ import co.forsaken.projectindigo.utils.ResourceUtils;
   }
 
   public static void cleanup() {
-    String[] fileLocations = { DirectoryLocations.BASE_DIR_LOCATION, DirectoryLocations.DATA_DIR_LOCATION, DirectoryLocations.DATA_DIR_LOCATION + "settings", DirectoryLocations.IMAGE_DIR_LOCATION, DirectoryLocations.AVATAR_CACHE_DIR_LOCATION,
-        DirectoryLocations.INSTANCE_DIR_LOCATION, DirectoryLocations.LOG_DIR_LOCATION, DirectoryLocations.FTB_DATA_DIR_LOCATION, DirectoryLocations.AT_DATA_DIR_LOCATION };
-
-    for (String s : fileLocations) {
-      File file = new File(s);
-      if (file.exists()) {
-        continue;
-      } else {
-        file.mkdirs();
-      }
+    for (DirectoryLocations s : DirectoryLocations.values()) {
+      File file = new File(s.get());
+      if (file.exists()) continue;
+      file.mkdirs();
     }
   }
 

@@ -46,6 +46,10 @@ public class FileUtils {
     }
   }
 
+  public static String formatPath(String inputPath) {
+    return new File(inputPath).getAbsolutePath();
+  }
+
   public static void writeStreamToFile(InputStream stream, File file) {
     try {
       OutputStream out = new FileOutputStream(file);

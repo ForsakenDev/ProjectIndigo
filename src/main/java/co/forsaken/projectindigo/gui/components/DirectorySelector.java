@@ -21,6 +21,14 @@ import co.forsaken.projectindigo.utils.Settings;
   public DirectorySelector(SettingsPanel settings) {
     super();
     _settings = settings;
+
+    setPreferredSize(getPreferredSize());
+    setSize(getPreferredSize());
+    setLocationRelativeTo(_settings);
+    _chooser.setCurrentDirectory(new File(Settings.getToken().installPath));
+    _chooser.setDialogTitle(_choosertitle);
+    _chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+    _chooser.setAcceptAllFileFilterUsed(false);
   }
 
   public void actionPerformed(ActionEvent e) {
@@ -32,12 +40,18 @@ import co.forsaken.projectindigo.utils.Settings;
     _chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
     _chooser.setAcceptAllFileFilterUsed(false);
     if (_chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-      Logger.logInfo("getCurrentDirectory(): " + _chooser.getCurrentDirectory());
-      Logger.logInfo("getSelectedFile() : " + _chooser.getSelectedFile());
-      _settings.setInstallFolderText(_chooser.getSelectedFile().getPath());
+      _settings.setInstallFolderText(getChooserDir());
     } else {
       Logger.logWarn("No Selection.");
     }
+  }
+
+  public String getChooserDir() {
+    String path = _chooser.getSelectedFile().getAbsolutePath();
+    if (!path.endsWith(File.separator)) {
+      path += File.separator;
+    }
+    return path;
   }
 
   public Dimension getPreferredSize() {

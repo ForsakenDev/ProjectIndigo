@@ -25,6 +25,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.BlockingQueue;
 
+import org.apache.commons.io.FileUtils;
+
 import co.forsaken.projectindigo.IndigoLauncher;
 import co.forsaken.projectindigo.log.LogEvent;
 import co.forsaken.projectindigo.log.LogEventWriter;
@@ -38,7 +40,7 @@ public final class LoggingThread extends Thread {
   public LoggingThread(BlockingQueue<LogEvent> queue) {
     this.queue = queue;
     this.setName("PI-Logging-Thread");
-    File log = new File(DirectoryLocations.LOG_DIR_LOCATION, filename);
+    File log = new File(DirectoryLocations.BACKEND_LOG_DIR.format(filename));
     if (!log.exists()) {
       try {
         log.createNewFile();

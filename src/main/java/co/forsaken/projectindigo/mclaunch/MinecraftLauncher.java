@@ -13,7 +13,6 @@ import co.forsaken.projectindigo.session.Identity;
 import co.forsaken.projectindigo.utils.DirectoryLocations;
 import co.forsaken.projectindigo.utils.Settings;
 import co.forsaken.projectindigo.utils.Utils;
-import co.forsaken.projectindigo.utils.Utils.OS;
 
 public class MinecraftLauncher {
   public static Process launchMinecraft(Server server, Identity identity, Settings settings) throws IOException {
@@ -42,7 +41,7 @@ public class MinecraftLauncher {
           }
           if (thisFile.exists()) {
             cpb.append(File.pathSeparator);
-            cpb.append(thisFile.getAbsolutePath().replaceAll(" ", "\\ "));
+            cpb.append(thisFile.getAbsolutePath());
             addedCP.add(parsedName);
           }
         }
@@ -58,7 +57,7 @@ public class MinecraftLauncher {
         if (file.isDirectory() || addedCP.contains(parsedName)) continue;
 
         cpb.append(File.pathSeparator);
-        cpb.append(file.getAbsolutePath().replaceAll(" ", "\\ "));
+        cpb.append(file.getAbsolutePath());
         addedCP.add(parsedName);
       }
     }
@@ -70,7 +69,7 @@ public class MinecraftLauncher {
         }
         if (file.isDirectory() || addedCP.contains(parsedName)) continue;
         cpb.append(Utils.getJavaDelimiter());
-        cpb.append(file.getAbsolutePath().replaceAll(" ", "\\ "));
+        cpb.append(file.getAbsolutePath());
         addedCP.add(parsedName);
       }
     }
@@ -104,7 +103,7 @@ public class MinecraftLauncher {
     //
     arguments.add("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
     arguments.add("-cp");
-    arguments.add(cpb.toString().replaceAll(" ", "\\\\ "));
+    arguments.add(cpb.toString());
     arguments.add("net.minecraft.launchwrapper.Launch");
     for (String s : server.getLaunchArgs().split(" ")) {
       if (s.equalsIgnoreCase("${auth_player_name}")) {
@@ -112,7 +111,7 @@ public class MinecraftLauncher {
       } else if (s.equalsIgnoreCase("${game_directory}")) {
         s = server.getMinecraftDir().getAbsolutePath();
       } else if (s.equalsIgnoreCase("${assets_root}")) {
-        s = DirectoryLocations.ASSETS_DIR_LOCATION.replaceAll(" ", "\\\\ ");
+        s = DirectoryLocations.BACKEND_ASSET_DIR.get();
       } else if (s.equalsIgnoreCase("${assets_index_name}")) {
         s = "1.7.10";
       } else if (s.equalsIgnoreCase("${auth_uuid}")) {
@@ -128,10 +127,20 @@ public class MinecraftLauncher {
       }
       arguments.add(s);
     }
+
+    String argsString = arguments.toString();
+    if (!LogManager.showDebug) {
+      argsString = argsString.replace(identity.getAccessToken(), "REDACTED");
+      argsString = argsString.replace(identity.getId(), "REDACTED");
+      argsString = argsString.replace(identity.getClientToken(), "REDACTED");
+      argsString = argsString.replace(identity.getName(), "REDACTED");
+    }
+
     arguments.add("--tweakClass=cpw.mods.fml.common.launcher.FMLTweaker");
     arguments.add("--server=" + server.getToken().friendlyIp);
     ProcessBuilder processBuilder = new ProcessBuilder(arguments);
     LogManager.info("Setting working dir to " + server.getMinecraftDir().getAbsolutePath());
+    LogManager.info("Launch Arguments: " + argsString);
     processBuilder.directory(new File(server.getMinecraftDir().getAbsolutePath()));
     processBuilder.redirectErrorStream(true);
     processBuilder.environment().remove("_JAVA_OPTIONS");

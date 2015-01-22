@@ -70,9 +70,9 @@ public abstract class ServerLoader {
   private void loadResources(final String version) {
     new Thread() {
       public void run() {
-        File objectsFolder = new File(DirectoryLocations.ASSETS_DIR_LOCATION, "objects");
-        File indexesFolder = new File(DirectoryLocations.ASSETS_DIR_LOCATION, "indexes");
-        File virtualFolder = new File(DirectoryLocations.ASSETS_DIR_LOCATION, "virtual");
+        File objectsFolder = new File(DirectoryLocations.BACKEND_ASSET_DIR.format("objects/"));
+        File indexesFolder = new File(DirectoryLocations.BACKEND_ASSET_DIR.format("indexes/"));
+        File virtualFolder = new File(DirectoryLocations.BACKEND_ASSET_DIR.format("virtual/"));
         File virtualRoot = new File(virtualFolder, version);
         File indexFile = new File(indexesFolder, version + ".json");
         objectsFolder.mkdirs();

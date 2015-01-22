@@ -30,7 +30,6 @@ import co.forsaken.projectindigo.log.LogManager;
 import co.forsaken.projectindigo.mclaunch.MinecraftLauncher;
 import co.forsaken.projectindigo.utils.DirectoryLocations;
 import co.forsaken.projectindigo.utils.ServerLoader;
-import co.forsaken.projectindigo.utils.Settings;
 import co.forsaken.projectindigo.utils.atlauncher.AtLauncherServerLoader;
 import co.forsaken.projectindigo.utils.ftb.FtbServerLoader;
 import co.forsaken.projectindigo.utils.ftb.tokens.Artifact;
@@ -107,18 +106,12 @@ import com.google.gson.JsonSyntaxException;
     return true;
   }
 
+  public String getPathFriendlyName() {
+    return token.friendlyName.replace(" ", "_").replace(".", "_");
+  }
+
   public File getMinecraftDir() {
-    if (Settings.getToken().installPath == null || Settings.getToken().installPath.isEmpty()) {
-      Settings.getToken().installPath = new File(String.format(DirectoryLocations.SERVER_DIR_LOCATION, token.friendlyName.replace(" ", "_").replace(".", "_"))).getAbsolutePath();
-      Settings.save();
-    } else {
-      File s = new File(Settings.getToken().installPath);
-      if (!s.exists() || !s.isDirectory()) {
-        Settings.getToken().installPath = new File(String.format(DirectoryLocations.SERVER_DIR_LOCATION, token.friendlyName.replace(" ", "_").replace(".", "_"))).getAbsolutePath();
-        Settings.save();
-      }
-    }
-    return new File(Settings.getToken().installPath);
+    return new File(DirectoryLocations.BACKEND_INSTALL_DIR.format(getPathFriendlyName() + "/"));
   }
 
   public File getModsDir() {
