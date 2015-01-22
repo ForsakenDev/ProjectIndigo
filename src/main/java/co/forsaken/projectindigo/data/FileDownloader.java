@@ -9,7 +9,6 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
@@ -148,7 +147,8 @@ public class FileDownloader {
     if (!new File(_baseDir).exists()) {
       new File(_baseDir).mkdir();
     }
-    URLConnection dlConnection = getDownloadURL().openConnection();
+    HttpURLConnection dlConnection = (HttpURLConnection) getDownloadURL().openConnection();
+    dlConnection.addRequestProperty("User-Agent", "Mozilla/4.76");
     if (dlConnection instanceof HttpURLConnection) {
       dlConnection.setRequestProperty("Cache-Control", "no-cache");
       dlConnection.connect();
