@@ -14,6 +14,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.JOptionPane;
+
 import lombok.Data;
 
 import org.apache.commons.io.FileUtils;
@@ -206,8 +208,14 @@ import com.google.gson.JsonSyntaxException;
         }
       }
     }
-    downloads.add(new FileDownloader(this, "http://indigo.forsaken.co/downloads/OptiFine_1.7.10_HD_U_B4.jar", getModsDir().getAbsolutePath(), "OptiFine_1.7.10_HD_A4.jar", false));
-    downloads.add(new FileDownloader(this, "http://files.player.to/fastcraft-1.16.jar", getModsDir().getAbsolutePath(), false));
+    if (JOptionPane.showConfirmDialog(null, "Would you like us to install Optifine for you with this modpack?") == JOptionPane.OK_OPTION) {
+      downloads.add(new FileDownloader(this, "http://indigo.forsaken.co/downloads/OptiFine_1.7.10_HD_U_B4.jar", getModsDir().getAbsolutePath(), "OptiFine_1.7.10_HD_A4.jar", false));
+    }
+    if (JOptionPane.showConfirmDialog(null, "Would you like us to install FastCraft for you with this modpack?") == JOptionPane.OK_OPTION) {
+      downloads.add(new FileDownloader(this, "http://files.player.to/fastcraft-1.16.jar", getModsDir().getAbsolutePath(), false));
+    }
+    downloads.add(new FileDownloader(this, "http://indigo.forsaken.co/downloads/MinecraftLoader%200.1.3%20mc1.7.10.jar", getModsDir().getAbsolutePath(), false));
+
   }
 
   public boolean isFinishedDownloading() {
