@@ -94,7 +94,7 @@ import co.forsaken.projectindigo.session.Identity;
     _username.addKeyListener(keyListener);
 
     add(_loginBg);
-    add(_header);
+//    add(_header);
   }
 
   public String getUsername() {
