@@ -58,6 +58,7 @@ import co.forsaken.projectindigo.utils.Utils;
   private JTextPane           serverDescriptionPane;
   private Label               serverIPLabel;
   private Label               serverNameLabel;
+  private Label               serverOnlineUsersLabel;
 
   private JScrollPane         modScrollPane;
   private JTextPane           modPane;
@@ -94,6 +95,11 @@ import co.forsaken.projectindigo.utils.Utils;
     serverNameLabel = new Label(this, "");
     serverNameLabel.setFont(IndigoLauncher.getMinecraftFont(24));
     serverNameLabel.setBounds(headerBox.getX() + PADDING, headerBox.getY() + ((headerBox.getHeight() - 26) / 2), (int) (headerBox.getWidth() * 0.75), 26);
+
+    serverOnlineUsersLabel = new Label(this, "");
+    serverOnlineUsersLabel.setFont(IndigoLauncher.getMinecraftFont(14));
+    serverOnlineUsersLabel.setForeground(new Color(127, 204, 156));
+    serverOnlineUsersLabel.setBounds(serverNameLabel.getX() + (Utils.getLabelWidth(serverNameLabel) + PADDING), serverNameLabel.getY(), (int) (serverNameLabel.getWidth() * 0.75), 26);
 
     serverIPLabel = new Label(this, "");
     serverIPLabel.setFont(IndigoLauncher.getMinecraftFont(18));
@@ -252,6 +258,9 @@ import co.forsaken.projectindigo.utils.Utils;
     }
     activeServer = _server;
     serverNameLabel.setText(activeServer.getToken().friendlyName + " v" + activeServer.getToken().version);
+    serverOnlineUsersLabel.setText(activeServer.getToken().playerCount + " online members");
+    serverOnlineUsersLabel.setBounds(serverNameLabel.getX() + (Utils.getLabelWidth(serverNameLabel) + (PADDING / 2)), headerBox.getY() + ((headerBox.getHeight() - 12) / 2), (int) (serverNameLabel.getWidth() * 0.75), 12);
+
     serverIPLabel.setText(activeServer.getToken().friendlyIp);
     serverIPLabel.setBounds((headerBox.getX() + headerBox.getWidth() + PADDING) - (Utils.getLabelWidth(serverIPLabel) + (PADDING * 2)), headerBox.getY() + ((headerBox.getHeight() - 18) / 2), (int) (headerBox.getWidth() * 0.75), 18);
 
