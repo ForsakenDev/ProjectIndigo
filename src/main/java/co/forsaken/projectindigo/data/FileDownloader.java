@@ -74,7 +74,7 @@ public class FileDownloader {
         if (_rawDownloadURL != null && !_rawDownloadURL.isEmpty()) {
           try {
             _fileSize = getDownloadURL().openConnection().getContentLength();
-            server.addValidatedFile(panel, _fileSize, _extract);
+            server.addValidatedFile(panel, getFilename(), _fileSize, _extract);
           } catch (IOException e) {
             LogManager.error(e.getMessage());
           }

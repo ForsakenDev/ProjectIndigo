@@ -34,7 +34,7 @@ public class UserManager {
 
   public UserManager(MainPanel mainPanel) {
     readSavedUsernames(mainPanel);
-    ((ProgressPanel) mainPanel.getPanel(-1)).stateChanged("Finished Loading Users", 100);
+    ((ProgressPanel) mainPanel.getPanel(-1)).stateChanged("Finished Loading Users", 100, 0);
     mainPanel.switchPage(0);
   }
 
@@ -100,7 +100,7 @@ public class UserManager {
     try {
       File lastLogin = new File(DirectoryLocations.BACKEND_DATA_DIR.format("lastlogin.dat"));
       if (!lastLogin.exists()) { return; }
-      ((ProgressPanel) mainPanel.getPanel(-1)).stateChanged("Loading stored users...", 80);
+      ((ProgressPanel) mainPanel.getPanel(-1)).stateChanged("Loading stored users...", 80, 0);
       Cipher cipher = getCipher(2, "passwordfile");
       DataInputStream dis;
       if (cipher != null) dis = new DataInputStream(new CipherInputStream(new FileInputStream(lastLogin), cipher));
@@ -112,7 +112,7 @@ public class UserManager {
         while (true) {
           String key = dis.readUTF();
           String user = dis.readUTF();
-          ((ProgressPanel) mainPanel.getPanel(-1)).stateChanged("Loading " + user + "...", 80 + extra);
+          ((ProgressPanel) mainPanel.getPanel(-1)).stateChanged("Loading " + user + "...", 80 + extra, 0);
           extra += 5;
           boolean isHash = dis.readBoolean();
           if (isHash) {

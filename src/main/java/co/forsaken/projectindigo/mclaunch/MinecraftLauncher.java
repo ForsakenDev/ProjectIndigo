@@ -111,7 +111,7 @@ public class MinecraftLauncher {
       } else if (s.equalsIgnoreCase("${game_directory}")) {
         s = server.getMinecraftDir().getAbsolutePath();
       } else if (s.equalsIgnoreCase("${assets_root}")) {
-        s = DirectoryLocations.BACKEND_ASSET_DIR.get();
+        s = new File(DirectoryLocations.BACKEND_ASSET_DIR.get()).getAbsolutePath();
       } else if (s.equalsIgnoreCase("${assets_index_name}")) {
         s = "1.7.10";
       } else if (s.equalsIgnoreCase("${auth_uuid}")) {

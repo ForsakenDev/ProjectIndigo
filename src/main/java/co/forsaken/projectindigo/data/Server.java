@@ -145,9 +145,9 @@ import com.google.gson.JsonSyntaxException;
   private int                  lastDownloadProgress = 0;
   private int                  numLoadedDownloads   = 0;
 
-  public void addValidatedFile(ProgressPanel panel, int fileSize, boolean shouldExtract) {
+  public void addValidatedFile(ProgressPanel panel, String filename, int fileSize, boolean shouldExtract) {
     numLoadedValidate++;
-    panel.stateChanged("Validating Mod Links", (int) (((double) numLoadedValidate / (double) (downloads.size())) * 100D));
+    panel.stateChanged("Validating mod - " + filename, (int) (((double) numLoadedValidate / (double) (downloads.size())) * 100D), 250);
     totalLaunchSize += ((double) fileSize * (shouldExtract ? 2D : 1D));
   }
 
@@ -163,15 +163,18 @@ import com.google.gson.JsonSyntaxException;
     jarOrder += name;
   }
 
-  public void prepDownload() {
+  public void prepDownload(ProgressPanel panel) {
     mkdirs();
     downloads.clear();
     if (loader.isWholeDownload()) {
       downloads.add(new FileDownloader(this, getDownloadLocation(), getMinecraftDir().getAbsolutePath(), true, false));
     }
     if (!modList.isEmpty()) {
+      int completed = 0;
       for (Mod m : modList.values()) {
+        completed++;
         if (m.getDownloadUrl() == null || m.getDownloadUrl().isEmpty()) continue;
+        panel.stateChanged("Checking connection for " + m.getName(), Math.min((((float) completed / modList.size()) * 100f), 100), 250);
         switch (m.getType()) {
           default:
           case optionalMod:
@@ -237,7 +240,7 @@ import com.google.gson.JsonSyntaxException;
   public boolean download(final ProgressPanel panel) throws IOException {
     new Thread() {
       public void run() {
-        prepDownload();
+        prepDownload(panel);
         ExecutorService pool = Executors.newFixedThreadPool(10);
         for (Runnable r : loadFileSize(panel)) {
           pool.submit(r);
@@ -420,6 +423,6 @@ import com.google.gson.JsonSyntaxException;
   public void addDownloadSize(ProgressPanel panel, String type, String fileName, int amount) {
     currentLaunchSize += amount;
     lastDownloadProgress = getDownloadProgress();
-    panel.stateChanged(type + " mod - " + fileName, lastDownloadProgress);
+    panel.stateChanged(type + " mod - " + fileName, lastDownloadProgress, 1000);
   }
 }

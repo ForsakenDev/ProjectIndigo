@@ -24,14 +24,19 @@ import co.forsaken.projectindigo.gui.components.ProgressBar;
   }
 
   private long   _progressChangedSecond = System.currentTimeMillis();
+  private long   textDelay              = System.currentTimeMillis();
   private int    numDots                = 1;
   private String dots                   = "";
 
-  public void stateChanged(final String status, final float progress) {
+  public void stateChanged(final String status, final float progress, int _textDelay) {
     int intProgress = Math.round(progress);
     _progressBar.setValue(intProgress);
     String text = status;
-    if (System.currentTimeMillis() - _progressChangedSecond > 1000) {
+    if (System.currentTimeMillis() - textDelay > _textDelay) {
+      _progressBar.setString(text + dots);
+      textDelay = System.currentTimeMillis();
+    }
+    if (System.currentTimeMillis() - _progressChangedSecond > 500) {
       dots = "";
       numDots++;
       for (int i = 0; i < (numDots % 4); i++) {
@@ -41,7 +46,6 @@ import co.forsaken.projectindigo.gui.components.ProgressBar;
       if (text.length() > 60) {
         text = text.substring(0, 60);
       }
-      _progressBar.setString(text + dots);
     }
 
   }

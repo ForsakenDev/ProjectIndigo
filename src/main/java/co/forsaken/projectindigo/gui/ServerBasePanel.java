@@ -296,7 +296,7 @@ import co.forsaken.projectindigo.utils.Utils;
       if (activeServer.needsDownload() || e.getActionCommand().equals("UPDATE")) {
         try {
           getMainPanel().switchPage(-1);
-          ((ProgressPanel) getMainPanel().getPanel(-1)).stateChanged("Checking closest download server", 0);
+          ((ProgressPanel) getMainPanel().getPanel(-1)).stateChanged("Checking closest download server", 0, 1000);
           activeServer.cleanup();
           activeServer.download((ProgressPanel) getMainPanel().getPanel(-1));
         } catch (IOException e1) {
