@@ -151,10 +151,10 @@ import co.forsaken.projectindigo.utils.Settings;
   }
 
   public void save() {
-    ((ServerBasePanel) getMainPanel().getPanel(1)).updateServersDir();
     Settings.getToken().installPath = _installDirBox.getText();
     Settings.getToken().maxRam = _maxRamSlider.getValue() + "";
     Settings.getToken().javaParams = _javaParamsBox.getText();
     Settings.save();
+    ((ServerBasePanel) getMainPanel().getPanel(1)).updateServersDir();
   }
 }

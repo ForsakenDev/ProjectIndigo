@@ -43,10 +43,10 @@ public class Settings {
   public static void save() {
     String path = new File(token.installPath).getAbsolutePath();
     if (!path.endsWith(File.separator)) path += File.separator;
-    DirectoryLocations.BACKEND_INSTALL_DIR.update(formatInput(path));
     LogManager.info("Install Directory set to " + path);
     token.installPath = path;
     token.javaParams = formatInput(token.javaParams);
+    DirectoryLocations.INSTANCE_DIR.update(formatInput(path));
     FileUtils.writeStringToFile(new Gson().toJson(token), SETTINGS_FILE);
   }
 

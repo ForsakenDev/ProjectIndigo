@@ -121,6 +121,7 @@ import com.google.gson.JsonSyntaxException;
     jarDir = null;
     nativesDir = null;
     resourceDir = null;
+    cleanup();
   }
 
   public File getMinecraftDir() {
