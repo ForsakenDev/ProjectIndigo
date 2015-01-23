@@ -39,10 +39,10 @@ public class LoginHandler extends SwingWorker<String, Void> {
   @Override protected String doInBackground() {
     _mainPanel.switchPage(-1);
     try {
-      ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Logging in as " + _username, 33, 0);
+      ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Logging in as " + _username, "", 33);
       Identity result = doLogin();
-      ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Reading response", 99, 0);
-      ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Logged in", 100, 0);
+      ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Reading response", "", 99);
+      ((ProgressPanel) _mainPanel.getPanel(-1)).stateChanged("Logged in", "", 100);
       LogManager.info("Login successful, Starting minecraft");
       ((LoginPanel) _mainPanel.getPanel(0)).getUserManager().clear();
       if (_savePassword) {

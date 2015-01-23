@@ -18,20 +18,20 @@ import java.util.zip.ZipInputStream;
 import co.forsaken.projectindigo.gui.ProgressPanel;
 import co.forsaken.projectindigo.log.LogManager;
 import co.forsaken.projectindigo.utils.FileUtils;
-import co.forsaken.projectindigo.utils.Utils;
 
 public class FileDownloader {
 
-  private Server    server;
-  protected Thread  _downloadThread;
-  protected String  _rawDownloadURL;
-  protected String  _baseDir  = "";
-  protected boolean _extract  = false;
-  protected File    _downloadedFile;
-  protected int     _fileSize = -1;
-  protected URL     _downloadURL;
-  protected String  overrideName;
-  protected boolean addToOrder;
+  private Server              server;
+  protected Thread            _downloadThread;
+  protected String            _rawDownloadURL;
+  protected String            _baseDir  = "";
+  protected boolean           _extract  = false;
+  protected File              _downloadedFile;
+  protected int               _fileSize = -1;
+  protected URL               _downloadURL;
+  protected String            overrideName;
+  protected boolean           addToOrder;
+  protected HttpURLConnection connection;
 
   public FileDownloader(Server server, String downloadURL, String dir, String filename, boolean _addToOrder) {
     this(server, downloadURL, dir, _addToOrder);
@@ -68,12 +68,36 @@ public class FileDownloader {
     return _rawDownloadURL != null && !_rawDownloadURL.isEmpty();
   }
 
+  private HttpURLConnection getConnection() {
+    if (this.connection == null) {
+      LogManager.debug("Opening connection to " + getDownloadURL(), 3);
+      try {
+        connection = (HttpURLConnection) getDownloadURL().openConnection();
+        connection.setUseCaches(false);
+        connection.setDefaultUseCaches(false);
+        connection.setRequestProperty("Accept-Encoding", "gzip");
+        connection.setRequestProperty("User-Agent", "Mozilla/4.76");
+        connection.setRequestProperty("Cache-Control", "no-store,max-age=0,no-cache");
+        connection.setRequestProperty("Expires", "0");
+        connection.setRequestProperty("Pragma", "no-cache");
+        connection.connect();
+
+        if (this.connection.getResponseCode() / 100 != 2) { throw new IOException(getDownloadURL() + " returned response code " + this.connection.getResponseCode()
+            + (this.connection.getResponseMessage() != null ? " with message of " + this.connection.getResponseMessage() : "")); }
+        LogManager.debug("Connection opened to " + getDownloadURL(), 3);
+      } catch (IOException e) {
+        LogManager.debug("Exception when opening connection to " + getDownloadURL(), 3);
+      }
+    }
+    return this.connection;
+  }
+
   public Runnable loadFileSize(final Server server, final ProgressPanel panel) {
     return new Runnable() {
       public void run() {
         if (_rawDownloadURL != null && !_rawDownloadURL.isEmpty()) {
           try {
-            _fileSize = getDownloadURL().openConnection().getContentLength();
+            _fileSize = getFilesize();
             server.addValidatedFile(panel, getFilename(), _fileSize, _extract);
           } catch (IOException e) {
             LogManager.error(e.getMessage());
@@ -83,7 +107,15 @@ public class FileDownloader {
     };
   }
 
-  public int getFileSize() {
+  public int getFilesize() {
+    if (_fileSize == -1) {
+      int size = getConnection().getContentLength();
+      if (size == -1) {
+        _fileSize = 0;
+      } else {
+        _fileSize = size;
+      }
+    }
     return _fileSize;
   }
 
@@ -104,10 +136,8 @@ public class FileDownloader {
     if (_rawDownloadURL != null && !_rawDownloadURL.isEmpty()) {
       if (_downloadURL == null) {
         try {
-          _downloadURL = new URL(Utils.getRedirectedUrl(_rawDownloadURL));
+          _downloadURL = new URL(_rawDownloadURL);
         } catch (MalformedURLException e) {
-          e.printStackTrace();
-        } catch (IOException e) {
           e.printStackTrace();
         }
       }
@@ -147,12 +177,7 @@ public class FileDownloader {
     if (!new File(_baseDir).exists()) {
       new File(_baseDir).mkdir();
     }
-    HttpURLConnection dlConnection = (HttpURLConnection) getDownloadURL().openConnection();
-    dlConnection.addRequestProperty("User-Agent", "Mozilla/4.76");
-    if (dlConnection instanceof HttpURLConnection) {
-      dlConnection.setRequestProperty("Cache-Control", "no-cache");
-      dlConnection.connect();
-    }
+    HttpURLConnection dlConnection = getConnection();
     if (downloadedFile.exists()) {
       FileUtils.deleteDirectory(downloadedFile);
     }
@@ -169,7 +194,7 @@ public class FileDownloader {
     dlStream.close();
     outStream.close();
 
-    if (dlConnection instanceof HttpURLConnection && (currentDLSize == getFileSize() || getFileSize() <= 0)) {
+    if (dlConnection instanceof HttpURLConnection && (currentDLSize == _fileSize || _fileSize <= 0)) {
       LogManager.info("Finished downloading " + jarFileName);
       _downloadedFile = downloadedFile;
       if (shouldExtract()) {

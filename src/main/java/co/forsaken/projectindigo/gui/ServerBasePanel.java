@@ -280,6 +280,12 @@ import co.forsaken.projectindigo.utils.Utils;
     modPane.setCaretPosition(0);
   }
 
+  public void updateServersDir() {
+    for (Server s : servers.values()) {
+      s.updateDirLinks();
+    }
+  }
+
   public void updateUser(String username) {
     serverImage.update(((LoginPanel) getMainPanel().getPanel(0)).getLoginResponse().getName(), "http://avatar.forsaken.co/" + ((LoginPanel) getMainPanel().getPanel(0)).getLoginResponse().getName());
     serverImage.setBounds(actionsBox.getX() + ((actionsBox.getWidth() - 150) / 2), actionsBox.getY() + PADDING, 150, 150);
@@ -296,7 +302,7 @@ import co.forsaken.projectindigo.utils.Utils;
       if (activeServer.needsDownload() || e.getActionCommand().equals("UPDATE")) {
         try {
           getMainPanel().switchPage(-1);
-          ((ProgressPanel) getMainPanel().getPanel(-1)).stateChanged("Checking closest download server", 0, 1000);
+          ((ProgressPanel) getMainPanel().getPanel(-1)).stateChanged("Checking closest download server", "[0/0]", 0);
           activeServer.cleanup();
           activeServer.download((ProgressPanel) getMainPanel().getPanel(-1));
         } catch (IOException e1) {

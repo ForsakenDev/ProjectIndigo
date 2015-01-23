@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -110,32 +111,51 @@ import com.google.gson.JsonSyntaxException;
     return token.friendlyName.replace(" ", "_").replace(".", "_");
   }
 
+  private File mcDir, modsDir, configDir, libsDir, jarDir, nativesDir, resourceDir;
+
+  public void updateDirLinks() {
+    mcDir = null;
+    modsDir = null;
+    configDir = null;
+    libsDir = null;
+    jarDir = null;
+    nativesDir = null;
+    resourceDir = null;
+  }
+
   public File getMinecraftDir() {
-    return new File(DirectoryLocations.INSTANCE_DIR.format(getPathFriendlyName() + "/"));
+    if (mcDir == null) mcDir = new File(DirectoryLocations.INSTANCE_DIR.format(getPathFriendlyName() + "/"));
+    return mcDir;
   }
 
   public File getModsDir() {
-    return new File(getMinecraftDir(), "mods");
+    if (modsDir == null) modsDir = new File(getMinecraftDir(), "mods");
+    return modsDir;
   }
 
   public File getConfigDir() {
-    return new File(getMinecraftDir(), "config");
+    if (configDir == null) configDir = new File(getMinecraftDir(), "config");
+    return configDir;
   }
 
   public File getLibraryDir() {
-    return new File(getMinecraftDir(), "libraries");
+    if (libsDir == null) libsDir = new File(getMinecraftDir(), "libraries");
+    return libsDir;
   }
 
   public File getJarModsDir() {
-    return new File(getMinecraftDir(), "jarMods");
+    if (jarDir == null) jarDir = new File(getMinecraftDir(), "jarMods");
+    return jarDir;
   }
 
   public File getNativesDir() {
-    return new File(getLibraryDir(), "natives");
+    if (nativesDir == null) nativesDir = new File(getLibraryDir(), "natives");
+    return nativesDir;
   }
 
   public File getResourceDir() {
-    return new File(getMinecraftDir(), "resourcepacks");
+    if (resourceDir == null) resourceDir = new File(getMinecraftDir(), "resourcepacks");
+    return resourceDir;
   }
 
   private int                  numLoadedValidate    = 0;
@@ -147,7 +167,7 @@ import com.google.gson.JsonSyntaxException;
 
   public void addValidatedFile(ProgressPanel panel, String filename, int fileSize, boolean shouldExtract) {
     numLoadedValidate++;
-    panel.stateChanged("Validating mod - " + filename, (int) (((double) numLoadedValidate / (double) (downloads.size())) * 100D), 250);
+    panel.stateChanged("Validating mods", "[" + numLoadedValidate + "/" + downloads.size() + "]", (int) (((double) numLoadedValidate / (double) (downloads.size())) * 100D));
     totalLaunchSize += ((double) fileSize * (shouldExtract ? 2D : 1D));
   }
 
@@ -170,11 +190,8 @@ import com.google.gson.JsonSyntaxException;
       downloads.add(new FileDownloader(this, getDownloadLocation(), getMinecraftDir().getAbsolutePath(), true, false));
     }
     if (!modList.isEmpty()) {
-      int completed = 0;
       for (Mod m : modList.values()) {
-        completed++;
         if (m.getDownloadUrl() == null || m.getDownloadUrl().isEmpty()) continue;
-        panel.stateChanged("Checking connection for " + m.getName(), Math.min((((float) completed / modList.size()) * 100f), 100), 250);
         switch (m.getType()) {
           default:
           case optionalMod:
@@ -226,33 +243,24 @@ import com.google.gson.JsonSyntaxException;
     numLoadedDownloads++;
   }
 
-  public List<Runnable> loadFileSize(ProgressPanel panel) {
-    List<Runnable> mods = new ArrayList<Runnable>();
-
-    for (FileDownloader res : downloads) {
-      if (res.shouldDownload()) {
-        mods.add(res.loadFileSize(this, panel));
-      }
-    }
-    return mods;
-  }
-
   public boolean download(final ProgressPanel panel) throws IOException {
     new Thread() {
       public void run() {
+        long downloadStartTime = System.currentTimeMillis();
         prepDownload(panel);
-        ExecutorService pool = Executors.newFixedThreadPool(10);
-        for (Runnable r : loadFileSize(panel)) {
-          pool.submit(r);
+        ExecutorService pool = Executors.newFixedThreadPool(8);
+        for (FileDownloader res : downloads) {
+          if (res.shouldDownload()) {
+            pool.submit(res.loadFileSize(Server.this, panel));
+          }
         }
         pool.shutdown();
         try {
           pool.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-          e.printStackTrace();
+        } catch (InterruptedException e2) {
+          e2.printStackTrace();
         }
-
-        pool = Executors.newFixedThreadPool(10);
+        pool = Executors.newFixedThreadPool(8);
         try {
           for (Runnable r : downloadFiles(panel)) {
             pool.submit(r);
@@ -265,7 +273,7 @@ import com.google.gson.JsonSyntaxException;
         try {
           pool.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
 
-          pool = Executors.newFixedThreadPool(10);
+          pool = Executors.newFixedThreadPool(8);
           if (loader instanceof TechnicServerLoader) {
             File binDir = new File(getMinecraftDir(), "bin");
             File modpackFile = new File(binDir, "modpack.jar");
@@ -374,8 +382,6 @@ import com.google.gson.JsonSyntaxException;
       public void run() {
         cleanupLibs();
         try {
-          long start = System.currentTimeMillis();
-
           LogManager.info("Launching pack " + getToken().friendlyName + " " + getToken().version + " for " + "Minecraft 1.7.10");
           IndigoLauncher._launcher.setVisible(false);
           Process process = null;
@@ -420,9 +426,14 @@ import com.google.gson.JsonSyntaxException;
     return prog;
   }
 
+  DecimalFormat formatter  = new DecimalFormat("### ###.00");
+  List<String>  values     = new ArrayList<String>();
+  long          lastUpdate = System.currentTimeMillis();
+
   public void addDownloadSize(ProgressPanel panel, String type, String fileName, int amount) {
     currentLaunchSize += amount;
+    if (totalLaunchSize < currentLaunchSize) totalLaunchSize = currentLaunchSize;
     lastDownloadProgress = getDownloadProgress();
-    panel.stateChanged(type + " mod - " + fileName, lastDownloadProgress, 1000);
+    panel.stateChanged("Downloading mods", formatter.format((double) currentLaunchSize / (1024D * 1024D)) + "Mb/" + formatter.format((double) totalLaunchSize / (1024D * 1024D)) + "Mb", lastDownloadProgress);
   }
 }
