@@ -1,5 +1,7 @@
 package co.forsaken.projectindigo.utils;
 
+import java.io.File;
+
 public enum DirectoryLocations {
 
   BACKEND_INSTALL_DIR(Utils.getDynamicStorageLocation()), BACKEND_DATA_DIR(BACKEND_INSTALL_DIR.format("data/")), BACKEND_LOG_DIR(BACKEND_INSTALL_DIR.format("logs/")), BACKEND_ASSET_DIR(BACKEND_INSTALL_DIR.format("assets/")), INSTANCE_DIR(BACKEND_INSTALL_DIR
@@ -21,7 +23,9 @@ public enum DirectoryLocations {
   }
 
   public String get() {
-    return basePath;
+    String path = new File(basePath).getAbsolutePath();
+    if (!path.endsWith(File.separator)) path += File.separator;
+    return path;
   }
 
   // public static final String BASE_DIR_LOCATION =

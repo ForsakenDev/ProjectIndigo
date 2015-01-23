@@ -25,10 +25,6 @@ import co.forsaken.projectindigo.utils.Settings;
     setPreferredSize(getPreferredSize());
     setSize(getPreferredSize());
     setLocationRelativeTo(_settings);
-    _chooser.setCurrentDirectory(new File(Settings.getToken().installPath));
-    _chooser.setDialogTitle(_choosertitle);
-    _chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-    _chooser.setAcceptAllFileFilterUsed(false);
   }
 
   public void actionPerformed(ActionEvent e) {

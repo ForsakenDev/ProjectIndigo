@@ -111,7 +111,7 @@ import com.google.gson.JsonSyntaxException;
   }
 
   public File getMinecraftDir() {
-    return new File(DirectoryLocations.BACKEND_INSTALL_DIR.format(getPathFriendlyName() + "/"));
+    return new File(DirectoryLocations.INSTANCE_DIR.format(getPathFriendlyName() + "/"));
   }
 
   public File getModsDir() {

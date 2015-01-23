@@ -17,10 +17,16 @@ public class Settings {
       try {
         if (!SETTINGS_FILE.exists()) {
           SETTINGS_FILE.createNewFile();
-          FileUtils.writeStringToFile("{ \"installDir\": \"" + DirectoryLocations.BACKEND_INSTALL_DIR.get() + "\", \"maxRam\": \"1024\", \"javaParams\": \"-XX:PermSize=512M\", \"windowSize\": \"1280,720\", \"windowPos\": \"0,0\", \"windowMax\": \"true\" }",
-              SETTINGS_FILE);
+          FileUtils.writeStringToFile("{ \"installDir\": \"" + formatInput(DirectoryLocations.INSTANCE_DIR.get())
+              + "\", \"maxRam\": \"1024\", \"javaParams\": \"-XX:PermSize=512M\", \"windowSize\": \"1280,720\", \"windowPos\": \"0,0\", \"windowMax\": \"true\" }", SETTINGS_FILE);
         }
         token = new Gson().fromJson(new Scanner(SETTINGS_FILE, "UTF-8").useDelimiter("\\A").next(), SettingsToken.class);
+        if (token.installPath == null) {
+          LogManager.info("Could not get path properly, setting it to default");
+          token.installPath = formatInput(DirectoryLocations.INSTANCE_DIR.get());
+          save();
+        }
+        DirectoryLocations.INSTANCE_DIR.update(token.installPath);
       } catch (FileNotFoundException e) {
         e.printStackTrace();
       } catch (Exception e) {
@@ -30,11 +36,17 @@ public class Settings {
     return token;
   }
 
+  private static String formatInput(String input) {
+    return input.replace("\\", "\\\\").replace("\"", "\\\"");
+  }
+
   public static void save() {
     String path = new File(token.installPath).getAbsolutePath();
     if (!path.endsWith(File.separator)) path += File.separator;
-    DirectoryLocations.BACKEND_INSTALL_DIR.update(path);
+    DirectoryLocations.BACKEND_INSTALL_DIR.update(formatInput(path));
     LogManager.info("Install Directory set to " + path);
+    token.installPath = path;
+    token.javaParams = formatInput(token.javaParams);
     FileUtils.writeStringToFile(new Gson().toJson(token), SETTINGS_FILE);
   }
 
