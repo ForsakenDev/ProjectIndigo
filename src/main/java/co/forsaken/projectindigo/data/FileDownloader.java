@@ -8,7 +8,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
@@ -44,7 +47,9 @@ public class FileDownloader {
   }
 
   public FileDownloader(Server server, String downloadURL, String dir, boolean _addToOrder) {
-    _rawDownloadURL = downloadURL.replaceAll(" ", "%20");
+    try {
+      _rawDownloadURL = new URI(downloadURL).toASCIIString();
+    } catch (URISyntaxException e1) {}
     _baseDir = dir;
     addToOrder = _addToOrder;
     if (addToOrder) {
@@ -127,7 +132,7 @@ public class FileDownloader {
       if (string.contains("?")) {
         string = string.substring(0, string.indexOf('?'));
       }
-      return string.substring(string.lastIndexOf('/') + 1);
+      return URLDecoder.decode(string.substring(string.lastIndexOf('/') + 1));
     }
     return "";
   }

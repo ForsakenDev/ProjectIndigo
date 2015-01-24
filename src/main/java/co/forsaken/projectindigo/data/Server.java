@@ -1,10 +1,13 @@
 package co.forsaken.projectindigo.data;
 
+import java.awt.Desktop;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -407,6 +410,20 @@ import com.google.gson.JsonSyntaxException;
             e.printStackTrace();
             process.destroy(); // Kill the process
           }
+          if (exitValue != 0) {
+            if (JOptionPane.showConfirmDialog(null, "Your game has crashed for some reason, please upload a copy of your log...\n Would you like to open an issue now?") == JOptionPane.OK_OPTION) {
+              if (Desktop.isDesktopSupported()) {
+                try {
+                  Desktop.getDesktop().browse(new URL("https://github.com/ForsakenDev/ProjectIndigo/issues/new").toURI());
+                } catch (IOException e1) {
+                  e1.printStackTrace();
+                } catch (URISyntaxException e1) {
+                  e1.printStackTrace();
+                }
+              }
+            }
+          }
+
           IndigoLauncher._launcher.setVisible(true);
 
         } catch (IOException e1) {

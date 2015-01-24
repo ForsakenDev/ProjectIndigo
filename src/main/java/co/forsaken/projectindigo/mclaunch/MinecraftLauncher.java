@@ -13,8 +13,13 @@ import co.forsaken.projectindigo.session.Identity;
 import co.forsaken.projectindigo.utils.DirectoryLocations;
 import co.forsaken.projectindigo.utils.Settings;
 import co.forsaken.projectindigo.utils.Utils;
+import co.forsaken.projectindigo.utils.Utils.OS;
 
 public class MinecraftLauncher {
+  private static String parseFileName(File file) {
+    return file.getAbsolutePath();
+  }
+
   public static Process launchMinecraft(Server server, Identity identity, Settings settings) throws IOException {
     List<String> addedCP = new ArrayList<String>();
     StringBuilder cpb = new StringBuilder("");
@@ -22,7 +27,7 @@ public class MinecraftLauncher {
     File jarMods = server.getJarModsDir();
     for (File f : jarMods.listFiles()) {
       cpb.append(File.pathSeparator);
-      cpb.append(f.getAbsolutePath());
+      cpb.append(parseFileName(f));
     }
     File libMods = server.getLibraryDir();
     File[] jarModFiles = libMods.listFiles();
@@ -41,7 +46,7 @@ public class MinecraftLauncher {
           }
           if (thisFile.exists()) {
             cpb.append(File.pathSeparator);
-            cpb.append(thisFile.getAbsolutePath());
+            cpb.append(parseFileName(thisFile));
             addedCP.add(parsedName);
           }
         }
@@ -57,7 +62,7 @@ public class MinecraftLauncher {
         if (file.isDirectory() || addedCP.contains(parsedName)) continue;
 
         cpb.append(File.pathSeparator);
-        cpb.append(file.getAbsolutePath());
+        cpb.append(parseFileName(file));
         addedCP.add(parsedName);
       }
     }
@@ -69,7 +74,7 @@ public class MinecraftLauncher {
         }
         if (file.isDirectory() || addedCP.contains(parsedName)) continue;
         cpb.append(Utils.getJavaDelimiter());
-        cpb.append(file.getAbsolutePath());
+        cpb.append(parseFileName(file));
         addedCP.add(parsedName);
       }
     }
@@ -98,10 +103,12 @@ public class MinecraftLauncher {
         }
       }
     }
-    arguments.add("-Djava.library.path=" + server.getNativesDir().getAbsolutePath());
-    arguments.add("-Duser.home=" + server.getMinecraftDir());
+    arguments.add("-Djava.library.path=" + parseFileName(server.getNativesDir()));
+    arguments.add("-Duser.home=" + parseFileName(server.getMinecraftDir()));
     //
-    arguments.add("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
+    if (Utils.getCurrentOS() == OS.WINDOWS) {
+      arguments.add("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
+    }
     arguments.add("-cp");
     arguments.add(cpb.toString());
     arguments.add("net.minecraft.launchwrapper.Launch");
@@ -109,9 +116,9 @@ public class MinecraftLauncher {
       if (s.equalsIgnoreCase("${auth_player_name}")) {
         s = identity.getName();
       } else if (s.equalsIgnoreCase("${game_directory}")) {
-        s = server.getMinecraftDir().getAbsolutePath();
+        s = parseFileName(server.getMinecraftDir());
       } else if (s.equalsIgnoreCase("${assets_root}")) {
-        s = new File(DirectoryLocations.BACKEND_ASSET_DIR.get()).getAbsolutePath();
+        s = parseFileName(new File(DirectoryLocations.BACKEND_ASSET_DIR.get()));
       } else if (s.equalsIgnoreCase("${assets_index_name}")) {
         s = "1.7.10";
       } else if (s.equalsIgnoreCase("${auth_uuid}")) {
