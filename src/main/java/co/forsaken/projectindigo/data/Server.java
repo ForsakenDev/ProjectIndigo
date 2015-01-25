@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.DecimalFormat;
@@ -101,12 +100,20 @@ import com.google.gson.JsonSyntaxException;
   }
 
   public boolean needsDownload() {
+    boolean versionUpdate = false;
     if (getLockFile().exists()) {
       try {
-        if (FileUtils.readFileToString(getLockFile()).equalsIgnoreCase(getToken().version)) { return false; }
+        if (FileUtils.readFileToString(getLockFile()).equalsIgnoreCase(getToken().version)) {
+          return false;
+        } else {
+          versionUpdate = true;
+        }
       } catch (IOException e) {
         e.printStackTrace();
       }
+    }
+    if (versionUpdate) {
+      JOptionPane.showMessageDialog(null, "There has been an update to the modpack that the server uses. \nRedownloading pack to bring you up to date");
     }
     return true;
   }
