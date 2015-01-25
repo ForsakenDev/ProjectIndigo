@@ -114,7 +114,6 @@ public class AtLauncherServerLoader extends ServerLoader {
           continue;
         }
         Document doc = getModpack(t.name, vt.version);
-
         NodeList mods = doc.getElementsByTagName("mod");
         for (int i = 0; i < mods.getLength(); i++) {
           NamedNodeMap mod = mods.item(i).getAttributes();
@@ -141,7 +140,7 @@ public class AtLauncherServerLoader extends ServerLoader {
             }
           }
           Mod m = new Mod(name, authors, API_BASE + url, website, ty);
-          server.getModList().put(mod.getNamedItem("name").getTextContent(), m);
+          server.getModList().put(name, m);
         }
         for (Mod m : getMojangLibraries(server, vt.minecraft)) {
           server.getModList().put(m.getName(), m);

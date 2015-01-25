@@ -105,7 +105,6 @@ public class MinecraftLauncher {
     }
     arguments.add("-Djava.library.path=" + parseFileName(server.getNativesDir()));
     arguments.add("-Duser.home=" + parseFileName(server.getMinecraftDir()));
-    //
     if (Utils.getCurrentOS() == OS.WINDOWS) {
       arguments.add("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
     }

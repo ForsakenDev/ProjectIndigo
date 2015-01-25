@@ -72,17 +72,21 @@ import co.forsaken.projectindigo.utils.Utils;
     new AsyncJsonWebCall("http://info.forsaken.co/server/getActive").execute(ActiveServersToken.class, new Callback<ActiveServersToken>() {
       public void run(final ActiveServersToken result) {
         for (final ServerToken t : result.servers) {
-          Server s = new Server(t);
-          if (s != null && s.online) {
-            s.finishedLoading();
-            if (activeServer == null) {
-              setServer(s);
+          new Thread() {
+            public void run() {
+              Server s = new Server(t);
+              if (s != null && s.online) {
+                s.finishedLoading();
+                if (activeServer == null) {
+                  setServer(s);
+                }
+                addServer(s);
+                servers.put(t.name, s);
+              } else {
+                LogManager.error(t.friendlyName + " repository seems to be offline, this is " + t.modpackType + "'s fault");
+              }
             }
-            addServer(s);
-            servers.put(t.name, s);
-          } else {
-            LogManager.error(t.friendlyName + " repository seems to be offline, this is " + t.modpackType + "'s fault");
-          }
+          }.start();
         }
       }
     });
@@ -92,7 +96,7 @@ import co.forsaken.projectindigo.utils.Utils;
     headerBox = new RoundedBox(MainPanel.BORDER_COLOUR);
     headerBox.setBounds((getWidth() - (getWidth() - (PADDING * 2))) / 2, PADDING, getWidth() - (PADDING * 2), 60);
 
-    serverNameLabel = new Label(this, "");
+    serverNameLabel = new Label(this, "Loading modpacks....");
     serverNameLabel.setFont(IndigoLauncher.getMinecraftFont(24));
     serverNameLabel.setBounds(headerBox.getX() + PADDING, headerBox.getY() + ((headerBox.getHeight() - 26) / 2), (int) (headerBox.getWidth() * 0.75), 26);
 

@@ -8,8 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.jar.JarEntry;
@@ -47,9 +45,7 @@ public class FileDownloader {
   }
 
   public FileDownloader(Server server, String downloadURL, String dir, boolean _addToOrder) {
-    try {
-      _rawDownloadURL = new URI(downloadURL).toASCIIString();
-    } catch (URISyntaxException e1) {}
+    _rawDownloadURL = downloadURL;
     _baseDir = dir;
     addToOrder = _addToOrder;
     if (addToOrder) {
@@ -154,12 +150,8 @@ public class FileDownloader {
   public Runnable download(final Server server, final ProgressPanel panel) throws IOException {
     return new Runnable() {
       public void run() {
-        try {
-          if (_rawDownloadURL != null && !_rawDownloadURL.isEmpty()) {
-            downloadFile(server, panel);
-          }
-        } catch (IOException e) {
-          e.printStackTrace();
+        if (_rawDownloadURL != null && !_rawDownloadURL.isEmpty()) {
+          downloadFile(server, panel);
         }
       }
     };
@@ -175,31 +167,48 @@ public class FileDownloader {
     return "jar";
   }
 
-  private boolean downloadFile(Server server, ProgressPanel panel) throws IOException {
-    String jarFileName = getFilename();
-    File downloadedFile = new File(_baseDir, jarFileName);
-    LogManager.info("Downloading " + jarFileName + " to \"" + _baseDir + "\"");
-    if (!new File(_baseDir).exists()) {
-      new File(_baseDir).mkdir();
-    }
-    HttpURLConnection dlConnection = getConnection();
-    if (downloadedFile.exists()) {
-      FileUtils.deleteDirectory(downloadedFile);
-    }
-    InputStream dlStream = dlConnection.getInputStream();
-    FileOutputStream outStream = new FileOutputStream(downloadedFile);
-    byte[] buffer = new byte[24000];
-    int readLen;
+  private boolean downloadFile(Server server, ProgressPanel panel) {
+    HttpURLConnection dlConnection = null;
     int currentDLSize = 0;
-    while ((readLen = dlStream.read(buffer, 0, buffer.length)) != -1) {
-      outStream.write(buffer, 0, readLen);
-      currentDLSize += readLen;
-      server.addDownloadSize(panel, "Downloading", jarFileName, readLen);
+    String jarFileName = null;
+    try {
+      jarFileName = getFilename();
+    } catch (MalformedURLException e1) {
+      e1.printStackTrace();
     }
-    dlStream.close();
-    outStream.close();
-
-    if (dlConnection instanceof HttpURLConnection && (currentDLSize == _fileSize || _fileSize <= 0)) {
+    File downloadedFile = new File(_baseDir, jarFileName);
+    try {
+      LogManager.info("Downloading " + jarFileName + " to \"" + _baseDir + "\"");
+      if (!new File(_baseDir).exists()) {
+        new File(_baseDir).mkdir();
+      }
+      dlConnection = getConnection();
+      if (downloadedFile.exists()) {
+        FileUtils.deleteDirectory(downloadedFile);
+      }
+      InputStream dlStream = dlConnection.getInputStream();
+      FileOutputStream outStream = new FileOutputStream(downloadedFile);
+      byte[] buffer = new byte[24000];
+      int readLen;
+      while ((readLen = dlStream.read(buffer, 0, buffer.length)) != -1) {
+        outStream.write(buffer, 0, readLen);
+        currentDLSize += readLen;
+        server.addDownloadSize(panel, "Downloading", jarFileName, readLen);
+      }
+      dlStream.close();
+      outStream.close();
+    } catch (IOException ex) {
+      LogManager.error("There was an exception while downloading " + jarFileName + "");
+      LogManager.error("Exception: " + ex.getMessage());
+      StackTraceElement[] arrOfSTE;
+      int max = (arrOfSTE = ex.getStackTrace()).length;
+      for (int i = 0; i < max; i++) {
+        StackTraceElement trace = arrOfSTE[i];
+        LogManager.error(trace.toString());
+      }
+      return false;
+    }
+    if (dlConnection != null && dlConnection instanceof HttpURLConnection && (currentDLSize == _fileSize || _fileSize <= 0)) {
       LogManager.info("Finished downloading " + jarFileName);
       _downloadedFile = downloadedFile;
       if (shouldExtract()) {

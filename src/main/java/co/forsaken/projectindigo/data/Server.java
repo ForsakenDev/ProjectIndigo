@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.DecimalFormat;
@@ -195,7 +196,9 @@ import com.google.gson.JsonSyntaxException;
     }
     if (!modList.isEmpty()) {
       for (Mod m : modList.values()) {
-        if (m.getDownloadUrl() == null || m.getDownloadUrl().isEmpty()) continue;
+        if (m.getDownloadUrl() == null || m.getDownloadUrl().isEmpty()) {
+          continue;
+        }
         switch (m.getType()) {
           default:
           case optionalMod:
@@ -236,7 +239,6 @@ import com.google.gson.JsonSyntaxException;
       downloads.add(new FileDownloader(this, "http://files.player.to/fastcraft-1.16.jar", getModsDir().getAbsolutePath(), false));
     }
     downloads.add(new FileDownloader(this, "http://indigo.forsaken.co/downloads/MinecraftLoader%200.1.3%20mc1.7.10.jar", getModsDir().getAbsolutePath(), false));
-
   }
 
   public boolean isFinishedDownloading() {

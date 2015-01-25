@@ -68,6 +68,12 @@ public class JsonWebCall {
 
   public String executeRet(Object arg) {
     if (_log) System.out.println("Requested: [" + _url + "]");
+    try {
+      canConnect();
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      return null;
+    }
     HttpClient httpClient = new DefaultHttpClient(_connectionManager);
     InputStream in = null;
     String res = null;
@@ -109,6 +115,12 @@ public class JsonWebCall {
 
   public String executeGet() {
     if (_log) System.out.println("Requested: [" + _url + "]");
+    try {
+      canConnect();
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      return null;
+    }
     HttpClient httpClient = new DefaultHttpClient(_connectionManager);
     InputStream in = null;
     String res = null;
@@ -145,6 +157,12 @@ public class JsonWebCall {
 
   public void execute(Object arg) {
     if (_log) System.out.println("Requested: [" + _url + "]");
+    try {
+      canConnect();
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      return;
+    }
     HttpClient httpClient = new DefaultHttpClient(_connectionManager);
     try {
       Gson gson = new Gson();
@@ -171,6 +189,12 @@ public class JsonWebCall {
 
   public <T> T execute(Class<T> retType, Object arg) {
     if (_log) System.out.println("Requested: [" + _url + "]");
+    try {
+      canConnect();
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      return null;
+    }
     HttpClient httpClient = new DefaultHttpClient(_connectionManager);
     InputStream in = null;
     T returnData = null;
@@ -213,8 +237,7 @@ public class JsonWebCall {
     return returnData;
   }
 
-  public <T> T executeGet(Class<T> retType, boolean encapsulate) throws Exception {
-    if (_log) System.out.println("Requested: [" + _url + "]");
+  private boolean canConnect() throws Exception {
     try {
       HttpURLConnection.setFollowRedirects(false);
       HttpURLConnection con = (HttpURLConnection) new URL(_url).openConnection();
@@ -223,12 +246,22 @@ public class JsonWebCall {
       con.setConnectTimeout(2000);
 
       if (con.getResponseCode() != HttpURLConnection.HTTP_OK) { throw new Exception("Service " + _url + " unavailable, oh no!"); }
+      return true;
     } catch (java.net.SocketTimeoutException e) {
       throw new Exception("Service " + _url + " unavailable, oh no!", e);
     } catch (java.io.IOException e) {
       throw new Exception("Service " + _url + " unavailable, oh no!", e);
     }
+  }
 
+  public <T> T executeGet(Class<T> retType, boolean encapsulate) throws Exception {
+    if (_log) System.out.println("Requested: [" + _url + "]");
+    try {
+      canConnect();
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      return null;
+    }
     HttpClient httpClient = new DefaultHttpClient(_connectionManager);
     InputStream in = null;
     T returnData = null;
@@ -268,6 +301,12 @@ public class JsonWebCall {
 
   public <T> void execute(Class<T> callbackClass, Callback<T> callback, Object arg) {
     if (_log) System.out.println("Requested: [" + _url + "]");
+    try {
+      canConnect();
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      return;
+    }
     HttpClient httpClient = new DefaultHttpClient(_connectionManager);
     InputStream in = null;
     String res = null;
