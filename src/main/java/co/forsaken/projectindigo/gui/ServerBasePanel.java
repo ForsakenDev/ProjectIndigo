@@ -73,6 +73,7 @@ import co.forsaken.projectindigo.utils.Utils;
   }
 
   public void loadServers() {
+    activeServer = null;
     servers.clear();
     for (Button b : otherServersButtons.values()) {
       b.setVisible(false);
