@@ -69,6 +69,23 @@ import co.forsaken.projectindigo.utils.Utils;
 
   public ServerBasePanel(MainPanel mainPanel) {
     super(mainPanel, 1);
+    loadServers();
+  }
+
+  public void loadServers() {
+    servers.clear();
+    for (Button b : otherServersButtons.values()) {
+      b.setVisible(false);
+      remove(b);
+    }
+    otherServersButtons.clear();
+    if (serverNameLabel != null) {
+      serverNameLabel.setText("Loading modpacks....");
+      serverDescriptionPane.setText("");
+      serverIPLabel.setText("");
+      serverOnlineUsersLabel.setText("");
+      modPane.setText("");
+    }
     new AsyncJsonWebCall("http://info.forsaken.co/server/getActive").execute(ActiveServersToken.class, new Callback<ActiveServersToken>() {
       public void run(final ActiveServersToken result) {
         for (final ServerToken t : result.servers) {

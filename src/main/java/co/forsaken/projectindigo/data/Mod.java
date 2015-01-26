@@ -13,7 +13,7 @@ import lombok.Getter;
   private ModType      type;
 
   public static enum ModType {
-    mod, resourcePack, library, optionalMod, config, global, minecraft, forge, natives, resource;
+    mod, resourcePack, library, optionalMod, config, global, minecraft, forge, natives, resource, assets;
   }
 
   public Mod(String _name, List<String> _authors, String _downloadUrl, String _infoUrl, ModType _type) {

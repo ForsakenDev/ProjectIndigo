@@ -67,49 +67,48 @@ public abstract class ServerLoader {
     return Integer.parseInt(version);
   }
 
-  private void loadResources(final String version) {
-    new Thread() {
-      public void run() {
-        File objectsFolder = new File(DirectoryLocations.BACKEND_ASSET_DIR.format("objects/"));
-        File indexesFolder = new File(DirectoryLocations.BACKEND_ASSET_DIR.format("indexes/"));
-        File virtualFolder = new File(DirectoryLocations.BACKEND_ASSET_DIR.format("virtual/"));
-        File virtualRoot = new File(virtualFolder, version);
-        File indexFile = new File(indexesFolder, version + ".json");
-        objectsFolder.mkdirs();
-        indexesFolder.mkdirs();
-        virtualFolder.mkdirs();
-        if (indexFile.exists()) { return; }
-        try {
-          org.apache.commons.io.FileUtils.copyURLToFile(new URL(MOJANG_DOWNLOAD_BASE + "indexes/" + version + ".json"), indexFile);
-          AssetIndex index = (AssetIndex) (new Gson()).fromJson(new FileReader(indexFile), AssetIndex.class);
-          if (index.isVirtual()) {
-            virtualRoot.mkdirs();
-          }
+  private List<Mod> getResources(final String version, final Server server) {
+    List<Mod> mods = new ArrayList<Mod>();
+    File objectsFolder = new File(DirectoryLocations.BACKEND_ASSET_DIR.format("objects/"));
+    File indexesFolder = new File(DirectoryLocations.BACKEND_ASSET_DIR.format("indexes/"));
+    File virtualFolder = new File(DirectoryLocations.BACKEND_ASSET_DIR.format("virtual/"));
+    File virtualRoot = new File(virtualFolder, version);
+    File indexFile = new File(indexesFolder, version + ".json");
+    objectsFolder.mkdirs();
+    indexesFolder.mkdirs();
+    virtualFolder.mkdirs();
+    try {
+      org.apache.commons.io.FileUtils.copyURLToFile(new URL(MOJANG_DOWNLOAD_BASE + "indexes/" + version + ".json"), indexFile);
+      AssetIndex index = (AssetIndex) (new Gson()).fromJson(new FileReader(indexFile), AssetIndex.class);
+      if (index.isVirtual()) {
+        virtualRoot.mkdirs();
+      }
 
-          for (Map.Entry<String, AssetObject> entry : index.getObjects().entrySet()) {
-            AssetObject object = entry.getValue();
-            String filename = object.getHash().substring(0, 2) + "/" + object.getHash();
-            File file = new File(objectsFolder, filename);
-            File virtualFile = new File(virtualRoot, entry.getKey());
-            if (object.needToDownload(file)) {
-              org.apache.commons.io.FileUtils.copyURLToFile(new URL(MOJANG_RESOURCES_BASE + filename), new File(objectsFolder, filename));
-            } else {
-              if (index.isVirtual()) {
-                virtualFile.mkdirs();
-                FileUtils.copyFile(file, virtualFile, true);
-              }
-            }
+      for (Map.Entry<String, AssetObject> entry : index.getObjects().entrySet()) {
+        AssetObject object = entry.getValue();
+        String filename = object.getHash().substring(0, 2) + "/" + object.getHash();
+        String folderName = object.getHash().substring(0, 2);
+        File folder = new File(objectsFolder, folderName + "/");
+        if (!folder.exists()) folder.mkdirs();
+        File file = new File(objectsFolder, filename);
+        File virtualFile = new File(virtualRoot, entry.getKey());
+        if (object.needToDownload(file) && !file.exists()) {
+          mods.add(new Mod(object.getHash(), new ArrayList<String>(), MOJANG_RESOURCES_BASE + filename, folder.getAbsolutePath(), ModType.assets));
+        } else {
+          if (index.isVirtual()) {
+            virtualFile.mkdirs();
+            FileUtils.copyFile(file, virtualFile, true);
           }
-        } catch (JsonSyntaxException e) {
-          e.printStackTrace();
-        } catch (JsonIOException e) {
-          e.printStackTrace();
-        } catch (IOException e) {
-          e.printStackTrace();
         }
       }
-    }.start();
-    ;
+    } catch (JsonSyntaxException e) {
+      e.printStackTrace();
+    } catch (JsonIOException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    return mods;
   }
 
   public List<Mod> getMojangLibraries(Server server, String version) {
@@ -130,7 +129,7 @@ public abstract class ServerLoader {
         }
       }
     }
-    loadResources(version);
+    mods.addAll(getResources(version, server));
     server.setLaunchArgs(token.getMinecraftArguments());
     return mods;
   }

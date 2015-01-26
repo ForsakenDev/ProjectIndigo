@@ -3,6 +3,7 @@ package co.forsaken.projectindigo.data;
 import java.awt.Desktop;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -29,10 +30,12 @@ import co.forsaken.projectindigo.data.tokens.ServerToken;
 import co.forsaken.projectindigo.gui.LoginPanel;
 import co.forsaken.projectindigo.gui.MainPanel;
 import co.forsaken.projectindigo.gui.ProgressPanel;
+import co.forsaken.projectindigo.gui.ServerBasePanel;
 import co.forsaken.projectindigo.gui.SettingsPanel;
 import co.forsaken.projectindigo.log.LogManager;
 import co.forsaken.projectindigo.mclaunch.MinecraftLauncher;
 import co.forsaken.projectindigo.utils.DirectoryLocations;
+import co.forsaken.projectindigo.utils.NbtUtils;
 import co.forsaken.projectindigo.utils.ServerLoader;
 import co.forsaken.projectindigo.utils.atlauncher.AtLauncherServerLoader;
 import co.forsaken.projectindigo.utils.ftb.FtbServerLoader;
@@ -40,6 +43,7 @@ import co.forsaken.projectindigo.utils.ftb.tokens.Artifact;
 import co.forsaken.projectindigo.utils.ftb.tokens.PackToken;
 import co.forsaken.projectindigo.utils.ftb.tokens.PackToken.Library;
 import co.forsaken.projectindigo.utils.technic.TechnicServerLoader;
+import co.forsaken.projectindigo.utils.tokens.NbtServerToken;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -236,6 +240,9 @@ import com.google.gson.JsonSyntaxException;
           case resource:
             downloads.add(new FileDownloader(this, m.getDownloadUrl(), m.getInfoUrl(), m.getName(), false));
             break;
+          case assets:
+            downloads.add(new FileDownloader(this, m.getDownloadUrl(), m.getInfoUrl(), m.getName(), false));
+            break;
         }
       }
     }
@@ -333,7 +340,7 @@ import com.google.gson.JsonSyntaxException;
           }
 
           try {
-            new File(getMinecraftDir(), "servers.dat").delete();
+            // new File(getMinecraftDir(), "servers.dat").delete();
             getLockFile().createNewFile();
             co.forsaken.projectindigo.utils.FileUtils.writeStringToFile(getToken().version, getLockFile());
           } catch (IOException e) {
@@ -390,9 +397,23 @@ import com.google.gson.JsonSyntaxException;
     }
   }
 
+  public void writeServerFile() throws FileNotFoundException, IOException {
+    ArrayList<NbtServerToken> tokens = new ArrayList<NbtServerToken>();
+    tokens.add(new NbtServerToken("tFn - Lobby", "mc.forsaken.co"));
+    tokens.add(new NbtServerToken("tFn - " + getToken().friendlyName + " v" + getToken().version, getToken().friendlyIp));
+    NbtUtils.writeServersToFile(tokens, new File(getMinecraftDir(), "servers.dat"));
+  }
+
   public void launch(final MainPanel panel) {
     Thread launcher = new Thread() {
       public void run() {
+        try {
+          writeServerFile();
+        } catch (FileNotFoundException e2) {
+          e2.printStackTrace();
+        } catch (IOException e2) {
+          e2.printStackTrace();
+        }
         cleanupLibs();
         try {
           LogManager.info("Launching pack " + getToken().friendlyName + " " + getToken().version + " for " + "Minecraft 1.7.10");
@@ -432,7 +453,7 @@ import com.google.gson.JsonSyntaxException;
               }
             }
           }
-
+          ((ServerBasePanel) panel.getPanel(1)).loadServers();
           IndigoLauncher._launcher.setVisible(true);
 
         } catch (IOException e1) {

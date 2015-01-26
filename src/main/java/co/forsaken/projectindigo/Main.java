@@ -18,4 +18,5 @@ public class Main {
     LogManager.start();
     AutoUpdater.main(args);
   }
+
 }

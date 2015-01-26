@@ -17,7 +17,9 @@ import co.forsaken.projectindigo.utils.Utils.OS;
 
 public class MinecraftLauncher {
   private static String parseFileName(File file) {
-    return file.getAbsolutePath();
+    String path = file.getAbsolutePath();
+    if (!path.endsWith(File.separator)) path += File.separator;
+    return path;
   }
 
   public static Process launchMinecraft(Server server, Identity identity, Settings settings) throws IOException {
@@ -117,7 +119,7 @@ public class MinecraftLauncher {
       } else if (s.equalsIgnoreCase("${game_directory}")) {
         s = parseFileName(server.getMinecraftDir());
       } else if (s.equalsIgnoreCase("${assets_root}")) {
-        s = parseFileName(new File(DirectoryLocations.BACKEND_ASSET_DIR.get()));
+        s = DirectoryLocations.BACKEND_ASSET_DIR.get();
       } else if (s.equalsIgnoreCase("${assets_index_name}")) {
         s = "1.7.10";
       } else if (s.equalsIgnoreCase("${auth_uuid}")) {
@@ -147,6 +149,7 @@ public class MinecraftLauncher {
     ProcessBuilder processBuilder = new ProcessBuilder(arguments);
     LogManager.info("Setting working dir to " + server.getMinecraftDir().getAbsolutePath());
     LogManager.info("Launch Arguments: " + argsString);
+    System.out.println("Launch Arguments: " + argsString);
     processBuilder.directory(new File(server.getMinecraftDir().getAbsolutePath()));
     processBuilder.redirectErrorStream(true);
     processBuilder.environment().remove("_JAVA_OPTIONS");

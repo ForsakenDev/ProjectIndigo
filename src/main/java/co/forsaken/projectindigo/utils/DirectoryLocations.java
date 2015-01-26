@@ -4,7 +4,9 @@ import java.io.File;
 
 public enum DirectoryLocations {
 
-  BACKEND_INSTALL_DIR(Utils.getDynamicStorageLocation()), BACKEND_DATA_DIR(BACKEND_INSTALL_DIR.format("data/")), BACKEND_LOG_DIR(BACKEND_INSTALL_DIR.format("logs/")), BACKEND_ASSET_DIR(BACKEND_INSTALL_DIR.format("assets/")), INSTANCE_DIR(BACKEND_INSTALL_DIR
+  BACKEND_INSTALL_DIR(Utils.getDynamicStorageLocation()), BACKEND_DATA_DIR(BACKEND_INSTALL_DIR.format("data/")),
+  BACKEND_LOG_DIR(BACKEND_INSTALL_DIR.format("logs/")), BACKEND_ASSET_DIR(BACKEND_INSTALL_DIR.format("assets/")), 
+  INSTANCE_DIR(BACKEND_INSTALL_DIR
       .format("instances/")), BACKEND_CACHE_DIR(BACKEND_DATA_DIR.format("cache/"));
 
   private String basePath;
