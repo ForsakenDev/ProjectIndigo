@@ -96,7 +96,7 @@ import co.forsaken.projectindigo.utils.Utils;
               Server s = new Server(t);
               if (s != null && s.online) {
                 s.finishedLoading();
-                if (activeServer == null) {
+                if (activeServer == null && (9 - Integer.parseInt(s.getToken().order)) == 1) {
                   setServer(s);
                 }
                 addServer(s);
