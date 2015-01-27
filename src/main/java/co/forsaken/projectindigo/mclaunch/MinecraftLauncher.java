@@ -22,7 +22,7 @@ public class MinecraftLauncher {
     return path;
   }
 
-  public static Process launchMinecraft(Server server, Identity identity, Settings settings) throws IOException {
+  public static Process launchMinecraft(Server server, Identity identity, Settings settings, boolean autoLogin) throws IOException {
     List<String> addedCP = new ArrayList<String>();
     StringBuilder cpb = new StringBuilder("");
 
@@ -145,7 +145,9 @@ public class MinecraftLauncher {
     }
 
     arguments.add("--tweakClass=cpw.mods.fml.common.launcher.FMLTweaker");
-    arguments.add("--server=" + server.getToken().friendlyIp);
+    if (autoLogin) {
+      arguments.add("--server=" + server.getToken().friendlyIp);
+    }
     ProcessBuilder processBuilder = new ProcessBuilder(arguments);
     LogManager.info("Setting working dir to " + server.getMinecraftDir().getAbsolutePath());
     LogManager.info("Launch Arguments: " + argsString);

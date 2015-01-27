@@ -263,7 +263,7 @@ import com.google.gson.JsonSyntaxException;
     numLoadedDownloads++;
   }
 
-  public boolean download(final ProgressPanel panel) throws IOException {
+  public boolean download(final ProgressPanel panel, final boolean autoLogin) throws IOException {
     new Thread() {
       public void run() {
         long downloadStartTime = System.currentTimeMillis();
@@ -347,7 +347,7 @@ import com.google.gson.JsonSyntaxException;
             e.printStackTrace();
           }
           panel.getMainPanel().switchPage(1);
-          launch(panel.getMainPanel());
+          launch(panel.getMainPanel(), autoLogin);
         } catch (InterruptedException e) {
           e.printStackTrace();
         }
@@ -404,7 +404,7 @@ import com.google.gson.JsonSyntaxException;
     NbtUtils.writeServersToFile(tokens, new File(getMinecraftDir(), "servers.dat"));
   }
 
-  public void launch(final MainPanel panel) {
+  public void launch(final MainPanel panel, final boolean autoLogin) {
     Thread launcher = new Thread() {
       public void run() {
         try {
@@ -420,7 +420,7 @@ import com.google.gson.JsonSyntaxException;
           IndigoLauncher._launcher.setVisible(false);
           Process process = null;
           try {
-            process = MinecraftLauncher.launchMinecraft(Server.this, ((LoginPanel) panel.getPanel(0)).getLoginResponse(), ((SettingsPanel) panel.getPanel(3)).getSettings());
+            process = MinecraftLauncher.launchMinecraft(Server.this, ((LoginPanel) panel.getPanel(0)).getLoginResponse(), ((SettingsPanel) panel.getPanel(3)).getSettings(), autoLogin);
           } catch (IOException ex) {
             ex.printStackTrace();
           }

@@ -50,6 +50,7 @@ import co.forsaken.projectindigo.utils.Utils;
   private RoundedBox          otherServersBox;
   private Map<String, Button> otherServersButtons = new HashMap<String, Button>();
   private Button              joinButton;
+  private Button              startButton;
   private Button              editButton;
   private Button              settingsButton;
   private Button              forceUpdateButton;
@@ -168,8 +169,13 @@ import co.forsaken.projectindigo.utils.Utils;
     joinButton.addActionListener(this);
     joinButton.setActionCommand("CONNECT");
 
+    startButton = new Button(this, "Launch Pack");
+    startButton.setBounds(actionsBox.getX() + ((actionsBox.getWidth() - 180) / 2), (joinButton.getY() + joinButton.getHeight()) + (PADDING / 2), 180, 25);
+    startButton.addActionListener(this);
+    startButton.setActionCommand("START");
+
     editButton = new Button(this, "Edit Modpack");
-    editButton.setBounds(actionsBox.getX() + ((actionsBox.getWidth() - 180) / 2), (joinButton.getY() + joinButton.getHeight()) + (PADDING / 2), 180, 25);
+    editButton.setBounds(actionsBox.getX() + ((actionsBox.getWidth() - 180) / 2), (startButton.getY() + startButton.getHeight()) + (PADDING / 2), 180, 25);
     editButton.addActionListener(this);
     editButton.setActionCommand("EDIT");
 
@@ -314,7 +320,7 @@ import co.forsaken.projectindigo.utils.Utils;
   }
 
   @Override public void actionPerformed(ActionEvent e) {
-    if (e.getActionCommand().equals("CONNECT") || e.getActionCommand().equals("UPDATE")) {
+    if (e.getActionCommand().equals("CONNECT") || e.getActionCommand().equals("UPDATE") || e.getActionCommand().equals("START")) {
       if (e.getActionCommand().equals("UPDATE")) {
         forceUpdateButton.setText("Forcing update");
         launched = false;
@@ -326,12 +332,12 @@ import co.forsaken.projectindigo.utils.Utils;
           getMainPanel().switchPage(-1);
           ((ProgressPanel) getMainPanel().getPanel(-1)).stateChanged("Checking closest download server", "[0/0]", 0);
           activeServer.cleanup();
-          activeServer.download((ProgressPanel) getMainPanel().getPanel(-1));
+          activeServer.download((ProgressPanel) getMainPanel().getPanel(-1), e.getActionCommand().equals("CONNECT"));
         } catch (IOException e1) {
           e1.printStackTrace();
         }
       } else {
-        activeServer.launch(getMainPanel());
+        activeServer.launch(getMainPanel(), e.getActionCommand().equals("CONNECT"));
       }
 
     } else if (e.getActionCommand().equals("EDIT")) {
