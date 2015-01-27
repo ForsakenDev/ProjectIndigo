@@ -1,19 +1,6 @@
-<h1>Welcome to Project Indigo!</h1>
+<h2>What is Project Indigo?</h2>
+Wouldn't it be nice if there was one Launcher that could hook into your server and provide only the modpacks you have available. Well that's what Project Indigo does!
 
-Project Indigo is an open source project designed to replace the long prevelant "mod-pack" methodology in the Minecraft
-modding community.
-Instead of having a select few packs available and server owners having to make due with the mods and configuration 
-forced upon them by the pack, server owners decide the mods and configs for their own server. Project
-Indigo will automatically keep the clients up to date with the server mods.
+We currently hook directly into <a href="http://feed-the-beast.com">Feed-The-Beast</a>, <a href="http://atlauncher.com">AtLauncher</a> and the <a href="http://technicpack.net">Technic Launcher</a> and will automatically fetch modpacks directly from their sources so you don't have to host any files yourself. We also include the same information that these launchers include for these modpacks (Descriptions, Mod Listings). All you need to do is provide the launcher with a URL that contains basic information about your server and we take care of the rest. It also handles updates based off of your server rather than the modpack!
 
-Bugs can be fixed and mods can be changed all on the fly, without having to worry about client-server compatibility.
-
-This offers server owners a whole new level of flexibility in the features, style and gameplay they want for
-their server.
-
-<h3>Sounds great! How can I help!?</h3>
-
-Again, this is an open source project. If you find a bug you can either report it to us, or even fork it, fix it,
-and create a pull request.
-
-<h4>Happy modding!<h4>
+For the moment if this launcher is unique to <a href="http://www.forsaken.co">The Forsaken Network</a>, however if you would like to have this available to your server as well, please contact our <a href="http://www.twitter.com/itsryanvanZeben">main developer</a> and we will see what we can do for you.
