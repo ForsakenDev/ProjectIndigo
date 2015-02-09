@@ -214,7 +214,7 @@ import com.google.gson.JsonSyntaxException;
           default:
           case optionalMod:
           case mod:
-            downloads.add(new FileDownloader(this, m.getDownloadUrl(), getModsDir().getAbsolutePath(), false, false));
+            downloads.add(new FileDownloader(this, m.getDownloadUrl(), getModsDir().getAbsolutePath(), m.getDownloadUrl().endsWith(".zip"), false));
             break;
           case config:
             downloads.add(new FileDownloader(this, m.getDownloadUrl(), getConfigDir().getAbsolutePath(), true, false));
