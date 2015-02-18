@@ -4,7 +4,7 @@
 	<groupId>co.forsaken</groupId>
 	<artifactId>projectindigo</artifactId>
 	<name>ProjectIndigo</name>
-	<version>2.1.0.9</version>
+	<version>2.1.1.0</version>
 	<organization>
 		<name>Forsaken Network LLC</name>
 		<url>http://www.forsaken.co</url>
@@ -51,12 +51,6 @@
 			<artifactId>junit</artifactId>
 			<version>4.11</version>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.google.code.gson</groupId>
-			<artifactId>gson</artifactId>
-			<version>2.2.4</version>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.googlecode.json-simple</groupId>

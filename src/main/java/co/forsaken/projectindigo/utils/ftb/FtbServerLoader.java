@@ -33,10 +33,11 @@ import com.google.gson.Gson;
 
 public class FtbServerLoader extends ServerLoader {
 
-  private static final String              FTB_BaseInfoLoc     = "http://ftb.cursecdn.com/FTB2/static/";
-  private static final String              FTB_BaseDownloadLoc = "http://ftb.cursecdn.com/FTB2/modpacks/";
-
-  private static HashMap<String, Document> ftbModpackInfo      = new HashMap<String, Document>();
+  private static final String              FTB_BaseInfoLoc        = "http://ftb.cursecdn.com/FTB2/static/";
+  private static final String              FTB_BaseDownloadLoc    = "http://ftb.cursecdn.com/FTB2/modpacks/";
+  private static final String              FTB_PrivateDownloadLoc = "http://ftb.cursecdn.com/FTB2/privatepacks/";
+  private static boolean                   isPrivatePack          = false;
+  private static HashMap<String, Document> ftbModpackInfo         = new HashMap<String, Document>();
 
   public FtbServerLoader(Server _server) {
     super(_server, true);
@@ -84,7 +85,14 @@ public class FtbServerLoader extends ServerLoader {
   }
 
   @Override public boolean load(Server server) {
-    return loadPack("modpacks.xml", server) | loadPack("thirdparty.xml", server);
+    if (!loadPack("modpacks.xml", server) | loadPack("thirdparty.xml", server)) {
+      if (loadPack(server.getToken().friendlyName + ".xml", server)) {
+        isPrivatePack = true;
+        return true;
+      }
+      return false;
+    }
+    return true;
   }
 
   private boolean loadPack(String type, Server server) {
@@ -161,6 +169,7 @@ public class FtbServerLoader extends ServerLoader {
   }
 
   public String getDownloadUrl(Server server) {
+    if (isPrivatePack) { return FTB_PrivateDownloadLoc + server.getToken().modpackRefName + "/" + server.getToken().version.replace(".", "_") + "/" + server.getUrl(); }
     return FTB_BaseDownloadLoc + server.getToken().modpackRefName + "/" + server.getToken().version.replace(".", "_") + "/" + server.getUrl();
   }
 
