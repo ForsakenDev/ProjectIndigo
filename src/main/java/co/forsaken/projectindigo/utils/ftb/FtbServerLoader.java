@@ -36,7 +36,7 @@ public class FtbServerLoader extends ServerLoader {
   private static final String              FTB_BaseInfoLoc        = "http://ftb.cursecdn.com/FTB2/static/";
   private static final String              FTB_BaseDownloadLoc    = "http://ftb.cursecdn.com/FTB2/modpacks/";
   private static final String              FTB_PrivateDownloadLoc = "http://ftb.cursecdn.com/FTB2/privatepacks/";
-  private static boolean                   isPrivatePack          = false;
+  private boolean                          isPrivatePack          = false;
   private static HashMap<String, Document> ftbModpackInfo         = new HashMap<String, Document>();
 
   public FtbServerLoader(Server _server) {
@@ -85,7 +85,7 @@ public class FtbServerLoader extends ServerLoader {
   }
 
   @Override public boolean load(Server server) {
-    if (!loadPack("modpacks.xml", server) && !loadPack("thirdparty.xml", server)) {
+    if (!(loadPack("modpacks.xml", server) | loadPack("thirdparty.xml", server))) {
       if (loadPack(server.getToken().friendlyName + ".xml", server)) {
         isPrivatePack = true;
         return true;
