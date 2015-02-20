@@ -85,7 +85,7 @@ public class FtbServerLoader extends ServerLoader {
   }
 
   @Override public boolean load(Server server) {
-    if (!loadPack("modpacks.xml", server) | loadPack("thirdparty.xml", server)) {
+    if (!loadPack("modpacks.xml", server) && !loadPack("thirdparty.xml", server)) {
       if (loadPack(server.getToken().friendlyName + ".xml", server)) {
         isPrivatePack = true;
         return true;
